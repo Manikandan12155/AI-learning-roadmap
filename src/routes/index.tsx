@@ -32,16 +32,16 @@ import iconAgent from "@/assets/icon-agent.png";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Neura — The Expert AI & ML Roadmap" },
+      { title: "Smart Canvas Grow — The Complete AI Engineering Roadmap" },
       {
         name: "description",
         content:
-          "A guided, level-by-level AI & ML learning platform: 250+ topics from Python basics to expert agents, RAG, deployment and beyond.",
+          "Smart Canvas Grow: A guided, level-by-level AI & ML learning platform. 300+ topics from Python basics to autonomous agents, RAG 2.0, LLMOps and enterprise AI system design.",
       },
-      { property: "og:title", content: "Neura — The Expert AI & ML Roadmap" },
+      { property: "og:title", content: "Smart Canvas Grow — The Complete AI Engineering Roadmap" },
       {
         property: "og:description",
-        content: "Track your journey from foundation to expert AI engineer across 14 levels.",
+        content: "Track your journey from foundation to expert AI engineer across 14 industry-grade levels.",
       },
     ],
   }),
@@ -171,7 +171,7 @@ function Header({ pct }: { pct: number }) {
           <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-primary to-accent grid place-items-center shadow-glow">
             <Zap className="h-4 w-4 text-primary-foreground" strokeWidth={2.5} />
           </div>
-          <span className="font-display text-lg font-semibold tracking-tight">Neura</span>
+          <span className="font-display text-lg font-semibold tracking-tight">Smart Canvas Grow</span>
           <span className="hidden sm:inline text-xs text-muted-foreground font-mono ml-2">
             / ai-ml-roadmap
           </span>
@@ -536,7 +536,7 @@ function Footer() {
           <div className="h-5 w-5 rounded-md bg-gradient-to-br from-primary to-accent grid place-items-center">
             <Zap className="h-3 w-3 text-primary-foreground" strokeWidth={2.5} />
           </div>
-          <span className="font-display font-semibold text-foreground">Neura</span>
+          <span className="font-display font-semibold text-foreground">Smart Canvas Grow</span>
           <span>· built for serious AI engineers</span>
         </div>
         <span className="font-mono">Created by Manikandan · progress saved locally · v1</span>
