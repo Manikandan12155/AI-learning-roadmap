@@ -24,6 +24,7 @@ import {
   Target,
 } from "lucide-react";
 import { ROADMAP, TOTAL_TOPICS, type Level } from "@/data/roadmap";
+import { InteractiveKitten } from "@/components/InteractiveKitten";
 import heroImg from "@/assets/hero-neural.jpg";
 import iconFoundation from "@/assets/icon-foundation.png";
 import iconML from "@/assets/icon-ml.png";
@@ -242,6 +243,15 @@ function Hero({
           />
           <Stat label="Progress" value={`${pct}%`} icon={<Flame className="h-4 w-4" />} accent />
         </div>
+      </div>
+
+      {/* GitHub Universe Interactive Kitten Tracker */}
+      <div className="relative mx-auto max-w-6xl px-5 flex flex-col items-center">
+        <div className="w-full flex justify-center -mb-[2px] z-10">
+          <InteractiveKitten />
+        </div>
+        {/* Sleek Rainbow Gradient Border line matching GitHub */}
+        <div className="w-full h-[3px] rounded-full bg-gradient-to-r from-blue-500 via-purple-500 via-pink-500 to-emerald-400 shadow-glow opacity-80" />
       </div>
     </section>
   );
