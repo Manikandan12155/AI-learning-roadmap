@@ -5,14 +5,9 @@ import tsconfigPaths from "vite-tsconfig-paths";
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
-  plugins: [
-    TanStackRouterVite(),
-    react(),
-    tsconfigPaths(),
-    tailwindcss(),
-  ],
-  base: '/smart-canvas-grow/',
+  plugins: [TanStackRouterVite(), react(), tsconfigPaths(), tailwindcss()],
+  base: "/smart-canvas-grow/",
   build: {
-    outDir: 'dist',
-  }
+    outDir: "dist",
+  },
 });

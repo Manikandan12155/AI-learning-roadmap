@@ -4,7 +4,21 @@ export type Level = {
   level: string;
   short: string;
   tagline: string;
-  icon: "rocket" | "code" | "database" | "sigma" | "brain" | "network" | "languages" | "sparkles" | "bot" | "layers" | "cloud" | "telescope" | "trophy" | "flag";
+  icon:
+    | "rocket"
+    | "code"
+    | "database"
+    | "sigma"
+    | "brain"
+    | "network"
+    | "languages"
+    | "sparkles"
+    | "bot"
+    | "layers"
+    | "cloud"
+    | "telescope"
+    | "trophy"
+    | "flag";
   sections: Section[];
 };
 
@@ -16,11 +30,50 @@ export const ROADMAP: Level[] = [
   {
     level: "Level 0 — Foundation",
     short: "Foundation",
-    tagline: "Computer & programming basics — the launchpad.",
+    tagline: "Computer, OS, networking & programming logic — the launchpad.",
     icon: "rocket",
     sections: [
-      { name: "Computer basics", topics: ["OS basics","Terminal","File systems","Git & GitHub","VS Code","Package managers"].map(x => t(x)) },
-      { name: "Programming logic", topics: ["Variables","Conditions","Loops","Functions","Arrays","Objects","OOP","Async programming"].map(x => t(x)) },
+      {
+        name: "Computer & OS systems",
+        topics: [
+          t("How computers work (CPU, RAM, Storage)"),
+          t("OS basics & Process management"),
+          t("Linux & Terminal CLI essentials", N),
+          t("File systems & Permissions"),
+          t("Environment variables & PATH", N),
+        ],
+      },
+      {
+        name: "Networking & Internet basics",
+        topics: [
+          t("How the Internet works", N),
+          t("DNS, IP & Ports", N),
+          t("HTTP / HTTPS & Status codes", N),
+          t("Client-Server architecture", N),
+        ],
+      },
+      {
+        name: "Developer tools & Git",
+        topics: [
+          t("VS Code setup & Extensions"),
+          t("WSL 2 & Terminal setup (Bash/Zsh)", N),
+          t("SSH keys & GitHub authentication", N),
+          t("Git basics (Commit, Branch, Merge)"),
+          t("GitHub & Pull requests"),
+          t("Package managers overview"),
+        ],
+      },
+      {
+        name: "Programming logic & DSA intuition",
+        topics: [
+          t("Variables & Primitive data types"),
+          t("Conditions & Boolean logic"),
+          t("Loops & Iteration"),
+          t("Functions & Scope"),
+          t("Data structures (Arrays, HashMaps/Dicts)", N),
+          t("Algorithm intuition & Big-O basics", N),
+        ],
+      },
     ],
   },
   {
@@ -29,172 +82,739 @@ export const ROADMAP: Level[] = [
     tagline: "Master Python end-to-end for AI engineering.",
     icon: "code",
     sections: [
-      { name: "Python basics", topics: ["Syntax","Data types","Loops","Functions","Modules","Exception handling"].map(x => t(x)) },
-      { name: "Advanced Python", topics: ["OOP","Decorators","Generators","Iterators","Context managers","Multithreading","Asyncio"].map(x => t(x)) },
-      { name: "Python for backend", topics: [t("APIs"),t("JSON"),t("Requests"),t("File handling"),t("Virtual env"),t("Pip"),t("Logging"),t("Type hints",N),t("Pydantic",N),t("Testing (pytest)",N),t("SQLAlchemy",N),t("Redis basics",N)] },
-      { name: "Python projects", topics: ["Calculator","API caller","File processor","Chat CLI"].map(x => t(x)) },
+      {
+        name: "Python basics",
+        topics: ["Syntax", "Data types", "Loops", "Functions", "Modules", "Exception handling"].map(
+          (x) => t(x),
+        ),
+      },
+      {
+        name: "Advanced Python",
+        topics: [
+          t("OOP"),
+          t("Decorators"),
+          t("Generators"),
+          t("Iterators"),
+          t("Context managers"),
+          t("Multithreading"),
+          t("Multiprocessing", N),
+          t("Asyncio"),
+          t("GIL & Concurrency models", N),
+          t("Memory management & GC", N),
+          t("Performance profiling (cProfile)", N),
+        ],
+      },
+      {
+        name: "Python for backend & DB",
+        topics: [
+          t("APIs & REST concepts"),
+          t("JSON"),
+          t("Requests & HTTPX", N),
+          t("File handling"),
+          t("Virtual env & uv", N),
+          t("Pip & Poetry", N),
+          t("Logging"),
+          t("Type hints & Mypy", N),
+          t("Pydantic", N),
+          t("SQLAlchemy (ORM)", N),
+          t("PostgreSQL basics", N),
+          t("Database migrations (Alembic)", N),
+          t("Redis basics", N),
+        ],
+      },
+      {
+        name: "Code quality & Architecture",
+        topics: [
+          t("Testing (pytest)", N),
+          t("Linters & Formatters (Ruff, Black)", N),
+          t("SOLID principles", N),
+          t("Design patterns", N),
+          t("Clean architecture", N),
+        ],
+      },
+      {
+        name: "Python projects",
+        topics: [
+          t("Calculator"),
+          t("API caller"),
+          t("File processor"),
+          t("Chat CLI (Typer / Rich)", N),
+          t("Production CRUD with SQLAlchemy & Alembic", N),
+        ],
+      },
     ],
   },
   {
-    level: "Level 2 — Data handling",
+    level: "Level 2 — Data handling & Analysis",
     short: "Data",
-    tagline: "Wrangle, shape and visualise data fluently.",
+    tagline: "Wrangle, clean, shape and visualise data for AI pipelines.",
     icon: "database",
     sections: [
-      { name: "NumPy", topics: ["Arrays","Matrix operations","Broadcasting"].map(x => t(x)) },
-      { name: "Pandas", topics: ["DataFrames","CSV","Cleaning","Filtering","Grouping"].map(x => t(x)) },
-      { name: "Data visualization", topics: ["Matplotlib","Graphs","Charts"].map(x => t(x)) },
+      {
+        name: "NumPy for Numerical Computing",
+        topics: [
+          t("Arrays & Indexing / Slicing"),
+          t("Vectorization vs Loops", N),
+          t("Broadcasting & Matrix operations"),
+          t("Linear algebra ops (Dot product, Inverses)", N),
+          t("Random sampling & Distributions", N),
+        ],
+      },
+      {
+        name: "Pandas & Polars (Data Wrangling)",
+        topics: [
+          t("Series & DataFrames"),
+          t("Data ingestion (CSV, JSONL, Parquet)", N),
+          t("Data cleaning & Missing value imputation"),
+          t("Filtering, Grouping & Aggregations"),
+          t("Merging, Joining & Reshaping (Pivot/Melt)", N),
+          t("Polars basics for high-performance data", N),
+        ],
+      },
+      {
+        name: "Data Visualization & EDA",
+        topics: [
+          t("Matplotlib (Subplots & Customization)"),
+          t("Seaborn for statistical distributions", N),
+          t("Plotly for interactive charts", N),
+          t("Exploratory Data Analysis (EDA) workflow", N),
+          t("Outlier detection & Correlation heatmaps", N),
+        ],
+      },
+      {
+        name: "Data Preprocessing & Formats",
+        topics: [
+          t("Feature scaling (Standardization / Normalization)", N),
+          t("Categorical encoding (One-Hot, Target)", N),
+          t("Working with Hugging Face Datasets", N),
+          t("Data validation (Pandera)", N),
+        ],
+      },
+      {
+        name: "Data projects",
+        topics: [
+          t("Automated EDA report generator", N),
+          t("Real-world dataset cleaning pipeline", N),
+          t("LLM dataset cleaning & formatting (JSONL/Parquet)", N),
+        ],
+      },
     ],
   },
   {
-    level: "Level 3 — Maths for AI",
+    level: "Level 3 — Maths for AI & Deep Learning",
     short: "Maths",
-    tagline: "The mathematical intuition every AI engineer needs.",
+    tagline: "Mathematical intuition & foundations behind AI algorithms.",
     icon: "sigma",
     sections: [
-      { name: "Statistics", topics: ["Mean","Median","Variance","Standard deviation"].map(x => t(x)) },
-      { name: "Probability", topics: ["Conditional probability","Bayes theorem"].map(x => t(x)) },
-      { name: "Linear algebra", topics: ["Vectors","Matrices","Dot products"].map(x => t(x)) },
-      { name: "Calculus basics", topics: ["Derivatives","Gradient descent"].map(x => t(x)) },
+      {
+        name: "Linear Algebra (Tensors & Embeddings)",
+        topics: [
+          t("Vectors, Matrices & Tensors"),
+          t("Dot products, Matrix multiplication & Transpose"),
+          t("Vector spaces & Norms (L1, L2 norm)", N),
+          t("Cosine similarity & Distance metrics", N),
+          t("Eigenvalues, Eigenvectors & SVD", N),
+          t("Dimensionality reduction intuition (PCA)", N),
+        ],
+      },
+      {
+        name: "Calculus & Optimization (Training Engine)",
+        topics: [
+          t("Derivatives & Partial derivatives"),
+          t("The Chain Rule (Backpropagation intuition)", N),
+          t("Gradients & Vector calculus", N),
+          t("Gradient descent (Batch, Mini-batch, SGD)"),
+          t("Learning rates & Optimizers intuition", N),
+          t("Loss functions (MSE, MAE, Huber)", N),
+        ],
+      },
+      {
+        name: "Probability & Information Theory (LLM Math)",
+        topics: [
+          t("Conditional probability & Bayes theorem"),
+          t("Probability distributions (Gaussian, Binomial, Uniform)", N),
+          t("Information theory (Entropy, Cross-Entropy Loss)", N),
+          t("KL Divergence & Perplexity basics", N),
+          t("Maximum Likelihood Estimation (MLE)", N),
+        ],
+      },
+      {
+        name: "Statistics & Hypothesis Testing",
+        topics: [
+          t("Descriptive stats (Mean, Median, Variance, Std dev)"),
+          t("Correlation vs Causation (Pearson, Spearman)", N),
+          t("Hypothesis testing (p-value, Null hypothesis)", N),
+          t("A/B testing for AI models & Confidence intervals", N),
+        ],
+      },
+      {
+        name: "Applied Math in Python",
+        topics: [
+          t("Implementing Gradient Descent from scratch in NumPy", N),
+          t("Computing Cosine Similarity & Vector Search in NumPy", N),
+          t("Implementing Cross-Entropy & Softmax from scratch", N),
+        ],
+      },
     ],
   },
   {
     level: "Level 4 — Machine learning",
     short: "ML",
-    tagline: "Classical ML from regression to ensembles.",
+    tagline: "Classical ML from regression to gradient boosting & production pipelines.",
     icon: "brain",
     sections: [
-      { name: "ML basics", topics: ["AI vs ML vs DL","Features","Labels","Training","Testing","Overfitting","Accuracy"].map(x => t(x)) },
-      { name: "Supervised learning", topics: ["Linear regression","Logistic regression","Decision trees","Random forest"].map(x => t(x)) },
-      { name: "Advanced ML", topics: [t("XGBoost",N),t("LightGBM",N),t("CatBoost",N),t("Feature engineering",N),t("Hyperparameter tuning",N)] },
-      { name: "Unsupervised learning", topics: ["Clustering","K-Means","PCA"].map(x => t(x)) },
-      { name: "Model evaluation", topics: ["Precision","Recall","F1 score","Confusion matrix"].map(x => t(x)) },
-      { name: "ML projects", topics: ["Spam classifier","House price predictor","Recommendation system"].map(x => t(x)) },
+      {
+        name: "ML Fundamentals & Principles",
+        topics: [
+          t("AI vs ML vs DL & Problem framing"),
+          t("Features, Targets & Train-Val-Test splits"),
+          t("Bias-Variance tradeoff", N),
+          t("Overfitting vs Underfitting"),
+          t("Regularization (L1 Lasso, L2 Ridge, ElasticNet)", N),
+        ],
+      },
+      {
+        name: "Supervised Learning Algorithms",
+        topics: [
+          t("Linear & Polynomial regression"),
+          t("Logistic regression & Classification"),
+          t("k-Nearest Neighbors (k-NN)", N),
+          t("Support Vector Machines (SVM)", N),
+          t("Decision trees & Random forest"),
+          t("Ensemble methods (Bagging vs Boosting)", N),
+        ],
+      },
+      {
+        name: "Advanced Boosting & Tabular SOTA",
+        topics: [
+          t("Gradient Boosting intuition", N),
+          t("XGBoost", N),
+          t("LightGBM", N),
+          t("CatBoost", N),
+          t("Feature engineering & Selection", N),
+          t("Hyperparameter tuning (Optuna, GridSearchCV)", N),
+        ],
+      },
+      {
+        name: "Unsupervised & Dimensionality Reduction",
+        topics: [
+          t("Clustering (K-Means, DBSCAN)", N),
+          t("Dimensionality reduction (PCA, t-SNE)", N),
+          t("Anomaly detection (Isolation Forest)", N),
+        ],
+      },
+      {
+        name: "Evaluation, XAI & Pipelines",
+        topics: [
+          t("Precision, Recall, F1 score & Confusion matrix"),
+          t("ROC-AUC & Precision-Recall curves", N),
+          t("Cross-validation (Stratified K-Fold)", N),
+          t("Scikit-learn Pipelines & ColumnTransformer", N),
+          t("Experiment tracking with MLflow", N),
+          t("Model Explainability (SHAP & LIME)", N),
+          t("Data Drift & Model monitoring basics", N),
+          t("Model serialization (Joblib, ONNX basics)", N),
+        ],
+      },
+      {
+        name: "ML Projects",
+        topics: [
+          t("End-to-End Scikit-learn Pipeline project", N),
+          t("House price prediction with XGBoost", N),
+          t("Credit card fraud / Anomaly detection", N),
+          t("Recommendation system", N),
+        ],
+      },
     ],
   },
   {
-    level: "Level 5 — Deep learning",
+    level: "Level 5 — Deep learning & Modern Transformers",
     short: "Deep Learning",
-    tagline: "Neural networks, CNNs, RNNs and Transformers.",
+    tagline: "Neural networks, PyTorch mastery, CNNs & modern Transformer architectures.",
     icon: "network",
     sections: [
-      { name: "Neural networks", topics: ["Neurons","Layers","Weights","Bias"].map(x => t(x)) },
-      { name: "Activation functions", topics: ["ReLU","Sigmoid","Softmax"].map(x => t(x)) },
-      { name: "Training fundamentals", topics: [t("Batch normalization",N),t("Dropout",N),t("Loss functions",N),t("Optimizers",N),t("Adam optimizer",N),t("Learning rate scheduling",N)] },
-      { name: "TensorFlow", topics: ["Tensors","Training models","Saving models"].map(x => t(x)) },
-      { name: "PyTorch", topics: ["Tensor ops","Datasets","Training loops"].map(x => t(x)) },
-      { name: "CNN", topics: ["Image processing","Object detection"].map(x => t(x)) },
-      { name: "RNN & LSTM", topics: ["Sequence learning","Text generation"].map(x => t(x)) },
-      { name: "Transformers", topics: [t("Attention"),t("Encoder"),t("Decoder"),t("Self attention",N),t("Positional encoding",N),t("Tokenizers",N),t("BERT",N),t("GPT architecture",N)] },
+      {
+        name: "Neural Network Fundamentals",
+        topics: [
+          t("Perceptrons, Dense layers, Weights & Biases"),
+          t("Activation functions (ReLU, GELU, SwiGLU, Softmax)", N),
+          t("Forward pass, Loss computation & Backpropagation"),
+          t("Regularization (BatchNorm, LayerNorm, Dropout)", N),
+          t("Optimizers (Adam, AdamW, Learning rate scheduling)", N),
+        ],
+      },
+      {
+        name: "PyTorch Mastery (Industry Standard)",
+        topics: [
+          t("PyTorch Tensors, Autograd & GPU/CUDA acceleration", N),
+          t("Building custom models with nn.Module", N),
+          t("Dataset, DataLoader & Custom data pipelines", N),
+          t("Writing custom training loops & Checkpointing", N),
+          t("Hugging Face Accelerate & Mixed precision (FP16/BF16)", N),
+        ],
+      },
+      {
+        name: "Vision & Sequence Models",
+        topics: [
+          t("CNN architectures & Transfer learning (ResNet)", N),
+          t("Vision Transformers (ViT) basics", N),
+          t("Sequence models (RNN, LSTM, GRU limitations)"),
+        ],
+      },
+      {
+        name: "Modern Transformer Architecture (LLM Core)",
+        topics: [
+          t("Self-Attention & Multi-Head Attention (MHA)"),
+          t("GQA (Grouped-Query) & MQA Attention", N),
+          t("FlashAttention intuition & KV Caching", N),
+          t("Positional embeddings (Sinusoidal, RoPE)", N),
+          t("Encoder (BERT) vs Decoder (GPT/Llama)", N),
+          t("Mixture of Experts (MoE) basics", N),
+          t("Hugging Face Transformers library", N),
+        ],
+      },
+      {
+        name: "Deep Learning Projects",
+        topics: [
+          t("Custom PyTorch Neural Net from scratch", N),
+          t("Vision Classifier with Transfer Learning (ResNet / ViT)", N),
+          t("Mini-GPT / Decoder Transformer from scratch in PyTorch", N),
+        ],
+      },
     ],
   },
   {
-    level: "Level 6 — NLP",
+    level: "Level 6 — Natural Language Processing (NLP)",
     short: "NLP",
-    tagline: "Make machines understand human language.",
+    tagline: "From text representations & modern tokenizers to semantic embeddings.",
     icon: "languages",
     sections: [
-      { name: "NLP basics", topics: ["Tokenization","Stemming","Lemmatization"].map(x => t(x)) },
-      { name: "Text processing", topics: ["Sentiment analysis","Text classification"].map(x => t(x)) },
-      { name: "Embeddings", topics: ["Word2Vec","Sentence transformers"].map(x => t(x)) },
+      {
+        name: "Text Preprocessing & Extraction",
+        topics: [
+          t("Text normalization & Regex cleaning", N),
+          t("Stemming vs Lemmatization (spaCy / NLTK)"),
+          t("Part-of-Speech (POS) & Dependency Parsing", N),
+          t("Named Entity Recognition (NER with spaCy)", N),
+        ],
+      },
+      {
+        name: "Classical NLP & Sparse Vectors",
+        topics: [
+          t("Bag of Words & N-grams", N),
+          t("TF-IDF representation", N),
+          t("BM25 algorithm (Foundation for Hybrid Search)", N),
+          t("Text classification & Sentiment analysis"),
+        ],
+      },
+      {
+        name: "Modern Subword Tokenizers (LLM Core)",
+        topics: [
+          t("Why subwords? (OOV problem)", N),
+          t("Byte-Pair Encoding (BPE)", N),
+          t("WordPiece & SentencePiece", N),
+          t("Tiktoken & Hugging Face Tokenizers", N),
+          t("Special tokens, Padding & Attention masks", N),
+        ],
+      },
+      {
+        name: "Embeddings & Semantic Search",
+        topics: [
+          t("Word2Vec & GloVe limitations"),
+          t("Sentence-Transformers (SBERT) & Dense vectors"),
+          t("Bi-Encoders vs Cross-Encoders (Re-ranking intuition)", N),
+          t("NLP Evaluation metrics (BLEU, ROUGE, Perplexity)", N),
+        ],
+      },
+      {
+        name: "NLP Projects",
+        topics: [
+          t("Resume / Document Information Extractor (NER + Regex)", N),
+          t("Semantic Search Engine with BM25 + SBERT", N),
+          t("Fine-tuning BERT for Text Classification", N),
+        ],
+      },
     ],
   },
   {
-    level: "Level 7 — Generative AI",
+    level: "Level 7 — Generative AI & Advanced RAG",
     short: "GenAI",
-    tagline: "LLMs, prompting, RAG and fine-tuning.",
+    tagline: "LLMs, reasoning models, advanced RAG 2.0 architectures & fine-tuning.",
     icon: "sparkles",
     sections: [
-      { name: "LLM basics", topics: ["Tokens","Context window","Temperature","Hallucination"].map(x => t(x)) },
-      { name: "Prompt engineering", topics: [t("Zero-shot"),t("Few-shot"),t("Chain of thought"),t("Structured prompting"),t("Prompt optimization",N),t("Context engineering",N)] },
-      { name: "OpenAI APIs", topics: [t("Chat completion"),t("Function calling"),t("Streaming"),t("Tool schemas",N),t("JSON mode",N),t("Structured output",N)] },
-      { name: "AI evaluation & safety", topics: [t("AI evaluation",N),t("Guardrails",N)] },
-      { name: "Embeddings", topics: ["Semantic search","Similarity search"].map(x => t(x)) },
-      { name: "Vector databases", topics: ["FAISS","ChromaDB","Pinecone"].map(x => t(x)) },
-      { name: "RAG", topics: [t("Chunking"),t("Retrieval"),t("Context injection"),t("Hybrid search",N),t("Re-ranking",N),t("Metadata filtering",N),t("Context compression",N),t("Parent-child chunking",N)] },
-      { name: "Fine tuning", topics: ["LoRA","PEFT","QLoRA"].map(x => t(x)) },
-      { name: "Local LLM", topics: ["Ollama","LM Studio","GGUF models"].map(x => t(x)) },
+      {
+        name: "LLM & Reasoning Fundamentals",
+        topics: [
+          t("Tokens, Context window & Attention limits"),
+          t("Sampling params (Temperature, Top-P, Penalties)"),
+          t("Hallucination mitigation & Groundedness"),
+          t("Reasoning models & Test-time compute (DeepSeek-R1, o1)", N),
+          t("Open-weight LLMs (Llama 3, Mistral, Qwen)", N),
+        ],
+      },
+      {
+        name: "Prompt & Context Engineering",
+        topics: [
+          t("Zero-shot, Few-shot & Chain-of-Thought (CoT)"),
+          t("System prompt design & Persona steering"),
+          t("Structured output & JSON schemas (Pydantic + Instructor)", N),
+          t("Context window optimization & Lost-in-the-middle", N),
+        ],
+      },
+      {
+        name: "Modern LLM APIs & Multi-Provider",
+        topics: [
+          t("OpenAI API, Anthropic Claude & Google Gemini", N),
+          t("Multi-provider unified gateways (LiteLLM)", N),
+          t("Function calling & Tool schemas"),
+          t("Streaming responses (SSE / WebSockets)"),
+          t("Semantic caching for cost reduction (Redis / GPTCache)", N),
+        ],
+      },
+      {
+        name: "Vector Databases & Embeddings",
+        topics: [
+          t("Dense vs Sparse vs ColBERT late-interaction", N),
+          t("Vector search algorithms (HNSW, IVF-PQ)", N),
+          t("Vector databases (Qdrant, Pinecone, ChromaDB, pgvector)", N),
+          t("Metadata filtering & Hybrid indexing"),
+        ],
+      },
+      {
+        name: "Advanced RAG 2.0 Architectures",
+        topics: [
+          t("Advanced chunking (Semantic, Parent-child, Recursive)"),
+          t("Hybrid search (BM25 + Dense vector fusion / RRF)", N),
+          t("Re-ranking with Cross-Encoders (Cohere, BGE)", N),
+          t("Corrective RAG (CRAG) & Self-RAG", N),
+          t("GraphRAG & Knowledge Graphs basics", N),
+          t("RAG Evaluation with Ragas & TruLens", N),
+        ],
+      },
+      {
+        name: "Fine-Tuning & Model Alignment",
+        topics: [
+          t("When to fine-tune vs RAG vs Prompting"),
+          t("PEFT, LoRA & QLoRA quantization"),
+          t("Alignment techniques (RLHF, DPO)", N),
+          t("High-speed fine-tuning with Unsloth", N),
+          t("Dataset prep, Formatting & Loss curves", N),
+        ],
+      },
+      {
+        name: "Local LLMs & Edge Inference",
+        topics: [
+          t("Local inference with Ollama & LM Studio"),
+          t("Quantization formats (GGUF, AWQ, GPTQ)", N),
+          t("Private offline enterprise LLM deployments", N),
+        ],
+      },
+      {
+        name: "GenAI Projects",
+        topics: [
+          t("Enterprise Document Search Engine with Hybrid RAG & Re-ranking", N),
+          t("Financial Report Analyzer with Structured JSON Extraction", N),
+          t("Custom Domain Fine-tuned Small LLM with Unsloth / LoRA", N),
+        ],
+      },
     ],
   },
   {
-    level: "Level 8 — AI agents",
+    level: "Level 8 — Autonomous AI Agents & Multi-Agent Systems",
     short: "Agents",
-    tagline: "Autonomous, reasoning, tool-using systems.",
+    tagline: "Build reasoning, tool-using, persistent & multi-agent systems.",
     icon: "bot",
     sections: [
-      { name: "Agent basics", topics: [t("Planning"),t("Reasoning"),t("Tool calling"),t("ReAct pattern",N),t("Planning algorithms",N)] },
-      { name: "LangChain", topics: ["Chains","Memory","Tools"].map(x => t(x)) },
-      { name: "LangGraph", topics: ["Multi-agent workflows","State management"].map(x => t(x)) },
-      { name: "Agent frameworks", topics: [t("CrewAI",N),t("AutoGen",N)] },
-      { name: "Agent architectures", topics: [t("Planner agent"),t("Executor agent"),t("Reflection agent"),t("Agent memory persistence",N),t("Human-in-the-loop systems",N)] },
-      { name: "MCP", topics: ["Model Context Protocol","Tool integrations"].map(x => t(x)) },
-      { name: "Multi-agent systems", topics: ["Communication","Task orchestration"].map(x => t(x)) },
+      {
+        name: "Agent Core & Cognitive Architecture",
+        topics: [
+          t("ReAct pattern (Reasoning + Acting loop)", N),
+          t("Plan-and-Solve & Reflection patterns"),
+          t("Tool calling & Dynamic parameter binding"),
+          t("Loop detection, Error handling & Self-correction", N),
+          t("Agent evaluation (Task success rate, Tool precision)", N),
+        ],
+      },
+      {
+        name: "Agent Memory & Persistence",
+        topics: [
+          t("Short-term working memory vs Long-term memory"),
+          t("Entity memory & Semantic episodic memory (Mem0)", N),
+          t("Context pruning, Summarization & Compression", N),
+          t("State checkpoints & DB persistence", N),
+        ],
+      },
+      {
+        name: "Tools, Sandboxes & Browser Automation",
+        topics: [
+          t("Model Context Protocol (MCP) Client & Server standard", N),
+          t("Code execution sandboxes (E2B / Docker)", N),
+          t("Web browsing agents (Playwright, Browser-Use)", N),
+          t("API integration tools & OpenAPI spec loaders", N),
+        ],
+      },
+      {
+        name: "Stateful Workflows with LangGraph",
+        topics: [
+          t("StateGraph, Nodes & Conditional edges", N),
+          t("Human-in-the-loop approval gates (Breakpoints)", N),
+          t("State persistence & Postgres checkpointers", N),
+          t("Hierarchical agent supervision graphs", N),
+        ],
+      },
+      {
+        name: "Multi-Agent Frameworks & Swarms",
+        topics: [
+          t("Role-based multi-agent collaboration (CrewAI)", N),
+          t("Conversational agent swarms (AutoGen / Swarm)", N),
+          t("Agent-to-agent communication protocols"),
+          t("Task delegation, Voting & Consensus mechanisms", N),
+        ],
+      },
+      {
+        name: "Autonomous Agent Projects",
+        topics: [
+          t("Autonomous Web Research Agent (Browser-Use + Search)", N),
+          t("Self-Healing Coding Agent with E2B Sandbox", N),
+          t("Enterprise Multi-Agent Workflow with LangGraph & HITL", N),
+        ],
+      },
     ],
   },
   {
-    level: "Level 9 — AI application development",
+    level: "Level 9 — Full-Stack AI Application Engineering",
     short: "AI Apps",
-    tagline: "Ship production AI apps end-to-end.",
+    tagline: "Ship production-grade, secure, real-time AI SaaS applications.",
     icon: "layers",
     sections: [
-      { name: "AI backend", topics: ["FastAPI","WebSockets","Streaming"].map(x => t(x)) },
-      { name: "AI frontend", topics: ["React","Chat UI","Voice UI"].map(x => t(x)) },
-      { name: "Real-time AI", topics: ["Live responses","Notifications"].map(x => t(x)) },
-      { name: "AI security", topics: [t("Prompt injection"),t("Validation"),t("Rate limiting"),t("Jailbreak prevention",N),t("Prompt injection defense",N),t("API security",N),t("Data privacy",N),t("AI safety",N)] },
+      {
+        name: "High-Performance AI Backend",
+        topics: [
+          t("FastAPI async endpoints & Dependency Injection"),
+          t("Server-Sent Events (SSE) & WebSocket streaming"),
+          t("Background task queues (Celery / Redis)", N),
+          t("Database integration (PostgreSQL + SQLAlchemy)", N),
+          t("User authentication & Sessions (Clerk / Supabase)", N),
+        ],
+      },
+      {
+        name: "Modern AI Frontend & Generative UI",
+        topics: [
+          t("React / Next.js with TypeScript & Tailwind"),
+          t("Vercel AI SDK (useChat, useCompletion)", N),
+          t("Generative UI & Rich interactive widgets (shadcn/ui)", N),
+          t("Markdown, Syntax highlighting & LaTeX rendering", N),
+          t("Voice & Audio UI integration", N),
+        ],
+      },
+      {
+        name: "Security, Guardrails & Privacy",
+        topics: [
+          t("Prompt injection & Jailbreak defense (Llama Guard)", N),
+          t("PII redaction & Sensitive data sanitization", N),
+          t("Redis rate limiting (Token bucket algorithm)", N),
+          t("API key encryption & Secure secret management", N),
+          t("OWASP Top 10 for LLM applications", N),
+        ],
+      },
+      {
+        name: "Monetization, Analytics & Cost Control",
+        topics: [
+          t("Token metering & User quota tracking", N),
+          t("Usage-based billing integration (Stripe)", N),
+          t("Latency & Time-to-First-Token (TTFT) tuning", N),
+          t("User feedback loops (Thumbs up/down logging)", N),
+        ],
+      },
+      {
+        name: "Full-Stack AI Projects",
+        topics: [
+          t("Full-Stack AI SaaS with Next.js, FastAPI & Stripe", N),
+          t("Real-Time Voice Assistant with WebSockets", N),
+          t("Enterprise Knowledge Chat with Generative UI", N),
+        ],
+      },
     ],
   },
   {
-    level: "Level 10 — Deployment & infra",
+    level: "Level 10 — AI Infrastructure & GPU Deployment (LLMOps)",
     short: "Deploy",
-    tagline: "Containers, GPUs, clouds and CI/CD.",
+    tagline: "Containers, serverless GPUs, high-throughput serving engines & CI/CD.",
     icon: "cloud",
     sections: [
-      { name: "Docker", topics: ["Containers","Docker compose"].map(x => t(x)) },
-      { name: "Cloud", topics: ["AWS basics","Vercel","Railway"].map(x => t(x)) },
-      { name: "GPU basics", topics: ["CUDA","VRAM","Quantization"].map(x => t(x)) },
-      { name: "AI infrastructure", topics: [t("vLLM",N),t("TensorRT",N),t("ONNX",N),t("Kubernetes basics",N),t("GPU serving",N)] },
-      { name: "CI/CD", topics: ["GitHub Actions","Auto deployment"].map(x => t(x)) },
+      {
+        name: "Docker & NVIDIA GPU Containers",
+        topics: [
+          t("Docker fundamentals & Multi-stage builds"),
+          t("Docker Compose for Multi-service AI apps (App + DB + VectorDB)"),
+          t("NVIDIA Container Toolkit & CUDA pass-through", N),
+          t("Minimizing container size & Fast layer caching", N),
+        ],
+      },
+      {
+        name: "High-Throughput LLM Serving Engines",
+        topics: [
+          t("vLLM & PagedAttention architecture", N),
+          t("Continuous batching & Chunked prefill", N),
+          t("TensorRT-LLM & ONNX Runtime optimization", N),
+          t("Hosting OpenAI-compatible API servers", N),
+          t("Quantization serving (AWQ, GPTQ, FP8)", N),
+        ],
+      },
+      {
+        name: "Serverless GPUs & Cloud Platforms",
+        topics: [
+          t("Serverless GPU platforms (Modal, RunPod, Replicate)", N),
+          t("Scale-to-zero architecture (GPU cost savings)", N),
+          t("Cloud GPU VMs (AWS EC2, Lambda Labs)", N),
+          t("Frontend hosting & Edge routing (Vercel, Cloudflare)", N),
+        ],
+      },
+      {
+        name: "Distributed AI & Orchestration",
+        topics: [
+          t("Kubernetes (K8s) basics for AI workloads", N),
+          t("Distributed serving with Ray & Ray Serve", N),
+          t("Model caching & HF Hub download optimization", N),
+          t("GPU health monitoring & Auto-scaling policies", N),
+        ],
+      },
+      {
+        name: "CI/CD & LLMOps Automation",
+        topics: [
+          t("GitHub Actions CI/CD pipelines for AI services"),
+          t("Automated model testing & container build", N),
+          t("Blue-Green & Canary deployment for models", N),
+        ],
+      },
+      {
+        name: "Infra & Deployment Projects",
+        topics: [
+          t("Deploying an Open-Source LLM with vLLM on RunPod", N),
+          t("Serverless AI Microservice with Modal (Scale-to-Zero)", N),
+          t("Automated CI/CD Pipeline deploying Containerized RAG API", N),
+        ],
+      },
     ],
   },
   {
-    level: "Level 11 — Advanced AI",
+    level: "Level 11 — Multimodal AI, Observability & System Design",
     short: "Advanced",
-    tagline: "Multimodal, observability and AI system design.",
+    tagline: "Vision-Language models, real-time voice agents, LLM observability & enterprise system design.",
     icon: "telescope",
     sections: [
-      { name: "Fine-tuning", topics: ["Custom datasets","RLHF basics"].map(x => t(x)) },
-      { name: "Multimodal AI", topics: ["Vision AI","Voice AI","OCR"].map(x => t(x)) },
-      { name: "Voice AI", topics: [t("Whisper",N),t("TTS",N),t("STT",N),t("Real-time voice pipeline",N)] },
-      { name: "Vision AI", topics: [t("OCR pipelines",N),t("YOLO",N),t("OpenCV",N),t("Image embeddings",N)] },
-      { name: "AI observability", topics: [t("LangSmith",N),t("Observability",N),t("Tracing",N),t("Token tracking",N),t("Cost optimization",N)] },
-      { name: "AI research", topics: [t("Papers"),t("Benchmarks"),t("Evaluation"),t("Research paper reading",N)] },
-      { name: "AI system design", topics: [t("Scalability"),t("Memory systems"),t("Agent orchestration"),t("AI architecture design",N),t("Scaling AI systems",N)] },
+      {
+        name: "Multimodal AI & Vision-Language Models (VLMs)",
+        topics: [
+          t("Vision-Language architecture (CLIP, LLaVA, Qwen2-VL)", N),
+          t("Image patch embeddings & Multimodal tokens", N),
+          t("Document Visual QA & Complex PDF extraction", N),
+          t("Object detection & Vision pipelines (YOLO / OpenCV)"),
+          t("Diffusion model fundamentals (Flux / SD basics)", N),
+        ],
+      },
+      {
+        name: "Real-Time Voice AI & Speech Pipelines",
+        topics: [
+          t("OpenAI Realtime API & Gemini Live WebSockets", N),
+          t("Speech-to-Text (Whisper, Groq low-latency STT)", N),
+          t("Voice Activity Detection (Silero VAD) & Turn-taking", N),
+          t("Text-to-Speech (ElevenLabs, Kokoro TTS)", N),
+          t("WebRTC audio streaming with LiveKit", N),
+        ],
+      },
+      {
+        name: "LLM Observability, Tracing & Evals",
+        topics: [
+          t("OpenTelemetry standard for AI (OpenInference)", N),
+          t("Tracing & Session tracking (LangSmith, Phoenix)", N),
+          t("LLM-as-a-Judge automated evaluation pipelines", N),
+          t("Latency profiling & Token cost attribution", N),
+          t("Production feedback loops & Drift detection", N),
+        ],
+      },
+      {
+        name: "AI System Design (Enterprise Architecture)",
+        topics: [
+          t("Architecting systems for 10M+ tokens/day", N),
+          t("Model routing & Cascades (Small model -> Big model)", N),
+          t("Multi-provider fallback & Regional failover", N),
+          t("Enterprise Data Governance & Compliance (SOC2/GDPR)", N),
+          t("AI Architecture Case Studies (Perplexity, Cursor)", N),
+        ],
+      },
+      {
+        name: "Advanced Capstone Projects",
+        topics: [
+          t("Ultra-Low-Latency Real-Time Voice Agent with LiveKit", N),
+          t("Multimodal Document Intelligence Pipeline (VLM)", N),
+          t("Production LLM Observability & Evaluation Platform", N),
+        ],
+      },
     ],
   },
   {
-    level: "Level 12 — Expert level",
+    level: "Level 12 — Expert Level & AI Leadership",
     short: "Expert",
-    tagline: "Build products, models, brand & contributions.",
+    tagline: "Build venture-grade AI products, contribute to OSS & establish thought leadership.",
     icon: "trophy",
     sections: [
-      { name: "Build own AI products", topics: [t("AI SaaS"),t("AI ERP"),t("AI assistant"),t("AI product thinking",N),t("AI monetization",N)] },
-      { name: "Build own models", topics: ["Training pipelines","Dataset prep"].map(x => t(x)) },
-      { name: "Open source contribution", topics: ["Hugging Face","LangChain","PyTorch"].map(x => t(x)) },
-      { name: "Personal brand", topics: ["GitHub","Portfolio","LinkedIn","Technical content"].map(x => t(x)) },
+      {
+        name: "Venture-Grade AI Product Engineering",
+        topics: [
+          t("AI Product Strategy & Defensible Moats", N),
+          t("Synthetic Data Generation pipelines (Cosmopedia style)", N),
+          t("Domain Adaptation & Continual Pretraining basics", N),
+          t("AI Pricing Models (Seat-based vs Token Consumption)", N),
+          t("Enterprise AI Security Compliance (SOC2, HIPAA)", N),
+        ],
+      },
+      {
+        name: "Open Source AI Engineering",
+        topics: [
+          t("Contributing to Hugging Face (Datasets, Models, Hub)", N),
+          t("Contributing to LangGraph / vLLM / Ollama", N),
+          t("Publishing custom MCP Servers & Open-Source Tools", N),
+          t("Model Card creation & Responsible AI disclosure", N),
+        ],
+      },
+      {
+        name: "Personal Brand & Technical Influence",
+        topics: [
+          t("High-Impact GitHub Portfolio & Readme engineering"),
+          t("Writing deep-dive technical benchmarks & Teardowns", N),
+          t("Publishing AI research breakdowns on X & LinkedIn"),
+          t("Building public demo spaces on Hugging Face Spaces", N),
+        ],
+      },
     ],
   },
   {
-    level: "Final projects",
+    level: "Final Projects — Production Capstones",
     short: "Capstones",
-    tagline: "Ten capstones that prove you're production-ready.",
+    tagline: "Ten industry-standard, portfolio-grade capstones proving senior capability.",
     icon: "flag",
     sections: [
-      { name: "Projects", topics: ["AI Chatbot","AI Agent","PDF QA","Voice Assistant","AI Search Engine","AI Coding Assistant","AI ERP Assistant","Multi-Agent Workflow","AI Recommendation Engine","AI Automation Platform"].map(x => t(x)) },
+      {
+        name: "Production Capstones",
+        topics: [
+          t("Enterprise Multi-Tenant Support Agent with LangGraph & HITL", N),
+          t("Perplexity-Style Search Engine with Citations & Hybrid RAG", N),
+          t("Autonomous Web Research Agent using Browser-Use & Playwright", N),
+          t("Multimodal Financial Document Intelligence (VLM + Table Extraction)", N),
+          t("Ultra-Low-Latency Realtime Voice Assistant with LiveKit & WebRTC", N),
+          t("Repo-Level Coding Assistant & Automated PR Reviewer with E2B", N),
+          t("Enterprise MCP Server ecosystem with Slack, GitHub & DB tools", N),
+          t("Fine-Tuned Domain Specialist SLM deployed on vLLM / RunPod", N),
+          t("AI Observability & Automated Evaluation Dashboard (Phoenix / OTel)", N),
+          t("No-Code Multi-Agent Workflow Automation Platform (Zapier for AI)", N),
+        ],
+      },
     ],
   },
 ];
 
 export const TOTAL_TOPICS = ROADMAP.reduce(
   (a, l) => a + l.sections.reduce((b, s) => b + s.topics.length, 0),
-  0
+  0,
 );
