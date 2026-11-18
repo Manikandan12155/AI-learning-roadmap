@@ -183,13 +183,6 @@ function Header({ pct }: { pct: number }) {
           </span>
         </div>
         <div className="flex items-center gap-3">
-          <a
-            href="#roadmap"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-primary/10 hover:bg-primary/20 text-primary border border-primary/25 transition-all shadow-sm active:scale-95"
-          >
-            <BookOpen className="h-3.5 w-3.5" />
-            <span>Technical Abbreviations (L14)</span>
-          </a>
           <span className="font-mono text-xs text-muted-foreground hidden sm:inline">
             {pct}% complete
           </span>
