@@ -24,7 +24,7 @@ import {
   Target,
 } from "lucide-react";
 import { ROADMAP, TOTAL_TOPICS, type Level } from "@/data/roadmap";
-import { InteractiveAvatar } from "@/components/InteractiveAvatar";
+import { InteractiveKitten } from "@/components/InteractiveKitten";
 import heroImg from "@/assets/hero-neural.jpg";
 import iconFoundation from "@/assets/icon-foundation.png";
 import iconML from "@/assets/icon-ml.png";
@@ -248,9 +248,9 @@ function Hero({
             </div>
           </div>
 
-          {/* Right Column: Hero 2D Manikandan Tech Avatar */}
-          <div className="lg:col-span-5 flex justify-center lg:justify-end mt-4 lg:mt-0">
-            <InteractiveAvatar />
+          {/* Right Column: Floating Interactive Kitten (Seamless, No harsh box) */}
+          <div className="lg:col-span-5 flex justify-center items-center mt-6 lg:mt-0">
+            <InteractiveKitten />
           </div>
         </div>
       </div>
