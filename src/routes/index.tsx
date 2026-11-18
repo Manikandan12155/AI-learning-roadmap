@@ -24,7 +24,7 @@ import {
   Target,
 } from "lucide-react";
 import { ROADMAP, TOTAL_TOPICS, type Level } from "@/data/roadmap";
-import { InteractiveKitten } from "@/components/InteractiveKitten";
+import { InteractiveTiger } from "@/components/InteractiveTiger";
 import heroImg from "@/assets/hero-neural.jpg";
 import iconFoundation from "@/assets/icon-foundation.png";
 import iconML from "@/assets/icon-ml.png";
@@ -248,9 +248,9 @@ function Hero({
             </div>
           </div>
 
-          {/* Right Column: Floating Interactive Kitten (Seamless, No harsh box) */}
+          {/* Right Column: 3D Cute Interactive Baby Tiger */}
           <div className="lg:col-span-5 flex justify-center items-center mt-6 lg:mt-0">
-            <InteractiveKitten />
+            <InteractiveTiger />
           </div>
         </div>
       </div>
