@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 import { ROADMAP, TOTAL_TOPICS, type Level } from "@/data/roadmap";
 import heroImg from "@/assets/hero-neural.jpg";
-import heroCharacter from "@/assets/hero-character-transparent.png";
+import heroCharacter from "@/assets/hero-character-tight.png";
 import iconFoundation from "@/assets/icon-foundation.png";
 import iconML from "@/assets/icon-ml.png";
 import iconAgent from "@/assets/icon-agent.png";
@@ -214,25 +214,25 @@ function Hero({
         />
         <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/70 to-background" />
       </div>
-      <div className="mx-auto max-w-6xl px-5 pt-16 pb-16 sm:pt-24 sm:pb-24">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+      <div className="mx-auto max-w-6xl px-5 pt-8 pb-16 sm:pt-14 sm:pb-24">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-end">
           {/* Left Column: Hero Character Image with soft ambient glow */}
-          <div className="lg:col-span-5 flex justify-center items-center order-2 lg:order-1">
-            <div className="relative group">
+          <div className="lg:col-span-5 flex justify-center items-end order-2 lg:order-1 self-end">
+            <div className="relative group w-full flex justify-center">
               {/* Soft Ambient Radial AI Glow */}
-              <div className="absolute -inset-4 bg-gradient-to-tr from-primary/30 via-emerald-500/20 to-accent/30 rounded-full blur-3xl opacity-70 group-hover:opacity-95 transition-opacity duration-700 pointer-events-none" />
+              <div className="absolute -inset-4 bg-gradient-to-tr from-primary/35 via-emerald-500/25 to-accent/30 rounded-full blur-3xl opacity-75 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
               <img
                 src={heroCharacter}
-                alt="AI Learning Mascot"
-                width={500}
-                height={500}
-                className="relative z-10 w-72 h-72 sm:w-88 sm:h-88 lg:w-full lg:max-w-md object-contain drop-shadow-[0_20px_45px_rgba(0,0,0,0.65)] hover:scale-[1.02] transition-transform duration-500"
+                alt="Manikandan - AI Engineer"
+                width={600}
+                height={720}
+                className="relative z-10 w-80 sm:w-96 lg:w-[440px] xl:w-[470px] max-h-[560px] object-contain object-bottom drop-shadow-[0_25px_50px_rgba(0,0,0,0.75)] hover:scale-[1.02] transition-transform duration-500"
               />
             </div>
           </div>
 
           {/* Right Column: Heading, Description & Stats */}
-          <div className="lg:col-span-7 order-1 lg:order-2">
+          <div className="lg:col-span-7 order-1 lg:order-2 self-center">
             <div className="inline-flex items-center gap-2 rounded-full border border-border bg-surface/60 px-3 py-1 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
               <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
               Expert edition · 14 levels · {TOTAL_TOPICS}+ topics
