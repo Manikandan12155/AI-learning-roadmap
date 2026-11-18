@@ -22,6 +22,7 @@ import {
   Search,
   Flame,
   Target,
+  BookOpen,
 } from "lucide-react";
 import { ROADMAP, TOTAL_TOPICS, type Level } from "@/data/roadmap";
 import heroImg from "@/assets/hero-neural.jpg";
@@ -64,9 +65,10 @@ const ICONS = {
   telescope: Telescope,
   trophy: Trophy,
   flag: Flag,
+  book: BookOpen,
 } as const;
 
-type Filter = "all" | "pending" | "done" | "new";
+type Filter = "all" | "pending" | "done" | "new" | "abbrev";
 
 const keyFor = (lIdx: number, section: string, topic: string) => `${lIdx}||${section}||${topic}`;
 
@@ -142,13 +144,16 @@ function HomePage() {
         />
 
         <ol className="mt-8 space-y-4">
-          {ROADMAP.map((lvl, lIdx) => (
+          {ROADMAP.filter((lvl) => {
+            if (filter === "abbrev") return lvl.short === "Technical Abbreviations";
+            return true;
+          }).map((lvl, lIdx) => (
             <LevelCard
               key={lIdx}
               lvl={lvl}
               lIdx={lIdx}
               state={state}
-              open={!!openLevels[lIdx]}
+              open={filter === "abbrev" ? true : !!openLevels[lIdx]}
               setOpen={(v) => setOpenLevels((p) => ({ ...p, [lIdx]: v }))}
               onToggle={toggleTopic}
               onMarkAll={() => markLevelDone(lIdx)}
@@ -178,6 +183,13 @@ function Header({ pct }: { pct: number }) {
           </span>
         </div>
         <div className="flex items-center gap-3">
+          <a
+            href="#roadmap"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-primary/10 hover:bg-primary/20 text-primary border border-primary/25 transition-all shadow-sm active:scale-95"
+          >
+            <BookOpen className="h-3.5 w-3.5" />
+            <span>Technical Abbreviations (L14)</span>
+          </a>
           <span className="font-mono text-xs text-muted-foreground hidden sm:inline">
             {pct}% complete
           </span>
@@ -256,7 +268,7 @@ function Hero({
               <Stat label="Completed" value={done} icon={<Check className="h-4 w-4" />} accent />
               <Stat
                 label="Levels cleared"
-                value={`${completedLevels}/14`}
+                value={`${completedLevels}/15`}
                 icon={<Trophy className="h-4 w-4" />}
               />
               <Stat label="Progress" value={`${pct}%`} icon={<Flame className="h-4 w-4" />} accent />
@@ -355,6 +367,7 @@ function Controls({
     { id: "pending", label: "Pending" },
     { id: "done", label: "Done" },
     { id: "new", label: "New" },
+    { id: "abbrev", label: "Abbreviations" },
   ];
   return (
     <div
