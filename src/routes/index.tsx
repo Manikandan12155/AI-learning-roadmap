@@ -24,7 +24,6 @@ import {
   Target,
 } from "lucide-react";
 import { ROADMAP, TOTAL_TOPICS, type Level } from "@/data/roadmap";
-import { InteractiveTiger } from "@/components/InteractiveTiger";
 import heroImg from "@/assets/hero-neural.jpg";
 import iconFoundation from "@/assets/icon-foundation.png";
 import iconML from "@/assets/icon-ml.png";
@@ -215,43 +214,33 @@ function Hero({
         <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/70 to-background" />
       </div>
       <div className="mx-auto max-w-6xl px-5 pt-20 pb-16 sm:pt-28 sm:pb-24">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-          {/* Left Column: Heading & Content */}
-          <div className="lg:col-span-7">
-            <div className="inline-flex items-center gap-2 rounded-full border border-border bg-surface/60 px-3 py-1 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
-              <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-              Expert edition · 14 levels · {TOTAL_TOPICS}+ topics
-            </div>
-            <h1 className="mt-5 font-display text-5xl sm:text-7xl font-semibold leading-[1.02] tracking-tight">
-              The complete <span className="text-gradient">AI &amp; ML</span> roadmap.
-              <br />
-              From zero to shipping production agents.
-            </h1>
-            <p className="mt-5 text-base sm:text-lg text-muted-foreground leading-relaxed">
-              A guided, level-by-level journey across Python, classical ML, deep learning, LLMs, RAG,
-              agents, deployment and expert systems. Track every topic. Build the projects. Become
-              undeniable.
-            </p>
-            <p className="mt-2 text-xs text-muted-foreground font-mono tracking-wider uppercase">
-              Created by Manikandan
-            </p>
+        <div className="inline-flex items-center gap-2 rounded-full border border-border bg-surface/60 px-3 py-1 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+          <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+          Expert edition · 14 levels · {TOTAL_TOPICS}+ topics
+        </div>
+        <h1 className="mt-5 font-display text-5xl sm:text-7xl font-semibold leading-[1.02] tracking-tight max-w-3xl">
+          The complete <span className="text-gradient">AI &amp; ML</span> roadmap.
+          <br />
+          From zero to shipping production agents.
+        </h1>
+        <p className="mt-5 max-w-2xl text-base sm:text-lg text-muted-foreground leading-relaxed">
+          A guided, level-by-level journey across Python, classical ML, deep learning, LLMs, RAG,
+          agents, deployment and expert systems. Track every topic. Build the projects. Become
+          undeniable.
+        </p>
+        <p className="mt-2 text-xs text-muted-foreground font-mono tracking-wider uppercase">
+          Created by Manikandan
+        </p>
 
-            <div className="mt-10 grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <Stat label="Total topics" value={TOTAL_TOPICS} icon={<Target className="h-4 w-4" />} />
-              <Stat label="Completed" value={done} icon={<Check className="h-4 w-4" />} accent />
-              <Stat
-                label="Levels cleared"
-                value={`${completedLevels}/14`}
-                icon={<Trophy className="h-4 w-4" />}
-              />
-              <Stat label="Progress" value={`${pct}%`} icon={<Flame className="h-4 w-4" />} accent />
-            </div>
-          </div>
-
-          {/* Right Column: 3D Cute Interactive Baby Tiger */}
-          <div className="lg:col-span-5 flex justify-center items-center mt-6 lg:mt-0">
-            <InteractiveTiger />
-          </div>
+        <div className="mt-10 grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl">
+          <Stat label="Total topics" value={TOTAL_TOPICS} icon={<Target className="h-4 w-4" />} />
+          <Stat label="Completed" value={done} icon={<Check className="h-4 w-4" />} accent />
+          <Stat
+            label="Levels cleared"
+            value={`${completedLevels}/14`}
+            icon={<Trophy className="h-4 w-4" />}
+          />
+          <Stat label="Progress" value={`${pct}%`} icon={<Flame className="h-4 w-4" />} accent />
         </div>
       </div>
     </section>
