@@ -1,5 +1,5 @@
-export type Topic = { name: string; isNew?: boolean };
-export type Section = { name: string; topics: Topic[] };
+type Topic = { name: string; isNew?: boolean };
+type Section = { name: string; topics: Topic[] };
 export type Level = {
   level: string;
   short: string;
