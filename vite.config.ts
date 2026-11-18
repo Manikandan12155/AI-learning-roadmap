@@ -6,7 +6,7 @@ import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
   plugins: [TanStackRouterVite(), react(), tsconfigPaths(), tailwindcss()],
-  base: "/smart-canvas-grow/",
+  base: "/",
   build: {
     outDir: "dist",
   },
