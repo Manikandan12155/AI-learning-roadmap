@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { ROADMAP, TOTAL_TOPICS, type Level } from "@/data/roadmap";
 import heroImg from "@/assets/hero-neural.jpg";
+import heroCharacter from "@/assets/hero-character-transparent.png";
 import iconFoundation from "@/assets/icon-foundation.png";
 import iconML from "@/assets/icon-ml.png";
 import iconAgent from "@/assets/icon-agent.png";
@@ -213,34 +214,54 @@ function Hero({
         />
         <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/70 to-background" />
       </div>
-      <div className="mx-auto max-w-6xl px-5 pt-20 pb-16 sm:pt-28 sm:pb-24">
-        <div className="inline-flex items-center gap-2 rounded-full border border-border bg-surface/60 px-3 py-1 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
-          <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-          Expert edition · 14 levels · {TOTAL_TOPICS}+ topics
-        </div>
-        <h1 className="mt-5 font-display text-5xl sm:text-7xl font-semibold leading-[1.02] tracking-tight max-w-3xl">
-          The complete <span className="text-gradient">AI &amp; ML</span> roadmap.
-          <br />
-          From zero to shipping production agents.
-        </h1>
-        <p className="mt-5 max-w-2xl text-base sm:text-lg text-muted-foreground leading-relaxed">
-          A guided, level-by-level journey across Python, classical ML, deep learning, LLMs, RAG,
-          agents, deployment and expert systems. Track every topic. Build the projects. Become
-          undeniable.
-        </p>
-        <p className="mt-2 text-xs text-muted-foreground font-mono tracking-wider uppercase">
-          Created by Manikandan
-        </p>
+      <div className="mx-auto max-w-6xl px-5 pt-16 pb-16 sm:pt-24 sm:pb-24">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+          {/* Left Column: Hero Character Image with soft ambient glow */}
+          <div className="lg:col-span-5 flex justify-center items-center order-2 lg:order-1">
+            <div className="relative group">
+              {/* Soft Ambient Radial AI Glow */}
+              <div className="absolute -inset-4 bg-gradient-to-tr from-primary/30 via-emerald-500/20 to-accent/30 rounded-full blur-3xl opacity-70 group-hover:opacity-95 transition-opacity duration-700 pointer-events-none" />
+              <img
+                src={heroCharacter}
+                alt="AI Learning Mascot"
+                width={500}
+                height={500}
+                className="relative z-10 w-72 h-72 sm:w-88 sm:h-88 lg:w-full lg:max-w-md object-contain drop-shadow-[0_20px_45px_rgba(0,0,0,0.65)] hover:scale-[1.02] transition-transform duration-500"
+              />
+            </div>
+          </div>
 
-        <div className="mt-10 grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl">
-          <Stat label="Total topics" value={TOTAL_TOPICS} icon={<Target className="h-4 w-4" />} />
-          <Stat label="Completed" value={done} icon={<Check className="h-4 w-4" />} accent />
-          <Stat
-            label="Levels cleared"
-            value={`${completedLevels}/14`}
-            icon={<Trophy className="h-4 w-4" />}
-          />
-          <Stat label="Progress" value={`${pct}%`} icon={<Flame className="h-4 w-4" />} accent />
+          {/* Right Column: Heading, Description & Stats */}
+          <div className="lg:col-span-7 order-1 lg:order-2">
+            <div className="inline-flex items-center gap-2 rounded-full border border-border bg-surface/60 px-3 py-1 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+              <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+              Expert edition · 14 levels · {TOTAL_TOPICS}+ topics
+            </div>
+            <h1 className="mt-5 font-display text-4xl sm:text-6xl lg:text-6xl font-semibold leading-[1.04] tracking-tight">
+              The complete <span className="text-gradient">AI &amp; ML</span> roadmap.
+              <br />
+              From zero to shipping production agents.
+            </h1>
+            <p className="mt-5 text-base sm:text-lg text-muted-foreground leading-relaxed">
+              A guided, level-by-level journey across Python, classical ML, deep learning, LLMs, RAG,
+              agents, deployment and expert systems. Track every topic. Build the projects. Become
+              undeniable.
+            </p>
+            <p className="mt-2 text-xs text-muted-foreground font-mono tracking-wider uppercase">
+              Created by Manikandan
+            </p>
+
+            <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <Stat label="Total topics" value={TOTAL_TOPICS} icon={<Target className="h-4 w-4" />} />
+              <Stat label="Completed" value={done} icon={<Check className="h-4 w-4" />} accent />
+              <Stat
+                label="Levels cleared"
+                value={`${completedLevels}/14`}
+                icon={<Trophy className="h-4 w-4" />}
+              />
+              <Stat label="Progress" value={`${pct}%`} icon={<Flame className="h-4 w-4" />} accent />
+            </div>
+          </div>
         </div>
       </div>
     </section>
