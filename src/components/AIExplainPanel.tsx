@@ -22,6 +22,8 @@ import { QuizView, type QuizQuestion } from "./notebook/QuizView";
 import { FlashcardsView, type FlashcardItem } from "./notebook/FlashcardsView";
 import { MindMapView } from "./notebook/MindMapView";
 import { AudioOverviewView } from "./notebook/AudioOverviewView";
+import { AI_PROVIDERS, type AIProviderConfig } from "@/data/aiProviders";
+import { requestAICompletion } from "@/utils/aiClient";
 
 interface AIExplainPanelProps {
   isOpen: boolean;
@@ -37,25 +39,21 @@ interface AIExplainPanelProps {
 
 type StudioTab = "overview" | "quiz" | "flashcards" | "mindmap" | "audio";
 
-const AVAILABLE_MODELS = [
-  { id: "gemini-3.1-pro-preview", name: "Gemini 3.1 Pro (Preview)", tag: "Recommended / Latest" },
-  { id: "gemini-2.5-flash", name: "Gemini 2.5 Flash", tag: "Fast" },
-  { id: "gemini-2.5-flash-lite", name: "Gemini 2.5 Flash Lite", tag: "Lite" },
-];
-
 export function AIExplainPanel({
   isOpen,
   onClose,
   onOpenKeySettings,
   topicContext,
 }: AIExplainPanelProps) {
-  const [apiKey, setApiKey] = useState("");
-  const [savedKey, setSavedKey] = useState<string | null>(null);
+  const [selectedProviderId, setSelectedProviderId] = useState<string>("gemini");
   const [selectedModel, setSelectedModel] = useState<string>("gemini-3.1-pro-preview");
   const [activeTab, setActiveTab] = useState<StudioTab>("overview");
   const [isExpanded, setIsExpanded] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Active key
+  const [activeKey, setActiveKey] = useState<string | null>(null);
 
   // Tab Data Cache
   const [explanation, setExplanation] = useState<string>("");
@@ -64,32 +62,38 @@ export function AIExplainPanel({
   const [mindmapData, setMindmapData] = useState<string>("");
   const [audioScriptData, setAudioScriptData] = useState<string>("");
 
-  useEffect(() => {
-    try {
-      const storedKey = localStorage.getItem("gemini_user_api_key");
-      if (storedKey) {
-        setSavedKey(storedKey);
-        setApiKey(storedKey);
-      } else {
-        setSavedKey(null);
-        setApiKey("");
-      }
+  const currentProvider: AIProviderConfig =
+    AI_PROVIDERS.find((p) => p.id === selectedProviderId) || AI_PROVIDERS[0];
 
-      const storedModel = localStorage.getItem("gemini_selected_model");
-      if (
-        !storedModel ||
-        storedModel.includes("1.5") ||
-        storedModel.includes("2.0") ||
-        storedModel === "gemini-2.5-pro"
-      ) {
-        setSelectedModel("gemini-3.1-pro-preview");
-        localStorage.setItem("gemini_selected_model", "gemini-3.1-pro-preview");
+  const checkAndLoadKeys = () => {
+    // Find first available key or restore last used
+    const savedProv = localStorage.getItem("scg_selected_provider") || "gemini";
+    const prov = AI_PROVIDERS.find((p) => p.id === savedProv) || AI_PROVIDERS[0];
+    const key = localStorage.getItem(prov.keyStorageKey);
+
+    if (key) {
+      setSelectedProviderId(prov.id);
+      setActiveKey(key);
+      const savedM = localStorage.getItem(`scg_model_${prov.id}`) || prov.defaultModel;
+      setSelectedModel(savedM);
+    } else {
+      // Find any provider with a key
+      const anyWithKey = AI_PROVIDERS.find((p) => !!localStorage.getItem(p.keyStorageKey));
+      if (anyWithKey) {
+        setSelectedProviderId(anyWithKey.id);
+        setActiveKey(localStorage.getItem(anyWithKey.keyStorageKey));
+        const savedM = localStorage.getItem(`scg_model_${anyWithKey.id}`) || anyWithKey.defaultModel;
+        setSelectedModel(savedM);
       } else {
-        setSelectedModel(storedModel);
+        setSelectedProviderId("gemini");
+        setActiveKey(null);
+        setSelectedModel(AI_PROVIDERS[0].defaultModel);
       }
-    } catch (e) {
-      console.error(e);
     }
+  };
+
+  useEffect(() => {
+    checkAndLoadKeys();
   }, [isOpen]);
 
   // Clear data on topic switch
@@ -102,121 +106,41 @@ export function AIExplainPanel({
     setActiveTab("overview");
   }, [topicContext?.topicName]);
 
-  const handleSaveKey = () => {
-    const trimmed = apiKey.trim();
-    if (!trimmed) return;
+  const handleProviderChange = (provId: string) => {
+    setSelectedProviderId(provId);
     try {
-      localStorage.setItem("gemini_user_api_key", trimmed);
-      setSavedKey(trimmed);
-      setError(null);
+      localStorage.setItem("scg_selected_provider", provId);
     } catch (e) {
       console.error(e);
+    }
+    const prov = AI_PROVIDERS.find((p) => p.id === provId) || AI_PROVIDERS[0];
+    const key = localStorage.getItem(prov.keyStorageKey);
+    setActiveKey(key);
+    const m = localStorage.getItem(`scg_model_${provId}`) || prov.defaultModel;
+    setSelectedModel(m);
+
+    if (key) {
+      fetchFeature(key, provId, m, activeTab);
     }
   };
 
   const handleModelChange = (modelId: string) => {
     setSelectedModel(modelId);
     try {
-      localStorage.setItem("gemini_selected_model", modelId);
+      localStorage.setItem(`scg_model_${selectedProviderId}`, modelId);
     } catch (e) {
       console.error(e);
     }
-    if (savedKey) {
-      fetchFeature(savedKey, activeTab, modelId);
+    if (activeKey) {
+      fetchFeature(activeKey, selectedProviderId, modelId, activeTab);
     }
-  };
-
-  const fetchAvailableModels = async (key: string): Promise<string[]> => {
-    try {
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models?key=${key}`
-      );
-      if (!res.ok) return [];
-      const data = await res.json();
-      if (Array.isArray(data?.models)) {
-        return data.models
-          .filter((m: any) => m.supportedGenerationMethods?.includes("generateContent"))
-          .map((m: any) => m.name.replace("models/", ""));
-      }
-    } catch (e) {
-      console.error(e);
-    }
-    return [];
-  };
-
-  const callGemini = async (activeKey: string, prompt: string, modelToUse: string) => {
-    let serverModels = await fetchAvailableModels(activeKey);
-    let candidateModels = [modelToUse];
-
-    if (serverModels.length > 0) {
-      candidateModels = [
-        ...new Set([
-          modelToUse,
-          ...serverModels.filter((m) => m.includes("3.1") || m.includes("2.5")),
-          ...serverModels,
-        ]),
-      ];
-    } else {
-      candidateModels = [
-        ...new Set([
-          modelToUse,
-          "gemini-3.1-pro-preview",
-          "gemini-2.5-flash",
-          "gemini-2.5-flash-lite",
-        ]),
-      ];
-    }
-
-    let lastError = "";
-    for (const curModel of candidateModels) {
-      try {
-        const res = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/${curModel}:generateContent?key=${activeKey}`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              contents: [{ parts: [{ text: prompt }] }],
-              generationConfig: {
-                temperature: 0.7,
-                maxOutputTokens: 2500,
-              },
-            }),
-          }
-        );
-
-        const data = await res.json();
-        if (!res.ok) {
-          lastError = data?.error?.message || `Error calling ${curModel}`;
-          if (
-            lastError.includes("no longer available") ||
-            lastError.includes("not found") ||
-            lastError.includes("deprecated") ||
-            lastError.includes("not supported")
-          ) {
-            continue;
-          }
-          throw new Error(lastError);
-        }
-
-        const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (!text) {
-          throw new Error("No response returned from Gemini.");
-        }
-        return text;
-      } catch (err: any) {
-        lastError = err?.message || "An unexpected error occurred.";
-      }
-    }
-    throw new Error(lastError);
   };
 
   const fetchFeature = async (
-    activeKey: string,
-    targetTab: StudioTab,
-    modelToUse = selectedModel
+    key: string,
+    provId: string,
+    modelId: string,
+    targetTab: StudioTab
   ) => {
     if (!topicContext) return;
     setLoading(true);
@@ -238,7 +162,12 @@ Concise Python or config code snippet.
 What breaks in production.
 ### 5. Interview Assessment
 1 challenging interview question with a 1-sentence golden answer.`;
-        const res = await callGemini(activeKey, prompt, modelToUse);
+        const res = await requestAICompletion({
+          providerId: provId,
+          apiKey: key,
+          model: modelId,
+          prompt,
+        });
         setExplanation(res);
       } else if (targetTab === "quiz") {
         const prompt = `${contextPrefix} Generate a 4-question challenging multiple-choice quiz about "${topicContext.topicName}" for an AI engineer.
@@ -251,7 +180,12 @@ Return ONLY valid JSON matching this exact typescript interface without markdown
     "explanation": "Why this is correct."
   }
 ]`;
-        const res = await callGemini(activeKey, prompt, modelToUse);
+        const res = await requestAICompletion({
+          providerId: provId,
+          apiKey: key,
+          model: modelId,
+          prompt,
+        });
         const cleaned = res.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
         const parsed = JSON.parse(cleaned);
         setQuizData(parsed);
@@ -264,7 +198,12 @@ Return ONLY valid JSON matching this exact array format without markdown code bl
     "back": "Back answer / golden rule takeaway"
   }
 ]`;
-        const res = await callGemini(activeKey, prompt, modelToUse);
+        const res = await requestAICompletion({
+          providerId: provId,
+          apiKey: key,
+          model: modelId,
+          prompt,
+        });
         const cleaned = res.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
         const parsed = JSON.parse(cleaned);
         setFlashcardsData(parsed);
@@ -272,7 +211,12 @@ Return ONLY valid JSON matching this exact array format without markdown code bl
         const prompt = `${contextPrefix} Generate a clean Mermaid.js diagram representing the architecture flow and components of "${topicContext.topicName}".
 Use valid flowchart TD syntax.
 Output ONLY the mermaid code inside a \`\`\`mermaid code block.`;
-        const res = await callGemini(activeKey, prompt, modelToUse);
+        const res = await requestAICompletion({
+          providerId: provId,
+          apiKey: key,
+          model: modelId,
+          prompt,
+        });
         setMindmapData(res);
       } else if (targetTab === "audio") {
         const prompt = `${contextPrefix} Create an engaging 2-speaker podcast dialogue between two AI engineers (Alex and Sam) breaking down "${topicContext.topicName}".
@@ -280,7 +224,12 @@ Alex asks intuitive, practical questions and Sam explains with sharp analogies a
 Format each line strictly as:
 Host 1: ...
 Host 2: ...`;
-        const res = await callGemini(activeKey, prompt, modelToUse);
+        const res = await requestAICompletion({
+          providerId: provId,
+          apiKey: key,
+          model: modelId,
+          prompt,
+        });
         setAudioScriptData(res);
       }
     } catch (err: any) {
@@ -290,23 +239,22 @@ Host 2: ...`;
     }
   };
 
-  // Trigger tab data when switching tab
   const handleTabChange = (tab: StudioTab) => {
     setActiveTab(tab);
-    if (!savedKey) return;
+    if (!activeKey) return;
 
-    if (tab === "overview" && !explanation) fetchFeature(savedKey, "overview");
-    if (tab === "quiz" && quizData.length === 0) fetchFeature(savedKey, "quiz");
-    if (tab === "flashcards" && flashcardsData.length === 0) fetchFeature(savedKey, "flashcards");
-    if (tab === "mindmap" && !mindmapData) fetchFeature(savedKey, "mindmap");
-    if (tab === "audio" && !audioScriptData) fetchFeature(savedKey, "audio");
+    if (tab === "overview" && !explanation) fetchFeature(activeKey, selectedProviderId, selectedModel, "overview");
+    if (tab === "quiz" && quizData.length === 0) fetchFeature(activeKey, selectedProviderId, selectedModel, "quiz");
+    if (tab === "flashcards" && flashcardsData.length === 0) fetchFeature(activeKey, selectedProviderId, selectedModel, "flashcards");
+    if (tab === "mindmap" && !mindmapData) fetchFeature(activeKey, selectedProviderId, selectedModel, "mindmap");
+    if (tab === "audio" && !audioScriptData) fetchFeature(activeKey, selectedProviderId, selectedModel, "audio");
   };
 
   useEffect(() => {
-    if (isOpen && topicContext && savedKey && !explanation) {
-      fetchFeature(savedKey, "overview", selectedModel);
+    if (isOpen && topicContext && activeKey && !explanation) {
+      fetchFeature(activeKey, selectedProviderId, selectedModel, "overview");
     }
-  }, [isOpen, topicContext]);
+  }, [isOpen, topicContext, activeKey]);
 
   if (!isOpen || !topicContext) return null;
 
@@ -351,9 +299,9 @@ Host 2: ...`;
               )}
             </button>
 
-            {savedKey && (
+            {activeKey && (
               <button
-                onClick={() => fetchFeature(savedKey, activeTab, selectedModel)}
+                onClick={() => fetchFeature(activeKey, selectedProviderId, selectedModel, activeTab)}
                 disabled={loading}
                 title="Regenerate this view"
                 className="h-7 w-7 rounded-full border border-border hover:bg-surface-2 grid place-items-center text-muted-foreground hover:text-foreground transition disabled:opacity-40"
@@ -429,50 +377,27 @@ Host 2: ...`;
       {/* Body Content */}
       <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4">
         {/* If Key NOT set */}
-        {!savedKey && (
+        {!activeKey && (
           <div className="p-4 rounded-xl border border-primary/30 bg-primary/5 space-y-3">
             <div className="flex items-start gap-2.5">
               <KeyRound className="h-4 w-4 text-primary shrink-0 mt-0.5" />
               <div className="space-y-0.5">
                 <h3 className="font-semibold text-xs text-foreground">
-                  Gemini API Key Required (Free)
+                  Free AI Key Required
                 </h3>
                 <p className="text-[11px] text-muted-foreground leading-relaxed">
-                  Enter your free key to unlock Quiz, Flashcards, Mind Map &amp; Audio Overview.
+                  Unlock Quiz, Flashcards, Mind Map &amp; Audio using any free AI key (Google Gemini, Groq, OpenRouter, Cerebras, or Together AI).
                 </p>
               </div>
             </div>
 
-            <div className="flex gap-1.5">
-              <input
-                type="password"
-                placeholder="AIzaSy..."
-                value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
-                className="flex-1 px-3 py-1.5 rounded-lg border border-border bg-surface text-xs text-foreground focus:outline-none focus:border-primary font-mono"
-              />
+            <div className="pt-1">
               <button
-                onClick={() => {
-                  handleSaveKey();
-                  if (apiKey.trim()) fetchFeature(apiKey.trim(), activeTab, selectedModel);
-                }}
-                disabled={!apiKey.trim()}
-                className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-medium text-xs hover:opacity-90 disabled:opacity-50 transition flex items-center justify-center gap-1"
+                onClick={onOpenKeySettings}
+                className="w-full py-2 rounded-xl bg-primary text-primary-foreground font-semibold text-xs shadow-glow hover:opacity-95 transition flex items-center justify-center gap-1.5"
               >
-                <Sparkles className="h-3 w-3" /> Save
+                <Sparkles className="h-3.5 w-3.5" /> Configure Free AI Keys
               </button>
-            </div>
-
-            <div className="flex items-center justify-between text-[10px] pt-1 border-t border-border/50 text-muted-foreground">
-              <span>Saved locally</span>
-              <a
-                href="https://aistudio.google.com/app/apikey"
-                target="_blank"
-                rel="noreferrer"
-                className="text-primary hover:underline inline-flex items-center gap-1 font-mono"
-              >
-                Get Free Key (1-click) <ExternalLink className="h-2.5 w-2.5" />
-              </a>
             </div>
           </div>
         )}
@@ -482,7 +407,7 @@ Host 2: ...`;
           <div className="py-24 flex flex-col items-center justify-center gap-3 text-muted-foreground">
             <Loader2 className="h-7 w-7 text-primary animate-spin" />
             <p className="font-mono text-xs animate-pulse text-center">
-              Generating {activeTab.toUpperCase()} with {selectedModel}...
+              Generating {activeTab.toUpperCase()} with {currentProvider.name} ({selectedModel})...
             </p>
           </div>
         )}
@@ -495,14 +420,12 @@ Host 2: ...`;
               <div className="font-semibold text-xs">Error generating feature</div>
               <div className="opacity-90 text-[11px] leading-relaxed mt-0.5">{error}</div>
               <div className="mt-2 flex items-center gap-2">
-                {savedKey && (
-                  <button
-                    onClick={() => fetchFeature(savedKey, activeTab, "gemini-3.1-pro-preview")}
-                    className="underline text-[10px] text-foreground font-medium"
-                  >
-                    Retry with Gemini 3.1 Pro
-                  </button>
-                )}
+                <button
+                  onClick={onOpenKeySettings}
+                  className="underline text-[10px] text-foreground font-medium"
+                >
+                  Switch Provider or Check Key
+                </button>
               </div>
             </div>
           </div>
@@ -518,7 +441,7 @@ Host 2: ...`;
             {activeTab === "quiz" && quizData.length > 0 && (
               <QuizView
                 questions={quizData}
-                onReset={() => savedKey && fetchFeature(savedKey, "quiz")}
+                onReset={() => activeKey && fetchFeature(activeKey, selectedProviderId, selectedModel, "quiz")}
               />
             )}
 
@@ -537,23 +460,39 @@ Host 2: ...`;
         )}
       </div>
 
-      {/* Footer with Model Selector */}
-      <div className="px-3.5 py-2.5 border-t border-border bg-surface/70 backdrop-blur-md flex items-center justify-between gap-2">
-        <div className="flex items-center gap-1.5">
-          <span className="text-[10px] font-mono text-muted-foreground hidden sm:inline">Model:</span>
+      {/* Footer with Provider & Model Selector */}
+      <div className="px-3.5 py-2.5 border-t border-border bg-surface/70 backdrop-blur-md flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          {/* Provider selector */}
+          <div className="relative">
+            <select
+              value={selectedProviderId}
+              onChange={(e) => handleProviderChange(e.target.value)}
+              className="appearance-none bg-surface-2 border border-border rounded-lg pl-2 pr-6 py-1 text-[11px] font-mono text-primary-glow font-semibold focus:outline-none focus:border-primary cursor-pointer hover:border-border-strong transition"
+            >
+              {AI_PROVIDERS.map((p) => (
+                <option key={p.id} value={p.id} className="bg-surface text-foreground font-sans">
+                  {p.name}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="h-3 w-3 text-muted-foreground absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div>
+
+          {/* Model selector */}
           <div className="relative">
             <select
               value={selectedModel}
               onChange={(e) => handleModelChange(e.target.value)}
-              className="appearance-none bg-surface-2 border border-border rounded-lg pl-2.5 pr-7 py-1 text-[11px] font-mono text-foreground focus:outline-none focus:border-primary cursor-pointer hover:border-border-strong transition"
+              className="appearance-none bg-surface-2 border border-border rounded-lg pl-2 pr-6 py-1 text-[11px] font-mono text-foreground focus:outline-none focus:border-primary cursor-pointer hover:border-border-strong transition max-w-[160px] truncate"
             >
-              {AVAILABLE_MODELS.map((m) => (
-                <option key={m.id} value={m.id} className="bg-surface text-foreground">
+              {currentProvider.models.map((m) => (
+                <option key={m.id} value={m.id} className="bg-surface text-foreground font-sans">
                   {m.name}
                 </option>
               ))}
             </select>
-            <ChevronDown className="h-3 w-3 text-muted-foreground absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <ChevronDown className="h-3 w-3 text-muted-foreground absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
         </div>
 

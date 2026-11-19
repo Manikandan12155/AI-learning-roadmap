@@ -30,8 +30,9 @@ import {
 } from "lucide-react";
 import { ROADMAP, TOTAL_TOPICS, type Level } from "@/data/roadmap";
 import { AIExplainPanel } from "@/components/AIExplainPanel";
-import { GeminiKeyModal } from "@/components/GeminiKeyModal";
+import { AIKeysModal } from "@/components/AIKeysModal";
 import { AboutModal } from "@/components/AboutModal";
+import { AI_PROVIDERS } from "@/data/aiProviders";
 import heroImg from "@/assets/hero-neural.jpg";
 import iconFoundation from "@/assets/icon-foundation.png";
 import iconML from "@/assets/icon-ml.png";
@@ -123,10 +124,18 @@ function HomePage() {
     topicName: string;
   } | null>(null);
 
+  const [activeProviderName, setActiveProviderName] = useState<string | null>(null);
+
   const checkApiKey = () => {
     try {
-      const stored = localStorage.getItem("gemini_user_api_key");
-      setHasApiKey(!!stored);
+      const anyWithKey = AI_PROVIDERS.find((p) => !!localStorage.getItem(p.keyStorageKey));
+      if (anyWithKey) {
+        setHasApiKey(true);
+        setActiveProviderName(anyWithKey.name);
+      } else {
+        setHasApiKey(false);
+        setActiveProviderName(null);
+      }
     } catch (e) {
       console.error(e);
     }
@@ -191,6 +200,7 @@ function HomePage() {
       <Header
         pct={pct}
         hasApiKey={hasApiKey}
+        activeProviderName={activeProviderName}
         theme={theme}
         onToggleTheme={toggleTheme}
         onOpenKeyModal={() => setIsKeyModalOpen(true)}
@@ -255,10 +265,10 @@ function HomePage() {
         </div>
       </main>
 
-      <GeminiKeyModal
+      <AIKeysModal
         isOpen={isKeyModalOpen}
         onClose={() => setIsKeyModalOpen(false)}
-        onKeyUpdated={checkApiKey}
+        onKeysUpdated={checkApiKey}
       />
 
       <AboutModal
@@ -274,6 +284,7 @@ function HomePage() {
 function Header({
   pct,
   hasApiKey,
+  activeProviderName,
   theme,
   onToggleTheme,
   onOpenKeyModal,
@@ -281,6 +292,7 @@ function Header({
 }: {
   pct: number;
   hasApiKey: boolean;
+  activeProviderName: string | null;
   theme: "dark" | "light";
   onToggleTheme: () => void;
   onOpenKeyModal: () => void;
@@ -323,7 +335,7 @@ function Header({
             <span>About</span>
           </button>
 
-          {/* Gemini API Key Button in Header */}
+          {/* Multi-AI Provider Key Button in Header */}
           <button
             onClick={onOpenKeyModal}
             className={`h-8 px-3 rounded-full text-xs font-mono inline-flex items-center gap-1.5 border transition-all ${
@@ -331,14 +343,14 @@ function Header({
                 ? "bg-primary/10 border-primary/40 text-primary-glow hover:bg-primary/20"
                 : "bg-surface-2 border-border text-muted-foreground hover:text-foreground hover:border-primary/40"
             }`}
-            title="Setup Google Gemini API Key"
+            title="Configure Free AI Keys (Gemini, Groq, OpenRouter, Cerebras, Together)"
           >
             <KeyRound className="h-3.5 w-3.5 text-primary" />
             <span className="hidden sm:inline">
-              {hasApiKey ? "Gemini Key: Active" : "Set Gemini Key"}
+              {hasApiKey ? `${activeProviderName || "AI"}: Active` : "Free AI Keys"}
             </span>
             <span className="sm:hidden">
-              {hasApiKey ? "Key ✓" : "Key"}
+              {hasApiKey ? "AI ✓" : "AI"}
             </span>
           </button>
 
