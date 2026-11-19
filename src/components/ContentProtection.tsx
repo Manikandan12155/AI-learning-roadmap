@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ShieldAlert, Lock, AlertTriangle } from "lucide-react";
+import { ShieldAlert, Lock } from "lucide-react";
 
 interface ContentProtectionProps {
   currentUser?: any;
@@ -25,7 +25,6 @@ export function ContentProtection({ currentUser }: ContentProtectionProps) {
       // Disable console methods in production to prevent script injection
       if (typeof window !== "undefined") {
         const noop = () => {};
-        // Preserve console for development only if necessary
         window.console.warn = noop;
         window.console.info = noop;
         window.console.table = noop;
@@ -99,8 +98,9 @@ export function ContentProtection({ currentUser }: ContentProtectionProps) {
       return false;
     };
 
-    // 4. Active DevTools Detection Trap (Outer vs Inner Window Metric & Debugger Loop)
+    // 4. Active DevTools Detection Trap (Outer vs Inner Window Metric)
     let devToolsCheckInterval: any = null;
+    let debuggerInterval: any = null;
 
     const checkDevTools = () => {
       const threshold = 160;
@@ -115,10 +115,30 @@ export function ContentProtection({ currentUser }: ContentProtectionProps) {
       }
     };
 
-    // Run active check every 800ms
-    devToolsCheckInterval = setInterval(checkDevTools, 800);
+    // Run active check every 600ms
+    devToolsCheckInterval = setInterval(checkDevTools, 600);
 
-    // 5. Obscure screen when window loses focus (e.g. Snipping tool opened)
+    // 5. INFINITE DEBUGGER TRAP: Freezes the DevTools Console so user CANNOT type anything!
+    // Whenever DevTools is open, this debugger pauses JavaScript execution on every step.
+    const runDebuggerTrap = () => {
+      function trap() {
+        try {
+          (function () {
+            // Function constructor prevents optimizer from stripping debugger
+            (function () {
+              return true;
+            })
+              .constructor("debugger")
+              .call("action");
+          })();
+        } catch (err) {}
+      }
+      debuggerInterval = setInterval(trap, 300);
+    };
+
+    runDebuggerTrap();
+
+    // 6. Obscure screen when window loses focus (e.g. Snipping tool opened)
     const handleBlur = () => {
       setIsObscured(true);
     };
@@ -128,7 +148,7 @@ export function ContentProtection({ currentUser }: ContentProtectionProps) {
       checkDevTools();
     };
 
-    // 6. Anti-Drag Shield for Images
+    // 7. Anti-Drag Shield for Images
     const handleDragStart = (e: DragEvent) => {
       e.preventDefault();
       return false;
@@ -147,12 +167,13 @@ export function ContentProtection({ currentUser }: ContentProtectionProps) {
       window.removeEventListener("blur", handleBlur);
       window.removeEventListener("focus", handleFocus);
       if (devToolsCheckInterval) clearInterval(devToolsCheckInterval);
+      if (debuggerInterval) clearInterval(debuggerInterval);
     };
   }, []);
 
   return (
     <>
-      {/* DevTools Tamper Lockout Modal */}
+      {/* DevTools Tamper Lockout Modal (Zero Buttons - Auto Unlocks Only When DevTools Closes) */}
       {devToolsDetected && (
         <div className="fixed inset-0 z-[150] bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center p-6 text-center select-none animate-in fade-in duration-200">
           <div className="relative max-w-md rounded-3xl border-2 border-red-500/40 bg-[#0c0808] p-7 sm:p-9 shadow-[0_0_50px_rgba(239,68,68,0.3)] space-y-5 text-center">
