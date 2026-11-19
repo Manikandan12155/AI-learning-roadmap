@@ -29,6 +29,7 @@ import {
   Moon,
   Lock,
   Settings,
+  Award,
 } from "lucide-react";
 import { ROADMAP, TOTAL_TOPICS, type Level } from "@/data/roadmap";
 import { AIExplainPanel } from "@/components/AIExplainPanel";
@@ -37,6 +38,7 @@ import { AboutModal } from "@/components/AboutModal";
 import { AuthModal } from "@/components/AuthModal";
 import { SettingsModal } from "@/components/SettingsModal";
 import { ContentProtection } from "@/components/ContentProtection";
+import { CertificateModal } from "@/components/CertificateModal";
 import { supabase, isSupabaseConfigured } from "@/utils/supabaseClient";
 import { AI_PROVIDERS } from "@/data/aiProviders";
 import { AIRouterPipelines } from "@/components/AIRouterPipelines";
@@ -95,6 +97,7 @@ function HomePage() {
   const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const [isCertificateModalOpen, setIsCertificateModalOpen] = useState(false);
   const [journeyTrack, setJourneyTrack] = useState<boolean>(true);
   const [authReason, setAuthReason] = useState<string | undefined>(undefined);
   const [currentUser, setCurrentUser] = useState<any>(null);
@@ -293,6 +296,7 @@ function HomePage() {
           setIsAuthModalOpen(true);
         }}
         onOpenSettingsModal={() => setIsSettingsModalOpen(true)}
+        onOpenCertificateModal={() => setIsCertificateModalOpen(true)}
         onSignOut={handleSignOut}
       />
       <Hero
@@ -446,6 +450,15 @@ function HomePage() {
         totalTopicsCount={TOTAL_TOPICS}
       />
 
+      <CertificateModal
+        isOpen={isCertificateModalOpen}
+        onClose={() => setIsCertificateModalOpen(false)}
+        currentUser={currentUser}
+        doneCount={done}
+        totalCount={TOTAL_TOPICS}
+        completedLevels={completedLevels}
+      />
+
       <Footer />
     </div>
   );
@@ -462,6 +475,7 @@ function Header({
   currentUser,
   onOpenAuthModal,
   onOpenSettingsModal,
+  onOpenCertificateModal,
   onSignOut,
 }: {
   pct: number;
@@ -474,6 +488,7 @@ function Header({
   onOpenAboutModal: () => void;
   onOpenAuthModal: () => void;
   onOpenSettingsModal: () => void;
+  onOpenCertificateModal: () => void;
   onSignOut: () => void;
 }) {
   const userDisplayName =
@@ -519,6 +534,16 @@ function Header({
           >
             <Sparkles className="h-3.5 w-3.5 text-primary" />
             <span className="hidden sm:inline">About</span>
+          </button>
+
+          {/* Certificate Button (Naukri & LinkedIn Verification) */}
+          <button
+            onClick={onOpenCertificateModal}
+            className="h-8 px-2.5 sm:px-3 rounded-full text-xs font-mono inline-flex items-center gap-1.5 border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 transition-all shadow-[0_0_10px_rgba(245,158,11,0.2)]"
+            title="View Verifiable Certificate for Naukri, LinkedIn & Indeed"
+          >
+            <Award className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">Certificate</span>
           </button>
 
           {/* Settings & Profile Hub Button (Hosts AI Keys, Journey Track & Profile data) */}
