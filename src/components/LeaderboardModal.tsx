@@ -284,3 +284,4 @@ export function LeaderboardModal({ isOpen, onClose, currentUserId }: Leaderboard
     </div>
   );
 }
+
