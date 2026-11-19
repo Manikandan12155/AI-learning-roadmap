@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Zap, Sparkles, Cpu, Activity, Layers, ArrowUpRight } from "lucide-react";
+import { BrandLogo } from "./BrandLogo";
 
 interface NodeData {
   id: string;
@@ -9,19 +10,18 @@ interface NodeData {
   glowColor: string;
   angle: number;
   dist: number;
-  logo: string;
   badge?: string;
 }
 
 const AI_NODES: NodeData[] = [
-  { id: "gemini", name: "Gemini", sub: "Google", color: "#38bdf8", glowColor: "rgba(56, 189, 248, 0.6)", angle: -90, dist: 175, logo: "G", badge: "2M Context" },
-  { id: "deepseek", name: "DeepSeek", sub: "R1 Reasoning", color: "#60a5fa", glowColor: "rgba(96, 165, 250, 0.6)", angle: -45, dist: 185, logo: "🐋", badge: "SOTA" },
-  { id: "groq", name: "Groq", sub: "LPU Engine", color: "#f97316", glowColor: "rgba(249, 115, 22, 0.6)", angle: 0, dist: 195, logo: "⚡", badge: "500 tok/s" },
-  { id: "openrouter", name: "OpenRouter", sub: "Universal API", color: "#a855f7", glowColor: "rgba(168, 85, 247, 0.6)", angle: 45, dist: 185, logo: "🔀", badge: "Free" },
-  { id: "cerebras", name: "Cerebras", sub: "Wafer Scale", color: "#10b981", glowColor: "rgba(16, 185, 129, 0.6)", angle: 90, dist: 175, logo: "🧬", badge: "1500 t/s" },
-  { id: "together", name: "Together", sub: "Open Source", color: "#ec4899", glowColor: "rgba(236, 72, 153, 0.6)", angle: 135, dist: 185, logo: "🤝", badge: "Turbo" },
-  { id: "openai", name: "OpenAI", sub: "GPT-4o & o3", color: "#10a37f", glowColor: "rgba(16, 163, 127, 0.6)", angle: 180, dist: 195, logo: "✳️", badge: "Flagship" },
-  { id: "claude", name: "Claude", sub: "Anthropic 3.7", color: "#d97706", glowColor: "rgba(217, 119, 6, 0.6)", angle: 225, dist: 185, logo: "🧠", badge: "Hybrid CoT" },
+  { id: "gemini", name: "Gemini", sub: "Google", color: "#38bdf8", glowColor: "rgba(56, 189, 248, 0.6)", angle: -90, dist: 175, badge: "2M Context" },
+  { id: "deepseek", name: "DeepSeek", sub: "R1 Reasoning", color: "#60a5fa", glowColor: "rgba(96, 165, 250, 0.6)", angle: -45, dist: 185, badge: "SOTA" },
+  { id: "groq", name: "Groq", sub: "LPU Engine", color: "#f97316", glowColor: "rgba(249, 115, 22, 0.6)", angle: 0, dist: 195, badge: "500 tok/s" },
+  { id: "openrouter", name: "OpenRouter", sub: "Universal API", color: "#a855f7", glowColor: "rgba(168, 85, 247, 0.6)", angle: 45, dist: 185, badge: "Free" },
+  { id: "cerebras", name: "Cerebras", sub: "Wafer Scale", color: "#10b981", glowColor: "rgba(16, 185, 129, 0.6)", angle: 90, dist: 175, badge: "1500 t/s" },
+  { id: "together", name: "Together", sub: "Open Source", color: "#ec4899", glowColor: "rgba(236, 72, 153, 0.6)", angle: 135, dist: 185, badge: "Turbo" },
+  { id: "openai", name: "OpenAI", sub: "GPT-4o & o3", color: "#10a37f", glowColor: "rgba(16, 163, 127, 0.6)", angle: 180, dist: 195, badge: "Flagship" },
+  { id: "claude", name: "Claude", sub: "Anthropic 3.7", color: "#d97706", glowColor: "rgba(217, 119, 6, 0.6)", angle: 225, dist: 185, badge: "Hybrid CoT" },
 ];
 
 export function AIRouterPipelines() {
@@ -180,13 +180,13 @@ export function AIRouterPipelines() {
             >
               {/* Brand Icon Avatar */}
               <div
-                className="h-6 w-6 rounded-lg grid place-items-center text-xs font-bold font-mono text-white shadow-inner shrink-0"
+                className="h-7 w-7 rounded-xl grid place-items-center text-white shadow-inner shrink-0 p-1"
                 style={{
                   backgroundColor: node.color,
-                  boxShadow: `0 0 10px ${node.glowColor}`,
+                  boxShadow: `0 0 12px ${node.glowColor}`,
                 }}
               >
-                {node.logo}
+                <BrandLogo id={node.id} className="h-4 w-4" />
               </div>
 
               {/* Text Info */}

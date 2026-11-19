@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { KeyRound, Sparkles, X, ExternalLink, Check, Trash2, ShieldCheck, Zap } from "lucide-react";
 import { AI_PROVIDERS, type AIProviderConfig } from "@/data/aiProviders";
+import { BrandLogo } from "./BrandLogo";
 
 interface AIKeysModalProps {
   isOpen: boolean;
@@ -91,18 +92,23 @@ export function AIKeysModal({ isOpen, onClose, onKeysUpdated }: AIKeysModalProps
                 <button
                   key={prov.id}
                   onClick={() => handleSelectProvider(prov.id)}
-                  className={`w-full text-left p-3 rounded-xl border text-xs transition-all flex items-center justify-between gap-2 ${
+                  className={`w-full text-left p-3 rounded-xl border text-xs transition-all flex items-center justify-between gap-2.5 ${
                     isSelected
                       ? "bg-primary/15 border-primary/50 text-foreground shadow-sm"
                       : "bg-surface-2/40 border-border/60 text-muted-foreground hover:bg-surface-2 hover:text-foreground"
                   }`}
                 >
-                  <div className="min-w-0">
-                    <div className="font-semibold text-xs truncate flex items-center gap-1.5">
-                      <span>{prov.name}</span>
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="h-6 w-6 rounded-lg bg-surface-2 border border-border grid place-items-center shrink-0 p-1">
+                      <BrandLogo id={prov.id} className="h-3.5 w-3.5" />
                     </div>
-                    <div className="text-[10px] text-muted-foreground truncate font-mono">
-                      {prov.tag}
+                    <div className="min-w-0">
+                      <div className="font-semibold text-xs truncate flex items-center gap-1.5">
+                        <span>{prov.name}</span>
+                      </div>
+                      <div className="text-[10px] text-muted-foreground truncate font-mono">
+                        {prov.tag}
+                      </div>
                     </div>
                   </div>
 
