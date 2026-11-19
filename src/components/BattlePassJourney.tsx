@@ -10,6 +10,10 @@ import {
   Flame,
   Award,
 } from "lucide-react";
+import avatarTier1 from "@/assets/animal-tier-1.jpg";
+import avatarTier2 from "@/assets/animal-tier-2.jpg";
+import avatarTier3 from "@/assets/animal-tier-3.jpg";
+import avatarTier4 from "@/assets/animal-tier-4.jpg";
 
 interface BattlePassJourneyProps {
   completedTopicsCount: number;
@@ -23,46 +27,56 @@ interface ChestReward {
   title: string;
   badge: string;
   tierName: string;
+  guardianName: string;
   rewardType: "bronze" | "silver" | "gold" | "master";
+  avatarImg: string;
   subtitle: string;
 }
 
 const REWARD_CHESTS: ChestReward[] = [
   {
     level: 1,
-    topicsNeeded: 20,
-    title: "Apprentice Chest",
-    badge: "Foundations Tier",
+    topicsNeeded: 61,
+    title: "Cyber Fox Chest",
+    guardianName: "Cyber Fennec Fox",
+    badge: "Foundations & Python",
     tierName: "AI Practitioner Credential",
     rewardType: "bronze",
-    subtitle: "Unlock Verified Tier 1 Certificate & LinkedIn Badge",
+    avatarImg: avatarTier1,
+    subtitle: "Complete Levels 00-01 (Agile Apprentice • 61 Topics)",
   },
   {
-    level: 4,
-    topicsNeeded: 80,
-    title: "Specialist Vault",
-    badge: "Deep Learning Tier",
+    level: 5,
+    topicsNeeded: 163,
+    title: "Leopard Vault",
+    guardianName: "Neural Snow Leopard",
+    badge: "Math, ML & Deep Learning",
     tierName: "GenAI Specialist Credential",
     rewardType: "silver",
-    subtitle: "Unlock PyTorch & Transformers Verified Certificate",
+    avatarImg: avatarTier2,
+    subtitle: "Complete Levels 00-05 (Predator Speed & Focus • 163 Topics)",
   },
   {
-    level: 8,
-    topicsNeeded: 160,
-    title: "Architect Coffer",
-    badge: "Agent & RAG Tier",
+    level: 9,
+    topicsNeeded: 264,
+    title: "Alpha Wolf Coffer",
+    guardianName: "Armored Silver Wolf",
+    badge: "GenAI, Agents & AI Apps",
     tierName: "Autonomous Agents Credential",
     rewardType: "gold",
-    subtitle: "Unlock Multi-Agent & RAG 2.0 Architect Credential",
+    avatarImg: avatarTier3,
+    subtitle: "Complete Levels 00-09 (Tactical Alpha Leader • 264 Topics)",
   },
   {
-    level: 14,
-    topicsNeeded: 280,
-    title: "Grand Master Relic",
-    badge: "Master Diploma",
+    level: 15,
+    topicsNeeded: 583,
+    title: "Apex Dragon Relic",
+    guardianName: "Apex Dragon-Lion King",
+    badge: "Master Diploma + Glossary",
     tierName: "Principal AI Systems Diploma",
     rewardType: "master",
-    subtitle: "100% Curriculum Master Certificate for Naukri & Indeed",
+    avatarImg: avatarTier4,
+    subtitle: "100% Supreme Mastery (All 14 Levels + 250 Glossary Terms)",
   },
 ];
 
@@ -74,7 +88,7 @@ export function BattlePassJourney({
   const [activeTooltip, setActiveTooltip] = useState<number | null>(1);
 
   // Overall progress percentage along the golden battle track
-  const maxTrackTopics = 280;
+  const maxTrackTopics = totalTopicsCount || 583;
   const trackPercentage = Math.min(
     Math.round((completedTopicsCount / maxTrackTopics) * 100),
     100
@@ -128,7 +142,7 @@ export function BattlePassJourney({
       </div>
 
       {/* 3D HORIZONTAL BATTLE PASS TRACK CONTAINER */}
-      <div className="relative pt-12 pb-6 px-2 sm:px-8 overflow-x-auto">
+      <div className="relative pt-16 pb-6 px-2 sm:px-8 overflow-x-auto">
         <div className="min-w-[650px] relative">
           {/* THE 4 CHEST MILESTONES */}
           <div className="grid grid-cols-4 gap-4 relative z-20 mb-3">
@@ -149,8 +163,8 @@ export function BattlePassJourney({
                 >
                   {/* Floating Action Claim Popup (Clash Style Green Bubble) */}
                   {isCurrentTarget && (
-                    <div className="absolute -top-14 left-1/2 -translate-x-1/2 z-30 animate-bounce duration-700 pointer-events-auto">
-                      <div className="relative bg-gradient-to-b from-[#4cd964] to-[#2ac046] border-2 border-[#bbf7c8] text-black px-3 py-1 rounded-xl shadow-[0_6px_20px_rgba(76,217,100,0.6)] flex items-center gap-1.5 whitespace-nowrap">
+                    <div className="absolute -top-12 left-1/2 -translate-x-1/2 z-30 animate-bounce duration-700 pointer-events-auto">
+                      <div className="relative bg-gradient-to-b from-[#4cd964] to-[#2ac046] border-2 border-[#bbf7c8] text-black px-3.5 py-1 rounded-xl shadow-[0_6px_25px_rgba(76,217,100,0.7)] flex items-center gap-1.5 whitespace-nowrap">
                         <Sparkles className="h-3.5 w-3.5 text-white" />
                         <span className="font-display font-extrabold text-[11px] uppercase tracking-wider text-black">
                           Next Goal: {chest.topicsNeeded - completedTopicsCount} left
@@ -162,55 +176,44 @@ export function BattlePassJourney({
                   )}
 
                   {isClaimed && (
-                    <div className="absolute -top-12 left-1/2 -translate-x-1/2 z-30">
+                    <div className="absolute -top-10 left-1/2 -translate-x-1/2 z-30">
                       <div className="bg-[#22c55e] border border-white text-black font-extrabold text-[10px] uppercase px-2.5 py-0.5 rounded-full shadow-[0_0_12px_rgba(34,197,94,0.6)] flex items-center gap-1 whitespace-nowrap">
                         <Check className="h-3 w-3 stroke-[3]" /> Claimed!
                       </div>
                     </div>
                   )}
 
-                  {/* 3D NEUMORPHIC CHEST BOX */}
+                  {/* 3D HERO AVATAR CARD (Clash of Clans Style Portrait Box) */}
                   <div
-                    className={`relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl flex flex-col items-center justify-center transition-all duration-300 transform group-hover:scale-105 ${
+                    className={`relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl flex flex-col items-center justify-center transition-all duration-300 transform group-hover:scale-105 overflow-hidden ${
                       isClaimed
-                        ? "bg-gradient-to-b from-[#2e2617] via-[#1a150c] to-[#0d0b06] border-2 border-amber-400 shadow-[0_0_30px_rgba(245,158,11,0.5)]"
+                        ? "border-2 border-amber-400 shadow-[0_0_30px_rgba(245,158,11,0.6)]"
                         : isCurrentTarget
-                        ? "bg-gradient-to-b from-[#221f19] to-[#12100d] border-2 border-amber-500/70 shadow-[0_0_20px_rgba(245,158,11,0.3)] animate-pulse"
-                        : "bg-gradient-to-b from-[#181613] to-[#0a0907] border border-white/10 opacity-70"
+                        ? "border-2 border-emerald-400 shadow-[0_0_20px_rgba(52,199,89,0.5)] ring-2 ring-emerald-400/40"
+                        : "border border-white/20 opacity-60 grayscale-[40%]"
                     }`}
                   >
-                    {/* Glowing Aura inside Chest */}
-                    <div
-                      className={`absolute inset-1 rounded-xl transition-opacity ${
-                        isClaimed
-                          ? "bg-amber-400/20 blur-sm"
-                          : isCurrentTarget
-                          ? "bg-emerald-400/10 blur-sm"
-                          : "opacity-0"
-                      }`}
+                    {/* Character Avatar Real Image */}
+                    <img
+                      src={chest.avatarImg}
+                      alt={chest.title}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     />
 
-                    {/* Chest Center Emblem */}
-                    <div className="relative z-10 text-center">
-                      <span className="text-2xl sm:text-3xl block filter drop-shadow">
-                        {chest.rewardType === "bronze" && "🪵"}
-                        {chest.rewardType === "silver" && "🪙"}
-                        {chest.rewardType === "gold" && "👑"}
-                        {chest.rewardType === "master" && "💎"}
-                      </span>
+                    {/* Dark gradient vignette over avatar bottom */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20 pointer-events-none" />
 
-                      {/* Locked status lock / tick */}
-                      <div className="mt-1 flex items-center justify-center">
-                        {isClaimed ? (
-                          <div className="h-5 w-5 rounded-full bg-emerald-500 text-black grid place-items-center shadow-glow">
-                            <Check className="h-3 w-3 stroke-[3]" />
-                          </div>
-                        ) : (
-                          <div className="h-5 w-5 rounded-full bg-black/70 border border-white/20 text-neutral-400 grid place-items-center">
-                            <Lock className="h-3 w-3" />
-                          </div>
-                        )}
-                      </div>
+                    {/* Locked Status Overlay or Claimed Stamp */}
+                    <div className="absolute bottom-1.5 right-1.5 z-10">
+                      {isClaimed ? (
+                        <div className="h-6 w-6 rounded-full bg-emerald-500 text-black border border-white grid place-items-center shadow-glow">
+                          <Check className="h-3.5 w-3.5 stroke-[3]" />
+                        </div>
+                      ) : (
+                        <div className="h-6 w-6 rounded-full bg-black/80 border border-white/30 text-white grid place-items-center shadow-md">
+                          <Lock className="h-3 w-3" />
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -258,10 +261,10 @@ export function BattlePassJourney({
 
           {/* Under-Track Indicators */}
           <div className="flex items-center justify-between px-6 sm:px-10 mt-2 font-mono text-[10px] text-neutral-500">
-            <span>20 Topics</span>
-            <span>80 Topics</span>
-            <span>160 Topics</span>
-            <span>280 Topics (Master)</span>
+            <span>61 Topics (L0-L1)</span>
+            <span>163 Topics (L0-L5)</span>
+            <span>264 Topics (L0-L9)</span>
+            <span>583 Topics (Complete)</span>
           </div>
         </div>
       </div>
