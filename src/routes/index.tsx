@@ -25,12 +25,14 @@ import {
   BookOpen,
   Copy,
   KeyRound,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { ROADMAP, TOTAL_TOPICS, type Level } from "@/data/roadmap";
 import { AIExplainPanel } from "@/components/AIExplainPanel";
 import { GeminiKeyModal } from "@/components/GeminiKeyModal";
+import { AboutModal } from "@/components/AboutModal";
 import heroImg from "@/assets/hero-neural.jpg";
-import heroCharacter from "@/assets/hero-character-tight.png";
 import iconFoundation from "@/assets/icon-foundation.png";
 import iconML from "@/assets/icon-ml.png";
 import iconAgent from "@/assets/icon-agent.png";
@@ -82,7 +84,38 @@ function HomePage() {
   const [filter, setFilter] = useState<Filter>("all");
   const [query, setQuery] = useState("");
   const [isKeyModalOpen, setIsKeyModalOpen] = useState(false);
+  const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
   const [hasApiKey, setHasApiKey] = useState(false);
+  const [theme, setTheme] = useState<"dark" | "light">("dark");
+
+  useEffect(() => {
+    try {
+      const storedTheme = (localStorage.getItem("scg_theme") as "dark" | "light") || "dark";
+      setTheme(storedTheme);
+      if (storedTheme === "light") {
+        document.documentElement.classList.add("light");
+      } else {
+        document.documentElement.classList.remove("light");
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const next = theme === "dark" ? "light" : "dark";
+    setTheme(next);
+    try {
+      localStorage.setItem("scg_theme", next);
+      if (next === "light") {
+        document.documentElement.classList.add("light");
+      } else {
+        document.documentElement.classList.remove("light");
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
   const [aiModalContext, setAiModalContext] = useState<{
     levelNumber: number;
     levelName: string;
@@ -158,9 +191,17 @@ function HomePage() {
       <Header
         pct={pct}
         hasApiKey={hasApiKey}
+        theme={theme}
+        onToggleTheme={toggleTheme}
         onOpenKeyModal={() => setIsKeyModalOpen(true)}
+        onOpenAboutModal={() => setIsAboutModalOpen(true)}
       />
-      <Hero done={done} pct={pct} completedLevels={completedLevels} />
+      <Hero
+        done={done}
+        pct={pct}
+        completedLevels={completedLevels}
+        onOpenAboutModal={() => setIsAboutModalOpen(true)}
+      />
       <Showcase />
 
       <main className="mx-auto max-w-7xl px-4 sm:px-6 pb-32">
@@ -220,6 +261,11 @@ function HomePage() {
         onKeyUpdated={checkApiKey}
       />
 
+      <AboutModal
+        isOpen={isAboutModalOpen}
+        onClose={() => setIsAboutModalOpen(false)}
+      />
+
       <Footer />
     </div>
   );
@@ -228,11 +274,17 @@ function HomePage() {
 function Header({
   pct,
   hasApiKey,
+  theme,
+  onToggleTheme,
   onOpenKeyModal,
+  onOpenAboutModal,
 }: {
   pct: number;
   hasApiKey: boolean;
+  theme: "dark" | "light";
+  onToggleTheme: () => void;
   onOpenKeyModal: () => void;
+  onOpenAboutModal: () => void;
 }) {
   return (
     <header className="sticky top-0 z-40 bg-background/90 backdrop-blur-xl border-b border-border">
@@ -241,13 +293,36 @@ function Header({
           <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-primary to-accent grid place-items-center shadow-glow">
             <Zap className="h-4 w-4 text-primary-foreground" strokeWidth={2.5} />
           </div>
-          <span className="font-display text-lg font-semibold tracking-tight">Smart Canvas Grow</span>
+          <span className="font-display text-lg font-semibold tracking-tight text-foreground">Smart Canvas Grow</span>
           <span className="hidden sm:inline text-xs text-muted-foreground font-mono ml-2">
             / ai-ml-roadmap
           </span>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2.5 sm:gap-3">
+          {/* Light / Dark Mode Toggle */}
+          <button
+            onClick={onToggleTheme}
+            className="h-8 w-8 rounded-full border border-border bg-surface hover:bg-surface-2 grid place-items-center text-muted-foreground hover:text-foreground transition-all shadow-sm"
+            title={theme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"}
+          >
+            {theme === "dark" ? (
+              <Sun className="h-4 w-4 text-amber" />
+            ) : (
+              <Moon className="h-4 w-4 text-primary" />
+            )}
+          </button>
+
+          {/* About Creator Button */}
+          <button
+            onClick={onOpenAboutModal}
+            className="h-8 px-3 rounded-full text-xs font-mono inline-flex items-center gap-1.5 border border-border bg-surface text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all"
+            title="About Creator"
+          >
+            <Sparkles className="h-3.5 w-3.5 text-primary" />
+            <span>About</span>
+          </button>
+
           {/* Gemini API Key Button in Header */}
           <button
             onClick={onOpenKeyModal}
@@ -294,10 +369,12 @@ function Hero({
   done,
   pct,
   completedLevels,
+  onOpenAboutModal,
 }: {
   done: number;
   pct: number;
   completedLevels: number;
+  onOpenAboutModal: () => void;
 }) {
   return (
     <section className="relative overflow-hidden">
@@ -307,74 +384,60 @@ function Hero({
           alt=""
           width={1920}
           height={1080}
-          className="h-full w-full object-cover opacity-40"
+          className="h-full w-full object-cover opacity-30"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/70 to-background" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-background/85 to-background" />
       </div>
-      <div className="mx-auto max-w-6xl px-5 pt-8 pb-16 sm:pt-14 sm:pb-24">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-end">
-          {/* Left Column: Hero Character Image with soft ambient glow */}
-          <div className="lg:col-span-5 flex justify-center items-end order-2 lg:order-1 self-end">
-            <div className="relative group w-full flex justify-center">
-              {/* Soft Ambient Radial AI Glow */}
-              <div className="absolute -inset-4 bg-gradient-to-tr from-primary/35 via-emerald-500/25 to-accent/30 rounded-full blur-3xl opacity-75 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
-              <img
-                src={heroCharacter}
-                alt="Manikandan - AI Engineer"
-                width={600}
-                height={720}
-                className="relative z-10 w-80 sm:w-96 lg:w-[440px] xl:w-[470px] max-h-[560px] object-contain object-bottom drop-shadow-[0_25px_50px_rgba(0,0,0,0.75)] hover:scale-[1.02] transition-transform duration-500"
-              />
-            </div>
-          </div>
+      <div className="mx-auto max-w-5xl px-5 pt-10 pb-16 sm:pt-16 sm:pb-20 text-center">
+        {/* Pill Badge */}
+        <div className="inline-flex items-center gap-2.5 rounded-full border border-primary/30 bg-primary/10 px-3.5 py-1.5 backdrop-blur-md shadow-[0_0_15px_-3px_oklch(0.72_0.16_160/0.3)]">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+          </span>
+          <span className="font-mono text-[11px] font-medium uppercase tracking-wider text-primary-glow">
+            Expert Edition · 14 Levels · {TOTAL_TOPICS}+ Topics
+          </span>
+        </div>
 
-          {/* Right Column: Heading, Description & Stats */}
-          <div className="lg:col-span-7 order-1 lg:order-2 self-center">
-            {/* Pill Badge */}
-            <div className="inline-flex items-center gap-2.5 rounded-full border border-primary/30 bg-primary/10 px-3.5 py-1.5 backdrop-blur-md shadow-[0_0_15px_-3px_oklch(0.72_0.16_160/0.3)]">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-              </span>
-              <span className="font-mono text-[11px] font-medium uppercase tracking-wider text-primary-glow">
-                Expert Edition · 14 Levels · {TOTAL_TOPICS}+ Topics
-              </span>
-            </div>
+        {/* Main Headline */}
+        <h1 className="mt-6 font-display text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.08] tracking-tight text-white drop-shadow-sm max-w-4xl mx-auto">
+          The complete <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent">AI &amp; ML</span> roadmap.
+          <span className="block mt-2 font-normal text-muted-foreground/90 text-2xl sm:text-3xl lg:text-4xl leading-snug">
+            From zero to shipping production agents.
+          </span>
+        </h1>
 
-            {/* Main Headline with refined typography and glow */}
-            <h1 className="mt-5 font-display text-4xl sm:text-5xl lg:text-[3.5rem] font-bold leading-[1.08] tracking-tight text-white drop-shadow-sm">
-              The complete <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent">AI &amp; ML</span> roadmap.
-              <span className="block mt-1 font-normal text-muted-foreground/90 text-2xl sm:text-3xl lg:text-[2rem] leading-snug">
-                From zero to shipping production agents.
-              </span>
-            </h1>
+        {/* Subtext description */}
+        <p className="mt-5 text-sm sm:text-base text-foreground/80 leading-relaxed font-sans max-w-2xl mx-auto">
+          A guided, level-by-level journey across Python, classical ML, deep learning, LLMs, RAG,
+          autonomous agents, and enterprise AI systems. Track every topic, take AI quizzes, and master production architectures.
+        </p>
 
-            {/* Subtext description with stylish border accent */}
-            <div className="mt-5 pl-4 border-l-2 border-primary/30 py-0.5">
-              <p className="text-sm sm:text-base text-foreground/80 leading-relaxed font-sans max-w-xl">
-                A guided, level-by-level journey across Python, classical ML, deep learning, LLMs, RAG,
-                agents, deployment and enterprise AI systems. Track every topic, build projects, and become undeniable.
-              </p>
-              <div className="mt-2.5 flex items-center gap-2 font-mono text-[11px] text-muted-foreground">
-                <span>Curated by</span>
-                <span className="text-primary-glow font-medium bg-primary/10 px-2 py-0.5 rounded border border-primary/20">
-                  Manikandan
-                </span>
-              </div>
-            </div>
+        {/* Curator link button */}
+        <div className="mt-4 flex items-center justify-center gap-2">
+          <span className="font-mono text-xs text-muted-foreground">Curated by</span>
+          <button
+            onClick={onOpenAboutModal}
+            className="text-primary-glow font-medium text-xs bg-primary/10 hover:bg-primary/20 px-3 py-1 rounded-full border border-primary/30 transition-all inline-flex items-center gap-1.5 group"
+          >
+            <span>Manikandan</span>
+            <span className="text-[10px] text-muted-foreground group-hover:text-primary transition">
+              (View Profile →)
+            </span>
+          </button>
+        </div>
 
-            {/* Quick Stat Highlights */}
-            <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <Stat label="Total topics" value={TOTAL_TOPICS} icon={<Target className="h-4 w-4" />} />
-              <Stat label="Completed" value={done} icon={<Check className="h-4 w-4" />} accent />
-              <Stat
-                label="Levels cleared"
-                value={`${completedLevels}/15`}
-                icon={<Trophy className="h-4 w-4" />}
-              />
-              <Stat label="Progress" value={`${pct}%`} icon={<Flame className="h-4 w-4" />} accent />
-            </div>
-          </div>
+        {/* Quick Stat Highlights */}
+        <div className="mt-10 grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-3xl mx-auto text-left">
+          <Stat label="Total topics" value={TOTAL_TOPICS} icon={<Target className="h-4 w-4" />} />
+          <Stat label="Completed" value={done} icon={<Check className="h-4 w-4" />} accent />
+          <Stat
+            label="Levels cleared"
+            value={`${completedLevels}/15`}
+            icon={<Trophy className="h-4 w-4" />}
+          />
+          <Stat label="Progress" value={`${pct}%`} icon={<Flame className="h-4 w-4" />} accent />
         </div>
       </div>
     </section>
