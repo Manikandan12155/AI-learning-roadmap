@@ -4,6 +4,7 @@ import { KeyRound, Sparkles, X, ExternalLink, Bot, Check, AlertCircle, Loader2 }
 interface AIExplainModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onOpenKeySettings?: () => void;
   topicContext: {
     levelNumber: number;
     levelName: string;
@@ -12,7 +13,12 @@ interface AIExplainModalProps {
   } | null;
 }
 
-export function AIExplainModal({ isOpen, onClose, topicContext }: AIExplainModalProps) {
+export function AIExplainModal({
+  isOpen,
+  onClose,
+  onOpenKeySettings,
+  topicContext,
+}: AIExplainModalProps) {
   const [apiKey, setApiKey] = useState("");
   const [savedKey, setSavedKey] = useState<string | null>(null);
   const [isEditingKey, setIsEditingKey] = useState(false);
@@ -26,11 +32,14 @@ export function AIExplainModal({ isOpen, onClose, topicContext }: AIExplainModal
       if (stored) {
         setSavedKey(stored);
         setApiKey(stored);
+      } else {
+        setSavedKey(null);
+        setApiKey("");
       }
     } catch (e) {
       console.error(e);
     }
-  }, []);
+  }, [isOpen]);
 
   const handleSaveKey = () => {
     const trimmed = apiKey.trim();
@@ -168,16 +177,16 @@ What breaks in production? Common mistakes or scaling bottlenecks.
         {/* Content Body */}
         <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-6">
           {/* API Key Banner / Input */}
-          {(!savedKey || isEditingKey) ? (
+          {!savedKey ? (
             <div className="p-5 rounded-xl border border-primary/30 bg-primary/5 space-y-4">
               <div className="flex items-start gap-3">
                 <KeyRound className="h-5 w-5 text-primary shrink-0 mt-0.5" />
                 <div className="space-y-1">
                   <h3 className="font-semibold text-sm text-foreground">
-                    Enter your Google Gemini API Key (Free)
+                    Gemini API Key Required (100% Free)
                   </h3>
                   <p className="text-xs text-muted-foreground leading-relaxed">
-                    Unakku completely free-ah Google AI Studio-la API Key kedaikkum. Inga paste pannina browser local storage-la save aagi direct-ah live AI tutor work aagum!
+                    AI explanation paarka Google Gemini API key venum. Header-la irukura key icon or inga paste panni instant-ah unlock pannikalam!
                   </p>
                 </div>
               </div>
@@ -203,7 +212,7 @@ What breaks in production? Common mistakes or scaling bottlenecks.
               </div>
 
               <div className="flex items-center justify-between text-xs pt-1 border-t border-border/50 text-muted-foreground">
-                <span className="text-[11px]">Key is stored securely on your browser only.</span>
+                <span className="text-[11px]">Stored locally in your browser.</span>
                 <a
                   href="https://aistudio.google.com/app/apikey"
                   target="_blank"
@@ -218,7 +227,7 @@ What breaks in production? Common mistakes or scaling bottlenecks.
             <div className="flex items-center justify-between px-3.5 py-2 rounded-lg border border-border/60 bg-surface/40 text-xs">
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Check className="h-3.5 w-3.5 text-primary" />
-                <span>Using saved Gemini API Key:</span>
+                <span>Active Key:</span>
                 <span className="font-mono text-foreground">
                   ••••••••{savedKey.slice(-4)}
                 </span>
@@ -231,20 +240,20 @@ What breaks in production? Common mistakes or scaling bottlenecks.
                 >
                   Regenerate
                 </button>
-                <span className="text-border">|</span>
-                <button
-                  onClick={() => setIsEditingKey(true)}
-                  className="text-muted-foreground hover:text-foreground"
-                >
-                  Change
-                </button>
-                <span className="text-border">|</span>
-                <button
-                  onClick={handleClearKey}
-                  className="text-destructive hover:underline"
-                >
-                  Remove
-                </button>
+                {onOpenKeySettings && (
+                  <>
+                    <span className="text-border">|</span>
+                    <button
+                      onClick={() => {
+                        onClose();
+                        onOpenKeySettings();
+                      }}
+                      className="text-muted-foreground hover:text-foreground"
+                    >
+                      Manage in Header
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           )}

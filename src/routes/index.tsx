@@ -24,9 +24,11 @@ import {
   Target,
   BookOpen,
   Copy,
+  KeyRound,
 } from "lucide-react";
 import { ROADMAP, TOTAL_TOPICS, type Level } from "@/data/roadmap";
-import { AIExplainModal } from "@/components/AIExplainModal";
+import { AIExplainPanel } from "@/components/AIExplainPanel";
+import { GeminiKeyModal } from "@/components/GeminiKeyModal";
 import heroImg from "@/assets/hero-neural.jpg";
 import heroCharacter from "@/assets/hero-character-tight.png";
 import iconFoundation from "@/assets/icon-foundation.png";
@@ -79,12 +81,27 @@ function HomePage() {
   const [openLevels, setOpenLevels] = useState<Record<number, boolean>>({ 0: true });
   const [filter, setFilter] = useState<Filter>("all");
   const [query, setQuery] = useState("");
+  const [isKeyModalOpen, setIsKeyModalOpen] = useState(false);
+  const [hasApiKey, setHasApiKey] = useState(false);
   const [aiModalContext, setAiModalContext] = useState<{
     levelNumber: number;
     levelName: string;
     sectionName: string;
     topicName: string;
   } | null>(null);
+
+  const checkApiKey = () => {
+    try {
+      const stored = localStorage.getItem("gemini_user_api_key");
+      setHasApiKey(!!stored);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  useEffect(() => {
+    checkApiKey();
+  }, []);
 
   useEffect(() => {
     try {
@@ -138,11 +155,15 @@ function HomePage() {
 
   return (
     <div className="min-h-screen">
-      <Header pct={pct} />
+      <Header
+        pct={pct}
+        hasApiKey={hasApiKey}
+        onOpenKeyModal={() => setIsKeyModalOpen(true)}
+      />
       <Hero done={done} pct={pct} completedLevels={completedLevels} />
       <Showcase />
 
-      <main className="mx-auto max-w-6xl px-5 pb-32">
+      <main className="mx-auto max-w-7xl px-4 sm:px-6 pb-32">
         <Controls
           filter={filter}
           setFilter={setFilter}
@@ -151,39 +172,52 @@ function HomePage() {
           onReset={reset}
         />
 
-        <ol className="mt-8 space-y-4">
-          {ROADMAP.filter((lvl) => {
-            if (filter === "abbrev") return lvl.short === "Technical Abbreviations";
-            return true;
-          }).map((lvl, lIdx) => (
-            <LevelCard
-              key={lIdx}
-              lvl={lvl}
-              lIdx={lIdx}
-              state={state}
-              open={filter === "abbrev" ? true : !!openLevels[lIdx]}
-              setOpen={(v) => setOpenLevels((p) => ({ ...p, [lIdx]: v }))}
-              onToggle={toggleTopic}
-              onMarkAll={() => markLevelDone(lIdx)}
-              onAskAi={(topicName, sectionName) => {
-                setAiModalContext({
-                  levelNumber: lIdx,
-                  levelName: lvl.short,
-                  sectionName,
-                  topicName,
-                });
-              }}
-              filter={filter}
-              query={query.trim().toLowerCase()}
+        <div className="mt-8 flex flex-col lg:flex-row gap-6 items-start">
+          {/* Main Roadmap Accordion List */}
+          <ol className="flex-1 w-full min-w-0 space-y-4">
+            {ROADMAP.filter((lvl) => {
+              if (filter === "abbrev") return lvl.short === "Technical Abbreviations";
+              return true;
+            }).map((lvl, lIdx) => (
+              <LevelCard
+                key={lIdx}
+                lvl={lvl}
+                lIdx={lIdx}
+                state={state}
+                open={filter === "abbrev" ? true : !!openLevels[lIdx]}
+                setOpen={(v) => setOpenLevels((p) => ({ ...p, [lIdx]: v }))}
+                onToggle={toggleTopic}
+                onMarkAll={() => markLevelDone(lIdx)}
+                onAskAi={(topicName, sectionName) => {
+                  setAiModalContext({
+                    levelNumber: lIdx,
+                    levelName: lvl.short,
+                    sectionName,
+                    topicName,
+                  });
+                }}
+                filter={filter}
+                query={query.trim().toLowerCase()}
+              />
+            ))}
+          </ol>
+
+          {/* Side AI Explain Panel */}
+          {aiModalContext && (
+            <AIExplainPanel
+              isOpen={!!aiModalContext}
+              onClose={() => setAiModalContext(null)}
+              onOpenKeySettings={() => setIsKeyModalOpen(true)}
+              topicContext={aiModalContext}
             />
-          ))}
-        </ol>
+          )}
+        </div>
       </main>
 
-      <AIExplainModal
-        isOpen={!!aiModalContext}
-        onClose={() => setAiModalContext(null)}
-        topicContext={aiModalContext}
+      <GeminiKeyModal
+        isOpen={isKeyModalOpen}
+        onClose={() => setIsKeyModalOpen(false)}
+        onKeyUpdated={checkApiKey}
       />
 
       <Footer />
@@ -191,10 +225,18 @@ function HomePage() {
   );
 }
 
-function Header({ pct }: { pct: number }) {
+function Header({
+  pct,
+  hasApiKey,
+  onOpenKeyModal,
+}: {
+  pct: number;
+  hasApiKey: boolean;
+  onOpenKeyModal: () => void;
+}) {
   return (
-    <header className="sticky top-0 z-40 glass border-b border-border">
-      <div className="mx-auto max-w-6xl px-5 h-14 flex items-center justify-between">
+    <header className="sticky top-0 z-40 bg-background/90 backdrop-blur-xl border-b border-border">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 h-14 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-primary to-accent grid place-items-center shadow-glow">
             <Zap className="h-4 w-4 text-primary-foreground" strokeWidth={2.5} />
@@ -204,15 +246,43 @@ function Header({ pct }: { pct: number }) {
             / ai-ml-roadmap
           </span>
         </div>
-        <div className="flex items-center gap-3">
-          <span className="font-mono text-xs text-muted-foreground hidden sm:inline">
-            {pct}% complete
-          </span>
-          <div className="h-1.5 w-28 rounded-full bg-muted overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-primary to-primary-glow transition-all duration-500"
-              style={{ width: `${pct}%` }}
-            />
+
+        <div className="flex items-center gap-4">
+          {/* Gemini API Key Button in Header */}
+          <button
+            onClick={onOpenKeyModal}
+            className={`h-8 px-3 rounded-full text-xs font-mono inline-flex items-center gap-1.5 border transition-all ${
+              hasApiKey
+                ? "bg-primary/10 border-primary/40 text-primary-glow hover:bg-primary/20"
+                : "bg-surface-2 border-border text-muted-foreground hover:text-foreground hover:border-primary/40"
+            }`}
+            title="Setup Google Gemini API Key"
+          >
+            <KeyRound className="h-3.5 w-3.5 text-primary" />
+            <span className="hidden sm:inline">
+              {hasApiKey ? "Gemini Key: Active" : "Set Gemini Key"}
+            </span>
+            <span className="sm:hidden">
+              {hasApiKey ? "Key ✓" : "Key"}
+            </span>
+          </button>
+
+          {/* Battery Style Progress Indicator */}
+          <div className="flex items-center gap-2 bg-surface-2/60 border border-border px-2.5 py-1 rounded-lg">
+            <span className="font-mono text-xs text-foreground font-medium tabular-nums">
+              {pct}%
+            </span>
+            {/* Battery Body */}
+            <div className="relative flex items-center">
+              <div className="w-8 h-4 rounded-[4px] border border-border-strong/80 p-[1.5px] flex items-center bg-black/40">
+                <div
+                  className="h-full rounded-[2px] bg-gradient-to-r from-emerald-500 to-primary transition-all duration-500 shadow-[0_0_8px_rgba(52,199,89,0.4)]"
+                  style={{ width: `${Math.max(pct, 4)}%` }}
+                />
+              </div>
+              {/* Battery Terminal Tip */}
+              <div className="w-[2px] h-2 bg-border-strong/80 rounded-r-[1px] ml-[1px]" />
+            </div>
           </div>
         </div>
       </div>
