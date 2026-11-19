@@ -27,6 +27,7 @@ import {
   KeyRound,
   Sun,
   Moon,
+  Lock,
 } from "lucide-react";
 import { ROADMAP, TOTAL_TOPICS, type Level } from "@/data/roadmap";
 import { AIExplainPanel } from "@/components/AIExplainPanel";
@@ -90,6 +91,7 @@ function HomePage() {
   const [isKeyModalOpen, setIsKeyModalOpen] = useState(false);
   const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authReason, setAuthReason] = useState<string | undefined>(undefined);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [hasApiKey, setHasApiKey] = useState(false);
   const [theme, setTheme] = useState<"dark" | "light">("dark");
@@ -256,7 +258,10 @@ function HomePage() {
         onToggleTheme={toggleTheme}
         onOpenKeyModal={() => setIsKeyModalOpen(true)}
         onOpenAboutModal={() => setIsAboutModalOpen(true)}
-        onOpenAuthModal={() => setIsAuthModalOpen(true)}
+        onOpenAuthModal={() => {
+          setAuthReason("Sign in with Google to sync your roadmap progress and unlock full AI study features.");
+          setIsAuthModalOpen(true);
+        }}
         onSignOut={handleSignOut}
       />
       <Hero
@@ -282,28 +287,58 @@ function HomePage() {
             {ROADMAP.filter((lvl) => {
               if (filter === "abbrev") return lvl.short === "Technical Abbreviations";
               return true;
-            }).map((lvl, lIdx) => (
-              <LevelCard
-                key={lIdx}
-                lvl={lvl}
-                lIdx={lIdx}
-                state={state}
-                open={filter === "abbrev" ? true : !!openLevels[lIdx]}
-                setOpen={(v) => setOpenLevels((p) => ({ ...p, [lIdx]: v }))}
-                onToggle={toggleTopic}
-                onMarkAll={() => markLevelDone(lIdx)}
-                onAskAi={(topicName, sectionName) => {
-                  setAiModalContext({
-                    levelNumber: lIdx,
-                    levelName: lvl.short,
-                    sectionName,
-                    topicName,
-                  });
-                }}
-                filter={filter}
-                query={query.trim().toLowerCase()}
-              />
-            ))}
+            }).map((lvl, lIdx) => {
+              const isLocked = !currentUser && lIdx > 1; // Level 0 & Level 1 are free preview. Level 2+ are locked without login.
+              return (
+                <LevelCard
+                  key={lIdx}
+                  lvl={lvl}
+                  lIdx={lIdx}
+                  state={state}
+                  isLocked={isLocked}
+                  open={filter === "abbrev" ? true : !!openLevels[lIdx]}
+                  setOpen={(v) => {
+                    if (isLocked) {
+                      setAuthReason(`Sign in with Google to unlock Level ${lIdx.toString().padStart(2, "0")}: ${lvl.short} and advanced topics.`);
+                      setIsAuthModalOpen(true);
+                      return;
+                    }
+                    setOpenLevels((p) => ({ ...p, [lIdx]: v }));
+                  }}
+                  onToggle={(k) => {
+                    if (isLocked) {
+                      setAuthReason(`Sign in with Google to mark progress in Level ${lIdx.toString().padStart(2, "0")}: ${lvl.short}.`);
+                      setIsAuthModalOpen(true);
+                      return;
+                    }
+                    toggleTopic(k);
+                  }}
+                  onMarkAll={() => {
+                    if (isLocked) {
+                      setAuthReason("Sign in with Google to track roadmap completion.");
+                      setIsAuthModalOpen(true);
+                      return;
+                    }
+                    markLevelDone(lIdx);
+                  }}
+                  onAskAi={(topicName, sectionName) => {
+                    if (!currentUser) {
+                      setAuthReason("Sign in with Google to access the interactive AI Study Studio.");
+                      setIsAuthModalOpen(true);
+                      return;
+                    }
+                    setAiModalContext({
+                      levelNumber: lIdx,
+                      levelName: lvl.short,
+                      sectionName,
+                      topicName,
+                    });
+                  }}
+                  filter={filter}
+                  query={query.trim().toLowerCase()}
+                />
+              );
+            })}
           </ol>
 
           {/* Side AI Explain Panel */}
@@ -332,6 +367,7 @@ function HomePage() {
       <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
+        reason={authReason}
         onSuccess={() => {
           const demo = localStorage.getItem("scg_demo_user");
           if (demo) setCurrentUser(JSON.parse(demo));
@@ -742,6 +778,7 @@ function LevelCard({
   onAskAi,
   filter,
   query,
+  isLocked = false,
 }: {
   lvl: Level;
   lIdx: number;
@@ -753,6 +790,7 @@ function LevelCard({
   onAskAi: (topicName: string, sectionName: string) => void;
   filter: Filter;
   query: string;
+  isLocked?: boolean;
 }) {
   const Icon = ICONS[lvl.icon];
   const totals = useMemo(() => {
@@ -845,9 +883,16 @@ Please cover:
           </div>
         </div>
 
-        <ChevronDown
-          className={`h-5 w-5 text-muted-foreground transition-transform shrink-0 ${open ? "rotate-180" : ""}`}
-        />
+        {isLocked ? (
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-2 border border-border text-muted-foreground shrink-0 text-xs font-mono">
+            <Lock className="h-3.5 w-3.5 text-amber" />
+            <span className="hidden sm:inline text-amber text-[11px] font-sans">Locked</span>
+          </div>
+        ) : (
+          <ChevronDown
+            className={`h-5 w-5 text-muted-foreground transition-transform shrink-0 ${open ? "rotate-180" : ""}`}
+          />
+        )}
       </button>
 
       {open && (

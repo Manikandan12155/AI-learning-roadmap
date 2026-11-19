@@ -6,9 +6,10 @@ interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess?: () => void;
+  reason?: string;
 }
 
-export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
+export function AuthModal({ isOpen, onClose, onSuccess, reason }: AuthModalProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -70,7 +71,7 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
             Sign In with Google
           </h3>
           <p className="text-xs text-muted-foreground leading-relaxed max-w-xs mx-auto">
-            Unlock AI Study Studio (Quiz, Flashcards &amp; Mind Map) and sync your roadmap progress across all devices.
+            {reason || "Unlock AI Study Studio (Quiz, Flashcards & Mind Map) and sync your roadmap progress across all devices."}
           </p>
         </div>
 
