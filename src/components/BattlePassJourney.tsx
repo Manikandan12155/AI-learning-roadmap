@@ -142,34 +142,39 @@ export function BattlePassJourney({
       </div>
 
       {/* 3D HORIZONTAL BATTLE PASS TRACK CONTAINER */}
-      <div className="relative pt-16 pb-6 px-2 sm:px-8 overflow-x-auto">
-        <div className="min-w-[650px] relative">
-          {/* THE 4 CHEST MILESTONES */}
-          <div className="grid grid-cols-4 gap-4 relative z-20 mb-3">
+      <div className="relative pt-16 pb-6 px-2 sm:px-6 overflow-x-auto">
+        <div className="min-w-[650px] relative px-6">
+          {/* THE 4 CHEST MILESTONES (Positioned Relative to Actual 583 Topic Ratio) */}
+          <div className="relative h-36 z-20 mb-2">
             {REWARD_CHESTS.map((chest, idx) => {
               const isClaimed = completedTopicsCount >= chest.topicsNeeded;
               const isCurrentTarget =
                 !isClaimed &&
                 (idx === 0 || completedTopicsCount >= REWARD_CHESTS[idx - 1].topicsNeeded);
 
+              // Calculate exact percentage along the track
+              const rawPct = (chest.topicsNeeded / maxTrackTopics) * 100;
+              // Clamp between 5% and 95% so cards don't overflow the container edges
+              const positionLeft = Math.min(Math.max(rawPct, 6), 94);
+
               return (
                 <div
                   key={chest.level}
-                  className="flex flex-col items-center text-center relative group cursor-pointer"
+                  style={{ left: `${positionLeft}%` }}
+                  className="absolute -translate-x-1/2 flex flex-col items-center text-center group cursor-pointer"
                   onClick={() => {
                     setActiveTooltip(idx);
                     if (isClaimed) onOpenCertificateModal();
                   }}
                 >
-                  {/* Floating Action Claim Popup (Clash Style Green Bubble) */}
+                  {/* Floating Action Claim Popup (Green Bubble) */}
                   {isCurrentTarget && (
                     <div className="absolute -top-12 left-1/2 -translate-x-1/2 z-30 animate-bounce duration-700 pointer-events-auto">
-                      <div className="relative bg-gradient-to-b from-[#4cd964] to-[#2ac046] border-2 border-[#bbf7c8] text-black px-3.5 py-1 rounded-xl shadow-[0_6px_25px_rgba(76,217,100,0.7)] flex items-center gap-1.5 whitespace-nowrap">
+                      <div className="relative bg-gradient-to-b from-[#4cd964] to-[#2ac046] border-2 border-[#bbf7c8] text-black px-3 py-1 rounded-xl shadow-[0_6px_25px_rgba(76,217,100,0.7)] flex items-center gap-1.5 whitespace-nowrap">
                         <Sparkles className="h-3.5 w-3.5 text-white" />
                         <span className="font-display font-extrabold text-[11px] uppercase tracking-wider text-black">
                           Next Goal: {chest.topicsNeeded - completedTopicsCount} left
                         </span>
-                        {/* Downward triangle pointer */}
                         <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[8px] border-t-[#2ac046]" />
                       </div>
                     </div>
@@ -183,7 +188,7 @@ export function BattlePassJourney({
                     </div>
                   )}
 
-                  {/* 3D HERO AVATAR CARD (Clash of Clans Style Portrait Box) */}
+                  {/* 3D HERO AVATAR CARD */}
                   <div
                     className={`relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl flex flex-col items-center justify-center transition-all duration-300 transform group-hover:scale-105 overflow-hidden ${
                       isClaimed
@@ -193,17 +198,14 @@ export function BattlePassJourney({
                         : "border border-white/20 opacity-60 grayscale-[40%]"
                     }`}
                   >
-                    {/* Character Avatar Real Image */}
                     <img
                       src={chest.avatarImg}
                       alt={chest.title}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     />
 
-                    {/* Dark gradient vignette over avatar bottom */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20 pointer-events-none" />
 
-                    {/* Locked Status Overlay or Claimed Stamp */}
                     <div className="absolute bottom-1.5 right-1.5 z-10">
                       {isClaimed ? (
                         <div className="h-6 w-6 rounded-full bg-emerald-500 text-black border border-white grid place-items-center shadow-glow">
@@ -218,12 +220,12 @@ export function BattlePassJourney({
                   </div>
 
                   {/* Chest Title & Required Score */}
-                  <div className="mt-3 space-y-0.5">
+                  <div className="mt-2 space-y-0.5 whitespace-nowrap">
                     <span className="font-display font-extrabold text-xs text-white uppercase tracking-tight block">
                       {chest.title}
                     </span>
                     <span className="font-mono text-[10px] text-amber-400 block font-semibold">
-                      {chest.badge}
+                      {chest.topicsNeeded} Topics
                     </span>
                   </div>
                 </div>
@@ -231,7 +233,7 @@ export function BattlePassJourney({
             })}
           </div>
 
-          {/* THE GOLDEN 3D BATTLE TRACK BAR (Clash of Clans Yellow Stone Rail) */}
+          {/* THE GOLDEN 3D BATTLE TRACK BAR */}
           <div className="relative h-6 rounded-full bg-[#1e1913] border-2 border-[#3d3122] shadow-[inset_0_3px_6px_rgba(0,0,0,0.9)] p-0.5 flex items-center">
             {/* The Animated Golden Fill Progress */}
             <div
@@ -239,14 +241,18 @@ export function BattlePassJourney({
               style={{ width: `${Math.max(trackPercentage, 3)}%` }}
             />
 
-            {/* Step Checkpoint Flag Plugs on the Rail */}
-            <div className="absolute inset-0 flex items-center justify-between px-8 sm:px-12 pointer-events-none">
+            {/* Step Checkpoint Flag Plugs on the Rail (Aligned to same percentage) */}
+            <div className="absolute inset-0 pointer-events-none">
               {REWARD_CHESTS.map((chest) => {
                 const reached = completedTopicsCount >= chest.topicsNeeded;
+                const rawPct = (chest.topicsNeeded / maxTrackTopics) * 100;
+                const positionLeft = Math.min(Math.max(rawPct, 6), 94);
+
                 return (
                   <div
                     key={chest.level}
-                    className={`h-7 w-7 rounded-lg border-2 grid place-items-center font-mono text-[10px] font-extrabold shadow-md transform -translate-y-0.5 transition-all ${
+                    style={{ left: `${positionLeft}%` }}
+                    className={`absolute -translate-x-1/2 top-1/2 -translate-y-1/2 h-7 w-7 rounded-lg border-2 grid place-items-center font-mono text-[10px] font-extrabold shadow-md transition-all ${
                       reached
                         ? "bg-yellow-400 border-yellow-200 text-black shadow-[0_0_10px_rgba(250,204,21,0.8)]"
                         : "bg-[#2b2319] border-[#4a3b2b] text-neutral-400"
@@ -259,12 +265,24 @@ export function BattlePassJourney({
             </div>
           </div>
 
-          {/* Under-Track Indicators */}
-          <div className="flex items-center justify-between px-6 sm:px-10 mt-2 font-mono text-[10px] text-neutral-500">
-            <span>61 Topics (L0-L1)</span>
-            <span>163 Topics (L0-L5)</span>
-            <span>264 Topics (L0-L9)</span>
-            <span>583 Topics (Complete)</span>
+          {/* Under-Track Indicators Aligned to Checkpoints */}
+          <div className="relative h-6 mt-2 font-mono text-[10px] text-neutral-400">
+            {REWARD_CHESTS.map((chest) => {
+              const rawPct = (chest.topicsNeeded / maxTrackTopics) * 100;
+              const positionLeft = Math.min(Math.max(rawPct, 6), 94);
+              return (
+                <div
+                  key={chest.level}
+                  style={{ left: `${positionLeft}%` }}
+                  className="absolute -translate-x-1/2 text-center whitespace-nowrap"
+                >
+                  <span className="block font-semibold text-neutral-300">
+                    {chest.topicsNeeded === 583 ? "100% Master" : `${chest.topicsNeeded} Topics`}
+                  </span>
+                  <span className="text-[9px] text-neutral-500">({chest.badge.split("&")[0].trim()})</span>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>

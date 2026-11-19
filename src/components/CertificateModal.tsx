@@ -41,35 +41,35 @@ const MILESTONE_TIERS: MilestoneTier[] = [
     title: "AI & ML Foundations Practitioner",
     scope: "Levels 00 - 01",
     requiredLevels: 1,
-    requiredTopics: 20,
-    badge: "Foundations Tier",
+    requiredTopics: 61,
+    badge: "Foundations Tier (Cyber Fox)",
     description: "Core Python, Matrix Math, Linear Algebra, and Data Science Fundamentals.",
   },
   {
     tierNumber: 2,
     title: "Deep Learning & Generative AI Specialist",
-    scope: "Levels 00 - 04",
-    requiredLevels: 4,
-    requiredTopics: 80,
-    badge: "Specialist Tier",
+    scope: "Levels 00 - 05",
+    requiredLevels: 5,
+    requiredTopics: 163,
+    badge: "Specialist Tier (Neural Leopard)",
     description: "PyTorch, Neural Networks, Computer Vision, Transformers & Fine-tuning.",
   },
   {
     tierNumber: 3,
     title: "Autonomous Agents & RAG 2.0 Architect",
-    scope: "Levels 00 - 08",
-    requiredLevels: 8,
-    requiredTopics: 160,
-    badge: "Architect Tier",
+    scope: "Levels 00 - 09",
+    requiredLevels: 9,
+    requiredTopics: 264,
+    badge: "Architect Tier (Alpha Wolf)",
     description: "Vector Databases, Hybrid Search, Graph RAG, LangChain & Agent Workflows.",
   },
   {
     tierNumber: 4,
     title: "Certified Principal AI Systems Engineer",
-    scope: "Levels 00 - 13 (Full Curriculum)",
+    scope: "Levels 00 - 14 (Full Curriculum + Technical Abbreviations)",
     requiredLevels: 14,
-    requiredTopics: 280,
-    badge: "Master Diploma",
+    requiredTopics: 583,
+    badge: "Master Diploma (Apex Dragon-Lion)",
     description: "Enterprise LLMOps, vLLM Serving, Multi-Agent Swarms & Production AI Architecture.",
   },
 ];
@@ -97,10 +97,10 @@ export function CertificateModal({
 
   // Current active highest unlocked tier
   let highestTierIndex = 0;
-  if (completedLevels >= 14 || doneCount >= 280) highestTierIndex = 3;
-  else if (completedLevels >= 8 || doneCount >= 160) highestTierIndex = 2;
-  else if (completedLevels >= 4 || doneCount >= 80) highestTierIndex = 1;
-  else if (completedLevels >= 1 || doneCount >= 20) highestTierIndex = 0;
+  if (completedLevels >= 14 || doneCount >= 583) highestTierIndex = 3;
+  else if (completedLevels >= 9 || doneCount >= 264) highestTierIndex = 2;
+  else if (completedLevels >= 5 || doneCount >= 163) highestTierIndex = 1;
+  else if (completedLevels >= 1 || doneCount >= 61) highestTierIndex = 0;
 
   const currentDisplayTier = MILESTONE_TIERS[selectedMilestoneIndex];
   const isSelectedTierUnlocked =
@@ -343,41 +343,65 @@ export function CertificateModal({
 
             {/* Controls */}
             {isSelectedTierUnlocked ? (
-              <div className="flex flex-wrap items-center gap-2 pt-1">
-                <button
-                  onClick={handleAddToLinkedIn}
-                  className="flex-1 min-w-[160px] h-9 px-4 rounded-xl bg-[#0A66C2] hover:bg-[#084e96] text-white font-medium text-xs transition flex items-center justify-center gap-2 shadow-sm"
-                >
-                  <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
-                    <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 8.76c-.95 0-1.72-.77-1.72-1.72s.77-1.72 1.72-1.72 1.72.77 1.72 1.72-.77 1.72-1.72 1.72m1.39 9.74v-8.37H5.07v8.37h2.78z" />
-                  </svg>
-                  <span>Add to LinkedIn</span>
-                </button>
+              <div className="space-y-3 pt-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    onClick={handleAddToLinkedIn}
+                    className="flex-1 min-w-[150px] h-9 px-3.5 rounded-xl bg-[#0A66C2] hover:bg-[#084e96] text-white font-medium text-xs transition flex items-center justify-center gap-1.5 shadow-sm"
+                  >
+                    <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
+                      <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 8.76c-.95 0-1.72-.77-1.72-1.72s.77-1.72 1.72-1.72 1.72.77 1.72 1.72-.77 1.72-1.72 1.72m1.39 9.74v-8.37H5.07v8.37h2.78z" />
+                    </svg>
+                    <span>Add to LinkedIn</span>
+                  </button>
 
-                <button
-                  onClick={handlePrintCertificate}
-                  className="h-9 px-4 rounded-xl border border-border bg-surface hover:bg-surface-2 text-foreground font-medium text-xs transition inline-flex items-center gap-2"
-                >
-                  <Download className="h-4 w-4 text-primary" />
-                  <span>Download PDF</span>
-                </button>
+                  <button
+                    onClick={() => {
+                      const text = `Certification: ${currentDisplayTier.title}\nIssuing Organization: Smart Canvas Grow\nCredential ID: ${certId}\nVerification Link: ${verificationUrl}\nSkills: ${currentDisplayTier.description}`;
+                      navigator.clipboard.writeText(text);
+                      setCopied(true);
+                      setTimeout(() => setCopied(false), 2000);
+                    }}
+                    className="h-9 px-3.5 rounded-xl border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 font-medium text-xs transition inline-flex items-center gap-1.5"
+                    title="Copy formatted text to paste in Naukri & Indeed profile"
+                  >
+                    {copied ? (
+                      <>
+                        <Check className="h-4 w-4 text-emerald-400" />
+                        <span className="text-emerald-400">Copied ATS Details!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="h-4 w-4" />
+                        <span>Copy for Naukri / Indeed</span>
+                      </>
+                    )}
+                  </button>
 
-                <button
-                  onClick={handleCopyLink}
-                  className="h-9 px-4 rounded-xl border border-border bg-surface hover:bg-surface-2 text-foreground font-medium text-xs transition inline-flex items-center gap-2"
-                >
-                  {copied ? (
-                    <>
-                      <Check className="h-4 w-4 text-emerald-400" />
-                      <span className="text-emerald-400">Copied!</span>
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="h-4 w-4 text-muted-foreground" />
-                      <span>Copy for Resume</span>
-                    </>
-                  )}
-                </button>
+                  <button
+                    onClick={handlePrintCertificate}
+                    className="h-9 px-3.5 rounded-xl border border-border bg-surface hover:bg-surface-2 text-foreground font-medium text-xs transition inline-flex items-center gap-1.5"
+                  >
+                    <Download className="h-4 w-4 text-primary" />
+                    <span>Download PDF</span>
+                  </button>
+
+                  <button
+                    onClick={handleCopyLink}
+                    className="h-9 px-3.5 rounded-xl border border-border bg-surface hover:bg-surface-2 text-foreground font-medium text-xs transition inline-flex items-center gap-1.5"
+                  >
+                    <ExternalLink className="h-4 w-4 text-muted-foreground" />
+                    <span>Copy Verification URL</span>
+                  </button>
+                </div>
+
+                {/* Recruiter & ATS Verification Note */}
+                <div className="p-2.5 rounded-xl bg-surface/60 border border-white/10 text-left flex items-start gap-2.5">
+                  <ShieldCheck className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
+                  <p className="text-[11px] text-muted-foreground leading-relaxed">
+                    <strong className="text-foreground">Recruiter Proof Ready:</strong> Click <span className="text-amber-300 font-semibold">Copy for Naukri / Indeed</span> to paste this credential into your resume or Naukri <em>Licenses &amp; Certifications</em> section. Recruiters can verify directly through your permanent verification URL.
+                  </p>
+                </div>
               </div>
             ) : (
               <div className="p-3 rounded-xl border border-amber-500/20 bg-amber-500/5 text-xs text-neutral-300 flex items-center justify-between">
