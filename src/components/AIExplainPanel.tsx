@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { KeyRound, Sparkles, X, ExternalLink, Bot, AlertCircle, Loader2, ChevronDown, RotateCcw } from "lucide-react";
+import { MarkdownRenderer } from "./MarkdownRenderer";
 
 interface AIExplainPanelProps {
   isOpen: boolean;
@@ -353,35 +354,8 @@ What breaks in production? Common mistakes or scaling bottlenecks.
 
         {/* Explanation Content */}
         {!loading && explanation && (
-          <div className="text-foreground text-xs sm:text-sm leading-relaxed space-y-3 font-sans">
-            {explanation.split("\n\n").map((block, idx) => {
-              if (block.startsWith("### ")) {
-                return (
-                  <h3
-                    key={idx}
-                    className="font-display text-sm font-semibold text-primary-glow border-b border-border/50 pb-1 mt-4 first:mt-0"
-                  >
-                    {block.replace("### ", "")}
-                  </h3>
-                );
-              }
-              if (block.startsWith("```")) {
-                const cleaned = block.replace(/```[a-z]*\n?/g, "").trim();
-                return (
-                  <pre
-                    key={idx}
-                    className="p-3 rounded-lg bg-surface border border-border font-mono text-[11px] overflow-x-auto text-emerald-300 leading-normal"
-                  >
-                    <code>{cleaned}</code>
-                  </pre>
-                );
-              }
-              return (
-                <p key={idx} className="text-foreground/90 whitespace-pre-line text-xs sm:text-xs leading-relaxed">
-                  {block}
-                </p>
-              );
-            })}
+          <div className="pt-1">
+            <MarkdownRenderer content={explanation} />
           </div>
         )}
       </div>
