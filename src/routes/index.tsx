@@ -36,6 +36,7 @@ import { AIKeysModal } from "@/components/AIKeysModal";
 import { AboutModal } from "@/components/AboutModal";
 import { AuthModal } from "@/components/AuthModal";
 import { SettingsModal } from "@/components/SettingsModal";
+import { ContentProtection } from "@/components/ContentProtection";
 import { supabase, isSupabaseConfigured } from "@/utils/supabaseClient";
 import { AI_PROVIDERS } from "@/data/aiProviders";
 import { AIRouterPipelines } from "@/components/AIRouterPipelines";
@@ -277,6 +278,7 @@ function HomePage() {
 
   return (
     <div className="min-h-screen">
+      <ContentProtection currentUser={currentUser} />
       <Header
         pct={pct}
         hasApiKey={hasApiKey}
