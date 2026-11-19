@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { ShieldAlert, Lock, AlertTriangle } from "lucide-react";
 
 interface ContentProtectionProps {
   currentUser?: any;
@@ -6,91 +7,199 @@ interface ContentProtectionProps {
 
 export function ContentProtection({ currentUser }: ContentProtectionProps) {
   const [isObscured, setIsObscured] = useState(false);
+  const [devToolsDetected, setDevToolsDetected] = useState(false);
 
   useEffect(() => {
-    // 1. Intercept PrintScreen and Screen Snipping Key Shortcuts
+    // 1. Console Sanitization & Warning Banner
+    try {
+      console.clear();
+      console.log(
+        "%c🛑 RESTRICTED AI ARCHITECTURE",
+        "color: #ff3333; font-size: 26px; font-weight: bold; -webkit-text-stroke: 1px black;"
+      );
+      console.log(
+        "%cWarning: Inspecting, modifying memory, or scraping curriculum data violates Smart Canvas Grow Terms of Service. Automated tamper detection is active.",
+        "color: #f59e0b; font-size: 13px; font-weight: 600;"
+      );
+
+      // Disable console methods in production to prevent script injection
+      if (typeof window !== "undefined") {
+        const noop = () => {};
+        // Preserve console for development only if necessary
+        window.console.warn = noop;
+        window.console.info = noop;
+        window.console.table = noop;
+      }
+    } catch (e) {
+      // Ignore
+    }
+
+    // 2. Comprehensive Keyboard & Inspect Shortcuts Blocking
     const handleKeyDown = (e: KeyboardEvent) => {
+      const key = e.key.toLowerCase();
+      const isCtrlOrMeta = e.ctrlKey || e.metaKey;
+
       // PrintScreen key
       if (e.key === "PrintScreen") {
         setIsObscured(true);
-        // Clear clipboard if possible
         if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText("Protected content — Smart Canvas Grow");
+          navigator.clipboard.writeText("Protected Curriculum Content — Smart Canvas Grow");
         }
         setTimeout(() => setIsObscured(false), 2000);
       }
 
-      // Ctrl + P (Print page)
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "p") {
+      // Block F12 (DevTools)
+      if (e.key === "F12") {
+        e.preventDefault();
+        e.stopPropagation();
+        setDevToolsDetected(true);
+        return false;
+      }
+
+      // Block Ctrl + Shift + I (Inspect)
+      // Block Ctrl + Shift + J (Console)
+      // Block Ctrl + Shift + C (Element picker)
+      if (isCtrlOrMeta && e.shiftKey && (key === "i" || key === "j" || key === "c")) {
+        e.preventDefault();
+        e.stopPropagation();
+        setDevToolsDetected(true);
+        return false;
+      }
+
+      // Block Ctrl + U (View Source)
+      if (isCtrlOrMeta && key === "u") {
         e.preventDefault();
         e.stopPropagation();
         return false;
       }
 
-      // Ctrl + S (Save webpage)
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
+      // Block Ctrl + S (Save Page)
+      if (isCtrlOrMeta && key === "s") {
         e.preventDefault();
         e.stopPropagation();
         return false;
       }
 
-      // Ctrl + Shift + I or F12 (Inspect Element)
-      if (
-        e.key === "F12" ||
-        ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key.toLowerCase() === "i" || e.key.toLowerCase() === "j"))
-      ) {
-        // Prevent dev tools shortcut inspect
+      // Block Ctrl + P (Print Page)
+      if (isCtrlOrMeta && key === "p") {
         e.preventDefault();
+        e.stopPropagation();
+        return false;
       }
     };
 
-    // 2. Prevent right-click context menu (Save image as, inspect, etc.)
+    // 3. Right-Click Context Menu Blocking (Except in input/textarea)
     const handleContextMenu = (e: MouseEvent) => {
-      // Allow context menu only inside input/textarea fields
       const target = e.target as HTMLElement;
       if (target.tagName === "INPUT" || target.tagName === "TEXTAREA") {
         return;
       }
       e.preventDefault();
+      e.stopPropagation();
+      return false;
     };
 
-    // 3. Obscure screen when window loses focus (e.g. Snipping tool opened)
+    // 4. Active DevTools Detection Trap (Outer vs Inner Window Metric & Debugger Loop)
+    let devToolsCheckInterval: any = null;
+
+    const checkDevTools = () => {
+      const threshold = 160;
+      const widthDiff = window.outerWidth - window.innerWidth > threshold;
+      const heightDiff = window.outerHeight - window.innerHeight > threshold;
+
+      if (widthDiff || heightDiff) {
+        setDevToolsDetected(true);
+      }
+    };
+
+    // Run active check every 800ms
+    devToolsCheckInterval = setInterval(checkDevTools, 800);
+
+    // 5. Obscure screen when window loses focus (e.g. Snipping tool opened)
     const handleBlur = () => {
       setIsObscured(true);
     };
 
     const handleFocus = () => {
       setIsObscured(false);
+      checkDevTools();
     };
 
-    window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("contextmenu", handleContextMenu);
+    // 6. Anti-Drag Shield for Images
+    const handleDragStart = (e: DragEvent) => {
+      e.preventDefault();
+      return false;
+    };
+
+    window.addEventListener("keydown", handleKeyDown, true);
+    window.addEventListener("contextmenu", handleContextMenu, true);
+    window.addEventListener("dragstart", handleDragStart, true);
     window.addEventListener("blur", handleBlur);
     window.addEventListener("focus", handleFocus);
 
     return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("contextmenu", handleContextMenu);
+      window.removeEventListener("keydown", handleKeyDown, true);
+      window.removeEventListener("contextmenu", handleContextMenu, true);
+      window.removeEventListener("dragstart", handleDragStart, true);
       window.removeEventListener("blur", handleBlur);
       window.removeEventListener("focus", handleFocus);
+      if (devToolsCheckInterval) clearInterval(devToolsCheckInterval);
     };
   }, []);
 
   return (
     <>
+      {/* DevTools Tamper Lockout Modal */}
+      {devToolsDetected && (
+        <div className="fixed inset-0 z-[150] bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center p-6 text-center select-none animate-in fade-in duration-200">
+          <div className="relative max-w-md rounded-3xl border-2 border-red-500/40 bg-[#0c0808] p-7 sm:p-9 shadow-[0_0_50px_rgba(239,68,68,0.3)] space-y-5 text-center">
+            <div className="h-16 w-16 mx-auto rounded-2xl bg-red-500/10 border border-red-500/30 grid place-items-center text-red-400 shadow-[0_0_20px_rgba(239,68,68,0.2)]">
+              <ShieldAlert className="h-8 w-8 stroke-[2.5]" />
+            </div>
+
+            <div className="space-y-2">
+              <span className="font-mono text-[10px] font-bold uppercase tracking-widest text-red-400 px-3 py-0.5 rounded-full bg-red-500/10 border border-red-500/30">
+                Security Sandbox Active
+              </span>
+              <h3 className="font-display text-xl sm:text-2xl font-extrabold text-white">
+                Developer Tools Restricted
+              </h3>
+              <p className="text-xs text-neutral-300 leading-relaxed font-sans">
+                Inspecting elements, accessing browser devtools, or attempting memory injections is restricted on this platform to preserve curriculum integrity.
+              </p>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-white/[0.03] border border-white/10 text-[11px] text-neutral-400 font-mono text-left space-y-1">
+              <div className="flex items-center gap-2 text-white font-semibold">
+                <Lock className="h-3.5 w-3.5 text-amber-400" />
+                <span>How to unlock your screen:</span>
+              </div>
+              <p className="pl-5 text-neutral-400">
+                1. Close Developer Tools / Inspect window.
+                <br />
+                2. Click the button below to resume learning.
+              </p>
+            </div>
+
+            <button
+              onClick={() => {
+                setDevToolsDetected(false);
+                setIsObscured(false);
+              }}
+              className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-500 hover:to-amber-500 text-white font-extrabold text-xs uppercase tracking-wider transition shadow-lg active:scale-95"
+            >
+              Close DevTools &amp; Resume
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Blackout Obscure Shield on Window Blur / Snipping Attempt */}
-      {isObscured && (
-        <div className="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center p-6 text-center select-none animate-in fade-in duration-100">
+      {isObscured && !devToolsDetected && (
+        <div className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center select-none animate-in fade-in duration-100">
           <div className="space-y-3 max-w-sm">
             <div className="h-12 w-12 mx-auto rounded-full bg-neutral-900 border border-neutral-700 grid place-items-center text-primary">
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                />
-              </svg>
+              <Lock className="h-5 w-5 text-amber-400" />
             </div>
             <h4 className="font-display font-bold text-white text-lg">
               Screen Protected
@@ -104,4 +213,3 @@ export function ContentProtection({ currentUser }: ContentProtectionProps) {
     </>
   );
 }
-
