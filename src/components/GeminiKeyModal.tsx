@@ -92,7 +92,7 @@ export function GeminiKeyModal({ isOpen, onClose, onKeyUpdated }: GeminiKeyModal
             <span>100% Free &amp; Stored locally in your browser</span>
           </div>
           <p>
-            Google AI Studio la free-ah generate panna API key-ah inga paste pannunga. Site-la irukkura topics-ku instant AI tutoring &amp; deep insights unlock aagum.
+            Generate a free API key from Google AI Studio and paste it here to unlock instant AI tutoring and deep topic insights across the entire curriculum.
           </p>
         </div>
 

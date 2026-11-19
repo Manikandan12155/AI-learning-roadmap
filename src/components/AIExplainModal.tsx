@@ -186,7 +186,7 @@ What breaks in production? Common mistakes or scaling bottlenecks.
                     Gemini API Key Required (100% Free)
                   </h3>
                   <p className="text-xs text-muted-foreground leading-relaxed">
-                    AI explanation paarka Google Gemini API key venum. Header-la irukura key icon or inga paste panni instant-ah unlock pannikalam!
+                    Please provide your Google Gemini API key to view AI explanations. You can paste it here or use the key icon in the top header to unlock instant AI tutoring!
                   </p>
                 </div>
               </div>

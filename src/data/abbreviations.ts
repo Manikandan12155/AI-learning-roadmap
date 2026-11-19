@@ -1,21 +1,21 @@
-export interface Abbreviation {
-  term: string;
-  expansion: string;
-  category: "GenAI & LLM" | "ML & Deep Learning" | "NLP & Vision" | "MLOps & Cloud" | "CS & Systems";
-  definition: string;
-  keyContext?: string;
-}
+export type CategoryFilter = "All" | "GenAI & LLM" | "ML & Deep Learning" | "NLP & Vision" | "MLOps & Cloud" | "CS & Systems";
 
-export const CATEGORIES = [
+export const CATEGORIES: CategoryFilter[] = [
   "All",
   "GenAI & LLM",
   "ML & Deep Learning",
   "NLP & Vision",
   "MLOps & Cloud",
   "CS & Systems",
-] as const;
+];
 
-export type CategoryFilter = (typeof CATEGORIES)[number];
+export interface Abbreviation {
+  term: string;
+  expansion: string;
+  category: "GenAI & LLM" | "ML & Deep Learning" | "NLP & Vision" | "MLOps & Cloud" | "CS & Systems";
+  definition: string;
+  keyContext: string;
+}
 
 export const TECHNICAL_ABBREVIATIONS: Abbreviation[] = [
   // GenAI & LLMs
@@ -23,85 +23,85 @@ export const TECHNICAL_ABBREVIATIONS: Abbreviation[] = [
     term: "RAG",
     expansion: "Retrieval-Augmented Generation",
     category: "GenAI & LLM",
-    definition: "LLM generation-ku munnadi external vector database or search engine-la irundhu relevant context-ah retrieve panni prompt kooda attach panra architecture.",
-    keyContext: "Hallucinations koraika and proprietary company data mela Q&A build panna standard method."
+    definition: "An architecture that retrieves relevant context from an external vector database or search engine before passing it to an LLM alongside the user prompt.",
+    keyContext: "The industry standard for eliminating hallucinations and querying private enterprise documents."
   },
   {
     term: "LLM",
     expansion: "Large Language Model",
     category: "GenAI & LLM",
-    definition: "Billions of parameters vachu massive internet text data mela train aana deep neural network (e.g. GPT-4, Claude, Gemini, Llama).",
-    keyContext: "Next token prediction moolama human-like understanding & generation perform pannum."
+    definition: "A deep neural network with billions of parameters trained on vast internet-scale text corpora to understand and generate human-like language (e.g., GPT-4, Claude, Gemini, Llama).",
+    keyContext: "Operates via next-token prediction to deliver broad reasoning and natural language synthesis."
   },
   {
     term: "LoRA",
     expansion: "Low-Rank Adaptation",
     category: "GenAI & LLM",
-    definition: "Full model weights-ah update pannama, low-rank matrix decomposition moolama small adapter weights mattum fine-tune panra PEFT technique.",
-    keyContext: "VRAM consumption 3x-4x koraikum, consumer GPUs-laye LLM fine-tuning saadhyam aakum."
+    definition: "A parameter-efficient fine-tuning (PEFT) technique that freezes base model weights and injects trainable low-rank decomposition matrices into transformer layers.",
+    keyContext: "Reduces VRAM requirements by 3x-4x, enabling production LLM fine-tuning on consumer GPUs."
   },
   {
     term: "QLoRA",
     expansion: "Quantized Low-Rank Adaptation",
     category: "GenAI & LLM",
-    definition: "Base model-ah 4-bit NormalFloat (NF4) quantization-la load panni, adhan mela LoRA adapters attach panni train panra ultra memory-efficient method.",
-    keyContext: "Single 24GB or 16GB GPU-laye 70B parameter models varaikkum fine-tune panna mudiyum."
+    definition: "An ultra memory-efficient fine-tuning method that loads the base model in 4-bit NormalFloat (NF4) quantization while training full 16-bit LoRA adapters.",
+    keyContext: "Enables fine-tuning of 70B parameter models on a single 24GB or 16GB GPU."
   },
   {
     term: "RLHF",
     expansion: "Reinforcement Learning from Human Feedback",
     category: "GenAI & LLM",
-    definition: "Human evaluators kodukkura ratings/comparisons-ah reward model-ah maathi, PPO algorithm moolama model alignment & safety optimize panra pipeline.",
-    keyContext: "ChatGPT, Claude pondra models human-friendly and safe aaga irukka idhudhan base."
+    definition: "A post-training alignment pipeline that trains a reward model from human comparison data and optimizes policy weights via PPO or similar reinforcement learning algorithms.",
+    keyContext: "The foundational technique that made ChatGPT and Claude helpful, honest, and harmless."
   },
   {
     term: "DPO",
     expansion: "Direct Preference Optimization",
     category: "GenAI & LLM",
-    definition: "Separate reward model & complex reinforcement learning loop thevai illama, direct cross-entropy loss moolama preferred answers-ah tune panra algorithm.",
-    keyContext: "RLHF-ku modern, stable and faster alternative."
+    definition: "An alignment algorithm that eliminates the separate reward model and reinforcement learning loop by optimizing preferred responses directly via implicit cross-entropy loss.",
+    keyContext: "A modern, highly stable, and faster alternative to traditional RLHF."
   },
   {
     term: "PEFT",
     expansion: "Parameter-Efficient Fine-Tuning",
     category: "GenAI & LLM",
-    definition: "Full base model weights-ah freeze pannitu, very small fraction (<1%) of parameters mattum tune panra general category of techniques (LoRA, Prefix Tuning, Adapters).",
-    keyContext: "Compute cost & storage space-ah dramatic-ah save pannum."
+    definition: "A family of fine-tuning techniques (LoRA, Prefix Tuning, Adapters) that freeze the majority of base model parameters and train only a tiny fraction (<1%) of weights.",
+    keyContext: "Dramatically saves compute cost, checkpoint storage, and GPU memory."
   },
   {
     term: "MCP",
     expansion: "Model Context Protocol",
     category: "GenAI & LLM",
-    definition: "Anthropic introduce panna open protocol. AI models external data sources, local files, tools, and enterprise servers kooda standardize aaga interact panna udhavum.",
-    keyContext: "AI Agents and IDEs-ku universal tool-calling standard."
+    definition: "An open protocol introduced by Anthropic that standardizes how AI applications connect with external data repositories, business tools, and development environments.",
+    keyContext: "The emerging universal standard for AI Agents and developer tool integrations."
   },
   {
     term: "CoT",
     expansion: "Chain of Thought",
     category: "GenAI & LLM",
-    definition: "Complex reasoning tasks-la LLM direct answer kudukama, step-by-step thinking process generate panna vekkura prompting technique.",
-    keyContext: "Math, logic, and multi-hop questions-la accuracy drastically improve pannum."
+    definition: "A prompting technique where the model is prompted to break complex reasoning tasks into explicit, step-by-step intermediate thoughts before arriving at an answer.",
+    keyContext: "Drastically boosts accuracy on mathematical reasoning, logic, and multi-step deduction."
   },
   {
     term: "ReAct",
     expansion: "Reasoning and Acting",
     category: "GenAI & LLM",
-    definition: "Autonomous agent pattern: Model oru observation-ah pathu Reason (Thought) pannum, Action edukkum (Tool call), result-ah observe pannitu next step proceed pannum.",
-    keyContext: "Modern autonomous agents (LangGraph, CrewAI) idhoda foundation."
+    definition: "An autonomous agent paradigm combining reasoning traces (Thought) and task-specific actions (Tool Calling), followed by observation feedback to execute multi-step workflows.",
+    keyContext: "The core foundational architecture powering modern agent frameworks like LangGraph and CrewAI."
   },
   {
     term: "TTS",
     expansion: "Text-to-Speech",
     category: "GenAI & LLM",
-    definition: "Written text input-ah natural human-like voice audio wave-ah convert panra generative model architecture.",
-    keyContext: "ElevenLabs, Whisper TTS, Kokoro AI."
+    definition: "A generative audio model architecture that converts raw written text into natural, expressive, human-like voice waveforms.",
+    keyContext: "Implemented in modern systems like ElevenLabs, Whisper TTS, and Kokoro AI."
   },
   {
     term: "STT / ASR",
     expansion: "Speech-to-Text / Automatic Speech Recognition",
     category: "GenAI & LLM",
-    definition: "Spoken audio input-ah accurately text format-ku transcribe panra acoustic & language model (e.g. OpenAI Whisper).",
-    keyContext: "Voice assistants and audio transcription systems."
+    definition: "An acoustic and language modeling system that transcribes continuous human speech audio into structured written text (e.g., OpenAI Whisper).",
+    keyContext: "Essential for modern voice assistants, live meeting summaries, and audio ingestion pipelines."
   },
 
   // ML & Deep Learning
@@ -109,71 +109,71 @@ export const TECHNICAL_ABBREVIATIONS: Abbreviation[] = [
     term: "ANN",
     expansion: "Artificial Neural Network",
     category: "ML & Deep Learning",
-    definition: "Biological brain neurons inspire aagi create aana interconnected layers of nodes (Input, Hidden, Output) that learn patterns via backpropagation.",
-    keyContext: "Foundational building block for all deep learning."
+    definition: "A computational model inspired by biological neural networks, consisting of interconnected layers of artificial neurons (Input, Hidden, Output) trained via backpropagation.",
+    keyContext: "The foundational mathematical building block for all modern deep learning architectures."
   },
   {
     term: "CNN",
     expansion: "Convolutional Neural Network",
     category: "ML & Deep Learning",
-    definition: "Convolutional filters and pooling layers use panni spatial hierarchy & grid-like patterns (Images, Video frames) process panra neural network architecture.",
-    keyContext: "Image classification, Object detection, Computer Vision tasks."
+    definition: "A specialized neural network architecture that employs sliding convolutional filters and pooling layers to extract spatial hierarchies and grid-like visual features.",
+    keyContext: "The gold standard for computer vision, image classification, and medical imaging."
   },
   {
     term: "RNN",
     expansion: "Recurrent Neural Network",
     category: "ML & Deep Learning",
-    definition: "Internal loop memory vachu sequential data (Time series, text) process panra architecture.",
-    keyContext: "Vanishing gradient problem irundhadhaal LSTM and Transformers replace pannichu."
+    definition: "A neural network that maintains an internal persistent hidden state to process sequential or temporal data across time steps.",
+    keyContext: "Historically used for text and time-series data, now largely superseded by Transformers."
   },
   {
     term: "LSTM",
     expansion: "Long Short-Term Memory",
     category: "ML & Deep Learning",
-    definition: "Input gate, Forget gate, and Output gate use panni long-range dependencies-ah retain panra specialized RNN architecture.",
-    keyContext: "Stock prediction, speech, text processing."
+    definition: "An advanced RNN variant equipped with input, forget, and output gating mechanisms designed to mitigate vanishing gradients and preserve long-range dependencies.",
+    keyContext: "Widely utilized for financial time-series forecasting and legacy sequential modeling."
   },
   {
     term: "GAN",
     expansion: "Generative Adversarial Network",
     category: "ML & Deep Learning",
-    definition: "Generator (creates fake data) and Discriminator (spots fakes) rendum zero-sum game la compete panni realistic data synthesize panra model.",
-    keyContext: "Deepfakes, image generation, style transfer."
+    definition: "A machine learning framework where two neural networks—a Generator and a Discriminator—compete in a minimax zero-sum game to synthesize photorealistic data.",
+    keyContext: "Pioneered neural image synthesis, creative style transfer, and super-resolution."
   },
   {
     term: "VAE",
     expansion: "Variational Autoencoder",
     category: "ML & Deep Learning",
-    definition: "Input data-va continuous probabilistic latent space-ku encode panni, anga irundhu new samples reconstruct & generate panra generative model.",
-    keyContext: "Unsupervised learning and generative modeling."
+    definition: "A directed probabilistic generative model that maps input data into a continuous latent space distribution, allowing controlled sampling and reconstruction.",
+    keyContext: "Used extensively in unsupervised representation learning and latent diffusion backbones."
   },
   {
     term: "SGD",
     expansion: "Stochastic Gradient Descent",
     category: "ML & Deep Learning",
-    definition: "Loss function minimize panna, randomly sampled mini-batches moolama weights update panra fundamental optimization algorithm.",
-    keyContext: "Adam, RMSprop pondra modern optimizers-kellam base."
+    definition: "A fundamental first-order optimization algorithm that iteratively minimizes a loss function by computing gradients on randomly sampled mini-batches of training data.",
+    keyContext: "The foundational baseline from which modern optimizers (Adam, AdamW, Lion) evolved."
   },
   {
     term: "SVM",
     expansion: "Support Vector Machine",
     category: "ML & Deep Learning",
-    definition: "Data points-ah separate panna maximum margin hyper-plane kandupikkura powerful classical machine learning classifier.",
-    keyContext: "Kernel trick moolama non-linear separation clean-ah pannum."
+    definition: "A classical supervised machine learning algorithm that finds the optimal separating hyperplane with maximum geometric margin between distinct data classes.",
+    keyContext: "Employs the kernel trick for powerful non-linear decision boundaries on tabular datasets."
   },
   {
     term: "PCA",
     expansion: "Principal Component Analysis",
     category: "ML & Deep Learning",
-    definition: "Maximum variance retain pannikittu, high-dimensional data-va lower dimensions-ku transform panra unsupervised dimensionality reduction method.",
-    keyContext: "Data visualization and feature compression."
+    definition: "An unsupervised linear dimensionality reduction technique that computes orthogonal eigenvectors to project high-dimensional data along axes of maximal variance.",
+    keyContext: "Standard practice for data visualization, noise reduction, and feature compression."
   },
   {
     term: "ROC-AUC",
     expansion: "Receiver Operating Characteristic — Area Under Curve",
     category: "ML & Deep Learning",
-    definition: "Different classification thresholds la True Positive Rate vs False Positive Rate compare panni overall model performance measure panra metric.",
-    keyContext: "Imbalanced datasets la accuracy vida best metric."
+    definition: "A comprehensive classification performance metric that plots True Positive Rate against False Positive Rate across all discrimination thresholds.",
+    keyContext: "The primary evaluation metric for imbalanced classification tasks (e.g., fraud detection)."
   },
 
   // NLP & Vision
@@ -181,36 +181,36 @@ export const TECHNICAL_ABBREVIATIONS: Abbreviation[] = [
     term: "BERT",
     expansion: "Bidirectional Encoder Representations from Transformers",
     category: "NLP & Vision",
-    definition: "Google create panna Transformer Encoder architecture. Sentences-ah left-to-right and right-to-left both directions la context capture pannum.",
-    keyContext: "Search ranking, sentiment analysis, entity extraction."
+    definition: "A transformer encoder architecture introduced by Google that captures bidirectional context by attending simultaneously to tokens preceding and succeeding each word.",
+    keyContext: "The industry standard for search query ranking, sentiment classification, and entity extraction."
   },
   {
     term: "ViT",
     expansion: "Vision Transformer",
     category: "NLP & Vision",
-    definition: "Image-ah small 16x16 patches-ah cut panni, tokens maadiri sequence-ah Transformer encoder kulla pass panni process panra computer vision model.",
-    keyContext: "Modern visual AI (CLIP, DALL-E, Gemini Vision) foundation."
+    definition: "An architecture that splits 2D images into fixed-size grid patches (e.g., 16x16) and processes them as token embeddings through standard Transformer encoder blocks.",
+    keyContext: "Underpins state-of-the-art visual foundation models including CLIP, DALL-E, and Gemini Vision."
   },
   {
     term: "CLIP",
     expansion: "Contrastive Language-Image Pre-training",
     category: "NLP & Vision",
-    definition: "OpenAI create panna multi-modal model. Image and Text rendaiyum ore shared embedding space la align panni zero-shot classification perform pannum.",
-    keyContext: "Stable Diffusion text-to-image conditioning-la key component."
+    definition: "A multi-modal foundation model trained contrastively to map text descriptions and raw images into a shared embedding vector space for zero-shot classification.",
+    keyContext: "The core semantic conditioning component for modern text-to-image diffusion models."
   },
   {
     term: "TF-IDF",
     expansion: "Term Frequency — Inverse Document Frequency",
     category: "NLP & Vision",
-    definition: "Oru word oru doc la evvalavu frequent and entire corpus la evvalavu rare nu measure panni numerical importance calculate panra classical NLP method.",
-    keyContext: "BM25 keyword search engines foundation."
+    definition: "A statistical weighting measure in information retrieval that quantifies a word's importance relative to its frequency in a specific document and its rarity across the corpus.",
+    keyContext: "The mathematical backbone of classical sparse search engines and the BM25 retrieval ranking function."
   },
   {
     term: "NER",
     expansion: "Named Entity Recognition",
     category: "NLP & Vision",
-    definition: "Unstructured text la irundhu Names, Organizations, Locations, Dates pondra predefined categories-ah identify and classify panra task.",
-    keyContext: "Information extraction and document processing."
+    definition: "An information extraction subtask that identifies and segments unstructured text into predefined categories such as person names, organizations, locations, and dates.",
+    keyContext: "Crucial for automated contract review, resume parsing, and knowledge graph construction."
   },
 
   // MLOps & Cloud
@@ -218,43 +218,43 @@ export const TECHNICAL_ABBREVIATIONS: Abbreviation[] = [
     term: "MLOps",
     expansion: "Machine Learning Operations",
     category: "MLOps & Cloud",
-    definition: "ML models-ah production-ku reliably deploy, monitor, automate, and retrain panna DevOps principles-ah ML workflow-la apply panra practice.",
-    keyContext: "Model drift detection, CI/CD for models, automated pipelines."
+    definition: "A set of engineering practices that unifies ML system development (Dev) with operations (Ops) to automate CI/CD, deployment, testing, and continuous monitoring of models.",
+    keyContext: "Prevents data drift, ensures reproducibility, and automates retraining pipelines in production."
   },
   {
     term: "LLMOps",
     expansion: "Large Language Model Operations",
     category: "MLOps & Cloud",
-    definition: "LLM applications-kaga specific aana ops: Prompt versioning, latency & token usage tracking, guardrails, evaluations (Evals), and fine-tuning pipelines.",
-    keyContext: "LangSmith, Phoenix Arize, Trulens, Weights & Biases."
+    definition: "Operational workflows specialized for generative AI: prompt engineering versioning, token budget tracking, latency telemetry, guardrail enforcement, and automated evals.",
+    keyContext: "Managed with platforms like LangSmith, Arize Phoenix, Weights & Biases, and Trulens."
   },
   {
     term: "vLLM",
     expansion: "Virtual Large Language Model (High-throughput Serving Engine)",
     category: "MLOps & Cloud",
-    definition: "PagedAttention algorithm use panni GPU memory fragmentation thaduthu, LLM inference throughput-ah 10x-20x boost panra open-source serving engine.",
-    keyContext: "Production LLM deployment standard."
+    definition: "A high-performance open-source inference and serving engine utilizing PagedAttention to eliminate memory fragmentation and achieve 10x-20x higher throughput.",
+    keyContext: "The global production standard for hosting and serving self-hosted open-weights LLMs."
   },
   {
     term: "Triton",
     expansion: "Triton Inference Server",
     category: "MLOps & Cloud",
-    definition: "NVIDIA develop panna enterprise multi-framework (TensorRT, PyTorch, ONNX) inference serving system for CPUs and GPUs with dynamic batching.",
-    keyContext: "Enterprise low-latency serving."
+    definition: "An enterprise-grade open-source inference serving software by NVIDIA that optimizes concurrent model execution across multiple frameworks (TensorRT, ONNX, PyTorch).",
+    keyContext: "The gold standard for ultra-low latency, dynamically batched enterprise microservices."
   },
   {
     term: "ONNX",
     expansion: "Open Neural Network Exchange",
     category: "MLOps & Cloud",
-    definition: "PyTorch, TensorFlow, Scikit-learn pondra frameworks la train panna models-ah uniform open format la export panni optimized cross-platform execution panna udhavum.",
-    keyContext: "Edge deployment, runtime optimization."
+    definition: "An open standard format for representing machine learning models, enabling seamless interoperability and runtime hardware acceleration across distinct frameworks.",
+    keyContext: "Essential for deploying PyTorch and TensorFlow models to edge hardware and ONNX Runtime."
   },
   {
     term: "CI / CD",
     expansion: "Continuous Integration / Continuous Deployment",
     category: "MLOps & Cloud",
-    definition: "Code and model changes-ah automatic-ah test panni, build panni, production environment-ku safely push panra automated workflow pipeline.",
-    keyContext: "GitHub Actions, GitLab CI, Argo Workflows."
+    definition: "An automated software engineering methodology where code, configurations, and models are continuously tested, verified, and safely pushed to live environments.",
+    keyContext: "Orchestrated using tools such as GitHub Actions, GitLab CI, and Kubernetes Argo Workflows."
   },
 
   // CS & Systems
@@ -262,36 +262,35 @@ export const TECHNICAL_ABBREVIATIONS: Abbreviation[] = [
     term: "CUDA",
     expansion: "Compute Unified Device Architecture",
     category: "CS & Systems",
-    definition: "NVIDIA GPUs la general-purpose parallel computing execute panna use aagura hardware-accelerated programming platform and API.",
-    keyContext: "Almost all deep learning frameworks rely on CUDA."
+    definition: "A proprietary parallel computing platform and application programming interface developed by NVIDIA that grants developers direct access to GPU instruction sets.",
+    keyContext: "The foundational compute runtime upon which virtually all modern deep learning frameworks operate."
   },
   {
     term: "API",
     expansion: "Application Programming Interface",
     category: "CS & Systems",
-    definition: "Two software programs thammukulle standardized requests & responses (REST, gRPC) moolama data communicate panna allow panra interface.",
-    keyContext: "OpenAI API, HuggingFace Inference API, backend routes."
+    definition: "A standardized software intermediary protocol allowing independent applications to exchange data and invoke functionality via structured contracts (REST, gRPC).",
+    keyContext: "Examples include the OpenAI REST API, Anthropic Messages API, and Hugging Face endpoints."
   },
   {
     term: "HNSW",
     expansion: "Hierarchical Navigable Small World",
     category: "CS & Systems",
-    definition: "Multi-layer graph structure use panni high-dimensional vector embeddings-la ultra-fast Approximate Nearest Neighbor (ANN) search panra algorithm.",
-    keyContext: "Pinecone, Qdrant, Milvus, Chroma vector databases core engine."
+    definition: "A multi-layered graph data structure and search algorithm providing logarithmic time-complexity for Approximate Nearest Neighbor (ANN) vector similarity search.",
+    keyContext: "The core vector indexing engine powering Pinecone, Qdrant, Milvus, and pgvector."
   },
   {
     term: "KV Cache",
     expansion: "Key-Value Cache",
     category: "CS & Systems",
-    definition: "Autoregressive generation la past tokens oda attention Key and Value matrices-ah GPU memory la store panni redundant recalculation thavikkura technique.",
-    keyContext: "LLM token generation speed-ah accelerate pannum."
+    definition: "An inference optimization technique that stores computed key and value attention tensors in GPU memory to avoid redundant recomputation during token generation.",
+    keyContext: "Essential for low-latency autoregressive decoding in production transformer inference."
   },
   {
     term: "FP16 / BF16 / INT8",
     expansion: "Floating Point 16 / Brain Floating Point 16 / Integer 8",
     category: "CS & Systems",
-    definition: "Weights & activations-ah store panna use aagura precision formats. Lower bits use panna memory koraivaagum and speed adhigamaagum (Quantization).",
-    keyContext: "BF16 modern LLM training standard, INT8/INT4 inference standard."
+    definition: "Numerical representation formats defining bit-depth precision for weights and activations, balancing numerical stability against memory footprint and compute latency.",
+    keyContext: "BF16 is the standard for modern model pre-training; INT8 and INT4 are standard for quantized inference."
   }
 ];
-
