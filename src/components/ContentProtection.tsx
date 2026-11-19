@@ -76,28 +76,8 @@ export function ContentProtection({ currentUser }: ContentProtectionProps) {
     };
   }, []);
 
-  const watermarkText =
-    currentUser?.email ||
-    currentUser?.user_metadata?.full_name ||
-    "Smart Canvas Grow · Protected Roadmap";
-
   return (
     <>
-      {/* Dynamic Security Watermark (Translucent anti-leak grid) */}
-      <div
-        className="pointer-events-none fixed inset-0 z-30 select-none overflow-hidden opacity-[0.035] dark:opacity-[0.045] flex flex-wrap gap-16 p-6 items-center justify-center -rotate-12"
-        aria-hidden="true"
-      >
-        {Array.from({ length: 48 }).map((_, i) => (
-          <span
-            key={i}
-            className="font-mono text-[11px] font-bold uppercase tracking-widest text-foreground whitespace-nowrap"
-          >
-            {watermarkText} · {currentUser?.id ? currentUser.id.slice(0, 8) : "PROPRIETARY"}
-          </span>
-        ))}
-      </div>
-
       {/* Blackout Obscure Shield on Window Blur / Snipping Attempt */}
       {isObscured && (
         <div className="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center p-6 text-center select-none animate-in fade-in duration-100">
