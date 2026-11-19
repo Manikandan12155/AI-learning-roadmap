@@ -42,6 +42,7 @@ import { ContentProtection } from "@/components/ContentProtection";
 import { CertificateModal } from "@/components/CertificateModal";
 import { BattlePassJourney } from "@/components/BattlePassJourney";
 import { StudyScheduleModal } from "@/components/StudyScheduleModal";
+import { LeaderboardModal } from "@/components/LeaderboardModal";
 import { supabase, isSupabaseConfigured } from "@/utils/supabaseClient";
 import { syncUserProgressToCloud, loadUserProgressFromCloud } from "@/utils/progressSync";
 import { AI_PROVIDERS } from "@/data/aiProviders";
@@ -103,6 +104,7 @@ function HomePage() {
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [isCertificateModalOpen, setIsCertificateModalOpen] = useState(false);
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
+  const [isLeaderboardModalOpen, setIsLeaderboardModalOpen] = useState(false);
   const [journeyTrack, setJourneyTrack] = useState<boolean>(true);
   const [authReason, setAuthReason] = useState<string | undefined>(undefined);
   const [currentUser, setCurrentUser] = useState<any>(null);
@@ -339,6 +341,7 @@ function HomePage() {
         onOpenSettingsModal={() => setIsSettingsModalOpen(true)}
         onOpenCertificateModal={() => setIsCertificateModalOpen(true)}
         onOpenScheduleModal={() => setIsScheduleModalOpen(true)}
+        onOpenLeaderboardModal={() => setIsLeaderboardModalOpen(true)}
         onSignOut={handleSignOut}
       />
       <Hero
@@ -513,6 +516,12 @@ function HomePage() {
         onClose={() => setIsScheduleModalOpen(false)}
       />
 
+      <LeaderboardModal
+        isOpen={isLeaderboardModalOpen}
+        onClose={() => setIsLeaderboardModalOpen(false)}
+        currentUserId={currentUser?.id}
+      />
+
       <Footer />
     </div>
   );
@@ -531,6 +540,7 @@ function Header({
   onOpenSettingsModal,
   onOpenCertificateModal,
   onOpenScheduleModal,
+  onOpenLeaderboardModal,
   onSignOut,
 }: {
   pct: number;
@@ -545,6 +555,7 @@ function Header({
   onOpenSettingsModal: () => void;
   onOpenCertificateModal: () => void;
   onOpenScheduleModal: () => void;
+  onOpenLeaderboardModal: () => void;
   onSignOut: () => void;
 }) {
   const userDisplayName =
@@ -590,6 +601,16 @@ function Header({
           >
             <Sparkles className="h-3.5 w-3.5 text-primary" />
             <span className="hidden sm:inline">About</span>
+          </button>
+
+          {/* Leaderboard Button */}
+          <button
+            onClick={onOpenLeaderboardModal}
+            className="h-8 px-2.5 sm:px-3 rounded-full text-xs font-mono inline-flex items-center gap-1.5 border border-yellow-500/30 bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-400 transition-all shadow-[0_0_10px_rgba(234,179,8,0.2)]"
+            title="View Global AI Learners Leaderboard"
+          >
+            <Trophy className="h-3.5 w-3.5 fill-current" />
+            <span className="hidden sm:inline">Leaderboard</span>
           </button>
 
           {/* Schedule Daily Learning Button (Google Calendar Safe Habit Slot) */}
