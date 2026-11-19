@@ -17,11 +17,11 @@ export const AI_PROVIDERS: AIProviderConfig[] = [
     keyStorageKey: "gemini_user_api_key",
     getKeyUrl: "https://aistudio.google.com/app/apikey",
     tag: "Huge Context & Reasoning",
-    defaultModel: "gemini-3.1-pro-preview",
+    defaultModel: "gemini-2.5-flash",
     models: [
-      { id: "gemini-3.1-pro-preview", name: "Gemini 3.1 Pro (Preview)", tag: "Recommended" },
-      { id: "gemini-2.5-flash", name: "Gemini 2.5 Flash", tag: "Fast" },
-      { id: "gemini-2.5-flash-lite", name: "Gemini 2.5 Flash Lite", tag: "Ultra Fast" },
+      { id: "gemini-2.5-flash", name: "Gemini 2.5 Flash", tag: "Generous Free Tier" },
+      { id: "gemini-2.5-flash-lite", name: "Gemini 2.5 Flash Lite", tag: "Ultra Fast & High Quota" },
+      { id: "gemini-3.1-pro-preview", name: "Gemini 3.1 Pro (Preview)", tag: "Limited Free Quota" },
     ],
   },
   {

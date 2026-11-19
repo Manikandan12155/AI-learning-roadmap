@@ -15,27 +15,52 @@ export async function requestAICompletion({
 
   // 1. Google Gemini Native API
   if (provider.id === "gemini") {
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 2500,
-          },
-        }),
+    // If user model quota hits or default is requested, gracefully fallback through available Gemini models
+    const targetModel = model || "gemini-2.5-flash";
+    const modelsToTry = [
+      targetModel,
+      targetModel !== "gemini-2.5-flash" ? "gemini-2.5-flash" : "gemini-2.5-flash-lite",
+      "gemini-2.5-flash-lite",
+    ].filter((v, i, a) => a.indexOf(v) === i);
+
+    let lastError: any = null;
+
+    for (const m of modelsToTry) {
+      try {
+        const res = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${apiKey}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: prompt }] }],
+              generationConfig: {
+                temperature: 0.7,
+                maxOutputTokens: 2500,
+              },
+            }),
+          }
+        );
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data?.error?.message || `Google Gemini (${m}) request failed.`);
+        }
+        const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!text) throw new Error("No response returned from Gemini.");
+        return text;
+      } catch (err: any) {
+        lastError = err;
+        // If it's a quota / rate-limit error, try next flash model
+        const msg = err?.message?.toLowerCase() || "";
+        if (msg.includes("quota") || msg.includes("rate") || msg.includes("limit") || msg.includes("429")) {
+          continue;
+        }
+        // If it's invalid key, break immediately
+        break;
       }
-    );
-    const data = await res.json();
-    if (!res.ok) {
-      throw new Error(data?.error?.message || "Google Gemini request failed.");
     }
-    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!text) throw new Error("No response returned from Gemini.");
-    return text;
+
+    throw lastError || new Error("Google Gemini request failed.");
   }
 
   // 2. Groq Cloud (OpenAI Compatible)
