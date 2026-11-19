@@ -23,6 +23,7 @@ import {
   Flame,
   Target,
   BookOpen,
+  Copy,
 } from "lucide-react";
 import { ROADMAP, TOTAL_TOPICS, type Level } from "@/data/roadmap";
 import heroImg from "@/assets/hero-neural.jpg";
@@ -432,6 +433,16 @@ function LevelCard({
   const pct = totals.total ? Math.round((totals.done / totals.total) * 100) : 0;
   const hasNew = lvl.sections.some((s) => s.topics.some((tp) => tp.isNew));
   const status = totals.done === 0 ? "empty" : totals.done === totals.total ? "done" : "progress";
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
+
+  const handleCopy = (e: React.MouseEvent, text: string, key: string) => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(text);
+    setCopiedKey(key);
+    setTimeout(() => {
+      setCopiedKey((prev) => (prev === key ? null : prev));
+    }, 1500);
+  };
 
   return (
     <li className="rounded-2xl border border-border bg-card shadow-card overflow-hidden transition-all hover:border-border-strong">
@@ -514,11 +525,12 @@ function LevelCard({
                   {filtered.map((tp) => {
                     const k = keyFor(lIdx, section.name, tp.name);
                     const isDone = !!state[k];
+                    const isCopied = copiedKey === k;
                     return (
                       <button
                         key={k}
                         onClick={() => onToggle(k)}
-                        className={`group inline-flex items-center gap-1.5 text-xs sm:text-[13px] px-3 py-1.5 rounded-full border transition-all ${
+                        className={`group inline-flex items-center gap-1.5 text-xs sm:text-[13px] pl-3 pr-2 py-1.5 rounded-full border transition-all ${
                           isDone
                             ? "bg-primary/15 border-primary/50 text-primary-glow shadow-[0_0_0_1px_oklch(0.72_0.16_160/0.2)]"
                             : tp.isNew
@@ -531,8 +543,23 @@ function LevelCard({
                             isDone ? "bg-primary" : tp.isNew ? "bg-amber" : "bg-muted-foreground/40"
                           }`}
                         />
-                        {tp.name}
-                        {isDone && <Check className="h-3 w-3 ml-0.5" strokeWidth={3} />}
+                        <span>{tp.name}</span>
+                        {isDone && <Check className="h-3 w-3 ml-0.5 text-primary" strokeWidth={3} />}
+                        <span
+                          role="button"
+                          tabIndex={0}
+                          title="Copy topic to clipboard"
+                          onClick={(e) => handleCopy(e, tp.name, k)}
+                          className={`ml-1 p-1 rounded-full hover:bg-white/10 active:scale-90 transition-all text-muted-foreground hover:text-foreground ${
+                            isCopied ? "text-primary opacity-100" : "opacity-0 group-hover:opacity-100"
+                          }`}
+                        >
+                          {isCopied ? (
+                            <Check className="h-3 w-3 text-primary animate-in fade-in zoom-in" strokeWidth={2.5} />
+                          ) : (
+                            <Copy className="h-3 w-3" strokeWidth={2} />
+                          )}
+                        </span>
                       </button>
                     );
                   })}
