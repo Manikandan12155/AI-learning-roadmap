@@ -26,6 +26,7 @@ import {
   Copy,
 } from "lucide-react";
 import { ROADMAP, TOTAL_TOPICS, type Level } from "@/data/roadmap";
+import { AIExplainModal } from "@/components/AIExplainModal";
 import heroImg from "@/assets/hero-neural.jpg";
 import heroCharacter from "@/assets/hero-character-tight.png";
 import iconFoundation from "@/assets/icon-foundation.png";
@@ -78,6 +79,12 @@ function HomePage() {
   const [openLevels, setOpenLevels] = useState<Record<number, boolean>>({ 0: true });
   const [filter, setFilter] = useState<Filter>("all");
   const [query, setQuery] = useState("");
+  const [aiModalContext, setAiModalContext] = useState<{
+    levelNumber: number;
+    levelName: string;
+    sectionName: string;
+    topicName: string;
+  } | null>(null);
 
   useEffect(() => {
     try {
@@ -158,12 +165,26 @@ function HomePage() {
               setOpen={(v) => setOpenLevels((p) => ({ ...p, [lIdx]: v }))}
               onToggle={toggleTopic}
               onMarkAll={() => markLevelDone(lIdx)}
+              onAskAi={(topicName, sectionName) => {
+                setAiModalContext({
+                  levelNumber: lIdx,
+                  levelName: lvl.short,
+                  sectionName,
+                  topicName,
+                });
+              }}
               filter={filter}
               query={query.trim().toLowerCase()}
             />
           ))}
         </ol>
       </main>
+
+      <AIExplainModal
+        isOpen={!!aiModalContext}
+        onClose={() => setAiModalContext(null)}
+        topicContext={aiModalContext}
+      />
 
       <Footer />
     </div>
@@ -428,6 +449,7 @@ function LevelCard({
   setOpen,
   onToggle,
   onMarkAll,
+  onAskAi,
   filter,
   query,
 }: {
@@ -438,6 +460,7 @@ function LevelCard({
   setOpen: (b: boolean) => void;
   onToggle: (k: string) => void;
   onMarkAll: () => void;
+  onAskAi: (topicName: string, sectionName: string) => void;
   filter: Filter;
   query: string;
 }) {
@@ -582,9 +605,21 @@ Please cover:
                         <span
                           role="button"
                           tabIndex={0}
+                          title="Explain with AI Tutor (Gemini)"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onAskAi(tp.name, section.name);
+                          }}
+                          className="ml-1 p-1 rounded-full hover:bg-primary/20 text-muted-foreground hover:text-primary transition-all opacity-0 group-hover:opacity-100"
+                        >
+                          <Sparkles className="h-3 w-3 text-primary-glow" />
+                        </span>
+                        <span
+                          role="button"
+                          tabIndex={0}
                           title="Copy AI study prompt to clipboard"
                           onClick={(e) => handleCopy(e, tp.name, section.name, k)}
-                          className={`ml-1 p-1 rounded-full hover:bg-white/10 active:scale-90 transition-all text-muted-foreground hover:text-foreground ${
+                          className={`p-1 rounded-full hover:bg-white/10 active:scale-90 transition-all text-muted-foreground hover:text-foreground ${
                             isCopied ? "text-primary opacity-100" : "opacity-0 group-hover:opacity-100"
                           }`}
                         >
