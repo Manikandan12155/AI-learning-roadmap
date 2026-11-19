@@ -43,6 +43,7 @@ import { CertificateModal } from "@/components/CertificateModal";
 import { BattlePassJourney } from "@/components/BattlePassJourney";
 import { StudyScheduleModal } from "@/components/StudyScheduleModal";
 import { supabase, isSupabaseConfigured } from "@/utils/supabaseClient";
+import { syncUserProgressToCloud, loadUserProgressFromCloud } from "@/utils/progressSync";
 import { AI_PROVIDERS } from "@/data/aiProviders";
 import { AIRouterPipelines } from "@/components/AIRouterPipelines";
 import heroImg from "@/assets/hero-neural.jpg";
@@ -140,6 +141,11 @@ function HomePage() {
           const { data } = await supabase.auth.getUser();
           if (data?.user) {
             setCurrentUser(data.user);
+            // Auto-load and merge cloud progress for authenticated user
+            const cloudProgress = await loadUserProgressFromCloud(data.user.id);
+            if (cloudProgress) {
+              setState((prev) => ({ ...prev, ...cloudProgress }));
+            }
             return;
           }
         } catch (e) {
@@ -160,8 +166,15 @@ function HomePage() {
     if (isSupabaseConfigured) {
       const {
         data: { subscription },
-      } = supabase.auth.onAuthStateChange((_event, session) => {
-        setCurrentUser(session?.user ?? null);
+      } = supabase.auth.onAuthStateChange(async (_event, session) => {
+        const user = session?.user ?? null;
+        setCurrentUser(user);
+        if (user) {
+          const cloudProgress = await loadUserProgressFromCloud(user.id);
+          if (cloudProgress) {
+            setState((prev) => ({ ...prev, ...cloudProgress }));
+          }
+        }
       });
       return () => {
         subscription.unsubscribe();
@@ -245,10 +258,34 @@ function HomePage() {
   useEffect(() => {
     try {
       localStorage.setItem("neura_roadmap_v1", JSON.stringify(state));
+
+      // Auto-sync to Supabase Cloud whenever user toggles any topic
+      if (currentUser?.id && isSupabaseConfigured) {
+        const doneCount = Object.values(state).filter(Boolean).length;
+        let tier = 0;
+        if (doneCount >= 583) tier = 4;
+        else if (doneCount >= 264) tier = 3;
+        else if (doneCount >= 163) tier = 2;
+        else if (doneCount >= 61) tier = 1;
+
+        syncUserProgressToCloud(
+          currentUser.id,
+          {
+            completedTopicsCount: doneCount,
+            unlockedTier: tier,
+            progressData: state,
+          },
+          {
+            email: currentUser.email,
+            full_name: currentUser.user_metadata?.full_name || currentUser.user_metadata?.name,
+            avatar_url: currentUser.user_metadata?.avatar_url || currentUser.user_metadata?.picture,
+          }
+        );
+      }
     } catch (e) {
       console.error(e);
     }
-  }, [state]);
+  }, [state, currentUser]);
 
   const done = useMemo(() => Object.values(state).filter(Boolean).length, [state]);
   const pct = Math.round((done / TOTAL_TOPICS) * 100);
