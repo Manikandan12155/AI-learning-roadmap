@@ -81,5 +81,44 @@ export const AI_PROVIDERS: AIProviderConfig[] = [
       { id: "Qwen/Qwen2.5-Coder-32B-Instruct", name: "Qwen 2.5 Coder 32B", tag: "Code Master" },
     ],
   },
+  {
+    id: "deepseek",
+    name: "DeepSeek Direct",
+    logoText: "DeepSeek",
+    keyStorageKey: "deepseek_user_api_key",
+    getKeyUrl: "https://platform.deepseek.com/api_keys",
+    tag: "Native DeepSeek V3 / R1",
+    defaultModel: "deepseek-chat",
+    models: [
+      { id: "deepseek-chat", name: "DeepSeek V3", tag: "General & Code" },
+      { id: "deepseek-reasoner", name: "DeepSeek R1", tag: "Reasoning CoT" },
+    ],
+  },
+  {
+    id: "openai",
+    name: "OpenAI",
+    logoText: "OpenAI",
+    keyStorageKey: "openai_user_api_key",
+    getKeyUrl: "https://platform.openai.com/api-keys",
+    tag: "GPT-4o & o3-mini",
+    defaultModel: "gpt-4o-mini",
+    models: [
+      { id: "gpt-4o-mini", name: "GPT-4o Mini", tag: "Fast & Smart" },
+      { id: "gpt-4o", name: "GPT-4o", tag: "Flagship" },
+      { id: "o3-mini", name: "o3-mini", tag: "Reasoning" },
+    ],
+  },
+  {
+    id: "claude",
+    name: "Anthropic Claude",
+    logoText: "Claude",
+    keyStorageKey: "anthropic_user_api_key",
+    getKeyUrl: "https://console.anthropic.com/settings/keys",
+    tag: "Claude 3.7 Sonnet & Haiku",
+    defaultModel: "claude-3-5-haiku-20241022",
+    models: [
+      { id: "claude-3-5-haiku-20241022", name: "Claude 3.5 Haiku", tag: "Fast & Sharp" },
+      { id: "claude-3-7-sonnet-20250219", name: "Claude 3.7 Sonnet", tag: "SOTA Reasoning" },
+    ],
+  },
 ];
-

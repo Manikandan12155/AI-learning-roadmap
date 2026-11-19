@@ -1,5 +1,5 @@
-import React from "react";
-import { Zap, Sparkles } from "lucide-react";
+import React, { useState } from "react";
+import { Zap, Sparkles, Cpu, Activity, Layers, ArrowUpRight } from "lucide-react";
 
 interface NodeData {
   id: string;
@@ -7,141 +7,201 @@ interface NodeData {
   sub: string;
   color: string;
   glowColor: string;
-  angle: number; // in degrees for circular orbit
-  dist: number;  // radius distance from center in px
+  angle: number;
+  dist: number;
+  logo: string;
+  badge?: string;
 }
 
 const AI_NODES: NodeData[] = [
-  { id: "gemini", name: "Gemini", sub: "Google", color: "#38bdf8", glowColor: "rgba(56, 189, 248, 0.4)", angle: -90, dist: 165 },
-  { id: "deepseek", name: "DeepSeek", sub: "R1 Reasoning", color: "#60a5fa", glowColor: "rgba(96, 165, 250, 0.4)", angle: -45, dist: 175 },
-  { id: "groq", name: "Groq", sub: "LPU 500 tok/s", color: "#f97316", glowColor: "rgba(249, 115, 22, 0.4)", angle: 0, dist: 185 },
-  { id: "openrouter", name: "OpenRouter", sub: "Multi-Model", color: "#a855f7", glowColor: "rgba(168, 85, 247, 0.4)", angle: 45, dist: 175 },
-  { id: "cerebras", name: "Cerebras", sub: "1500 tok/s", color: "#10b981", glowColor: "rgba(16, 185, 129, 0.4)", angle: 90, dist: 165 },
-  { id: "together", name: "Together", sub: "Open Source", color: "#ec4899", glowColor: "rgba(236, 72, 153, 0.4)", angle: 135, dist: 175 },
-  { id: "openai", name: "OpenAI", sub: "GPT-4o", color: "#10a37f", glowColor: "rgba(16, 163, 127, 0.4)", angle: 180, dist: 185 },
-  { id: "claude", name: "Claude", sub: "Anthropic", color: "#d97706", glowColor: "rgba(217, 119, 6, 0.4)", angle: 225, dist: 175 },
+  { id: "gemini", name: "Gemini", sub: "Google", color: "#38bdf8", glowColor: "rgba(56, 189, 248, 0.6)", angle: -90, dist: 175, logo: "G", badge: "2M Context" },
+  { id: "deepseek", name: "DeepSeek", sub: "R1 Reasoning", color: "#60a5fa", glowColor: "rgba(96, 165, 250, 0.6)", angle: -45, dist: 185, logo: "🐋", badge: "SOTA" },
+  { id: "groq", name: "Groq", sub: "LPU Engine", color: "#f97316", glowColor: "rgba(249, 115, 22, 0.6)", angle: 0, dist: 195, logo: "⚡", badge: "500 tok/s" },
+  { id: "openrouter", name: "OpenRouter", sub: "Universal API", color: "#a855f7", glowColor: "rgba(168, 85, 247, 0.6)", angle: 45, dist: 185, logo: "🔀", badge: "Free" },
+  { id: "cerebras", name: "Cerebras", sub: "Wafer Scale", color: "#10b981", glowColor: "rgba(16, 185, 129, 0.6)", angle: 90, dist: 175, logo: "🧬", badge: "1500 t/s" },
+  { id: "together", name: "Together", sub: "Open Source", color: "#ec4899", glowColor: "rgba(236, 72, 153, 0.6)", angle: 135, dist: 185, logo: "🤝", badge: "Turbo" },
+  { id: "openai", name: "OpenAI", sub: "GPT-4o & o3", color: "#10a37f", glowColor: "rgba(16, 163, 127, 0.6)", angle: 180, dist: 195, logo: "✳️", badge: "Flagship" },
+  { id: "claude", name: "Claude", sub: "Anthropic 3.7", color: "#d97706", glowColor: "rgba(217, 119, 6, 0.6)", angle: 225, dist: 185, logo: "🧠", badge: "Hybrid CoT" },
 ];
 
 export function AIRouterPipelines() {
-  const center = 210; // svg center x and y
+  const center = 230; // 460x460 container center
+  const [activeHoverNode, setActiveHoverNode] = useState<string | null>(null);
 
   return (
-    <div className="relative w-full max-w-[460px] h-[440px] mx-auto flex items-center justify-center select-none">
-      {/* Background Radial Glow */}
-      <div className="absolute inset-4 bg-gradient-to-tr from-primary/20 via-accent/15 to-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+    <div className="relative w-full max-w-[500px] h-[480px] mx-auto flex items-center justify-center select-none perspective-[1000px]">
+      {/* Dynamic Cyber Ambient Glow */}
+      <div className="absolute inset-0 bg-gradient-to-tr from-primary/25 via-emerald-500/15 to-cyan-500/20 rounded-full blur-3xl pointer-events-none animate-pulse duration-[6000ms]" />
 
-      {/* SVG Pipeline Circuits & Data Streams */}
+      {/* SVG Pipeline Circuits & Laser Beams */}
       <svg
-        className="absolute inset-0 w-full h-full pointer-events-none"
-        viewBox="0 0 420 420"
+        className="absolute inset-0 w-full h-full pointer-events-none overflow-visible"
+        viewBox="0 0 460 460"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
-        {/* Orbital concentric guide rings */}
-        <circle cx={center} cy={center} r="168" stroke="currentColor" strokeWidth="1" className="text-border/40" strokeDasharray="4 4" />
-        <circle cx={center} cy={center} r="105" stroke="currentColor" strokeWidth="1" className="text-border/30" />
+        <defs>
+          <radialGradient id="hubGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#34C759" stopOpacity="0.4" />
+            <stop offset="60%" stopColor="#34C759" stopOpacity="0.1" />
+            <stop offset="100%" stopColor="transparent" stopOpacity="0" />
+          </radialGradient>
 
+          {/* Laser Glow Filter */}
+          <filter id="neonGlow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="3.5" result="coloredBlur" />
+            <feMerge>
+              <feMergeNode in="coloredBlur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+
+        {/* Outer Circular Radar Tracks */}
+        <circle cx={center} cy={center} r="185" stroke="currentColor" strokeWidth="1" className="text-border/40" strokeDasharray="4 6" />
+        <circle cx={center} cy={center} r="125" stroke="currentColor" strokeWidth="1" className="text-border/30" />
+        <circle cx={center} cy={center} r="70" fill="url(#hubGlow)" />
+
+        {/* 8 Bus Pipeline Circuits */}
         {AI_NODES.map((node) => {
           const rad = (node.angle * Math.PI) / 180;
           const targetX = center + node.dist * Math.cos(rad);
           const targetY = center + node.dist * Math.sin(rad);
 
-          // Curving control point for smooth circuit bus routing
-          const midX = (center + targetX) / 2 + Math.sin(rad) * 15;
-          const midY = (center + targetY) / 2 - Math.cos(rad) * 15;
+          // S-curve Circuit Mid-points (Real Motherboard Routing look)
+          const midX = center + (node.dist * 0.5) * Math.cos(rad) + Math.sin(rad) * 16;
+          const midY = center + (node.dist * 0.5) * Math.sin(rad) - Math.cos(rad) * 16;
 
           const pathD = `M ${center} ${center} Q ${midX} ${midY} ${targetX} ${targetY}`;
+          const isHovered = activeHoverNode === node.id;
 
           return (
             <g key={node.id}>
-              {/* Background glowing line */}
+              {/* Circuit Bus Back-Trace (Solid) */}
               <path
                 d={pathD}
                 stroke={node.color}
-                strokeWidth="2.5"
-                strokeOpacity="0.25"
+                strokeWidth={isHovered ? "3.5" : "1.8"}
+                strokeOpacity={isHovered ? "0.9" : "0.35"}
                 fill="none"
+                filter={isHovered ? "url(#neonGlow)" : undefined}
+                className="transition-all duration-300"
               />
-              {/* Animated Glowing Packet Flow */}
+
+              {/* High-speed Laser Light Packet Animation */}
               <path
                 d={pathD}
-                stroke={node.color}
-                strokeWidth="2"
-                strokeDasharray="6 14"
+                stroke="#ffffff"
+                strokeWidth={isHovered ? "3" : "2"}
+                strokeDasharray="8 20"
                 fill="none"
-                className="animate-[dash_3s_linear_infinite]"
+                filter="url(#neonGlow)"
               >
                 <animate
                   attributeName="stroke-dashoffset"
-                  from="40"
+                  from="56"
                   to="0"
-                  dur="2s"
+                  dur={isHovered ? "0.8s" : "1.8s"}
                   repeatCount="indefinite"
                 />
               </path>
-              {/* Pulsing Target Dot */}
+
+              {/* Node Terminal Soldering Pad */}
               <circle
                 cx={targetX}
                 cy={targetY}
-                r="3.5"
+                r={isHovered ? "5" : "3.5"}
                 fill={node.color}
-                className="animate-pulse"
+                className="transition-all duration-300"
               />
             </g>
           );
         })}
       </svg>
 
-      {/* CENTER NODE: Smart Canvas Grow Logo Hexagon / Badge */}
+      {/* CENTER ROUTER CORE: 3D Multi-Layered Neumorphic Hexagon */}
       <div className="relative z-20 group">
-        <div className="absolute -inset-2 bg-gradient-to-r from-primary to-accent rounded-3xl blur-xl opacity-60 group-hover:opacity-100 transition-opacity duration-500 animate-pulse" />
-        
-        <div className="relative h-24 w-24 sm:h-28 sm:w-28 rounded-2xl sm:rounded-3xl border-2 border-primary/60 bg-gradient-to-b from-surface to-[#0a1212] flex flex-col items-center justify-center shadow-[0_0_35px_rgba(52,199,89,0.35)] p-2 backdrop-blur-xl">
-          <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl sm:rounded-2xl bg-gradient-to-br from-primary via-emerald-400 to-accent grid place-items-center shadow-glow mb-1">
-            <Zap className="h-5 w-5 sm:h-6 sm:w-6 text-black" strokeWidth={2.8} />
+        {/* Animated Ambient Shockwave */}
+        <div className="absolute -inset-3 bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-500 rounded-3xl blur-2xl opacity-60 group-hover:opacity-100 transition-opacity duration-700 animate-pulse" />
+
+        <div className="relative h-28 w-28 sm:h-32 sm:w-32 rounded-3xl border-2 border-emerald-400/80 bg-gradient-to-b from-[#132220] to-[#08100f] flex flex-col items-center justify-center shadow-[0_0_50px_rgba(52,199,89,0.5),inset_0_1px_1px_rgba(255,255,255,0.4)] p-2 backdrop-blur-2xl transition-transform duration-500 group-hover:scale-105">
+          {/* Inner Glowing Core Icon */}
+          <div className="relative h-12 w-12 sm:h-14 sm:w-14 rounded-2xl bg-gradient-to-br from-emerald-400 via-primary to-cyan-400 grid place-items-center shadow-[0_0_20px_rgba(52,199,89,0.8)] mb-1">
+            <Zap className="h-6 w-6 sm:h-7 sm:w-7 text-black fill-current animate-bounce duration-1000" strokeWidth={2.8} />
+            <div className="absolute inset-0 rounded-2xl border border-white/40 pointer-events-none" />
           </div>
-          <span className="font-display text-[10px] sm:text-[11px] font-bold text-foreground tracking-tight text-center leading-none">
+
+          <span className="font-display text-[11px] sm:text-xs font-bold text-white tracking-tight text-center leading-none mt-0.5">
             Smart Canvas
           </span>
-          <span className="font-mono text-[8px] text-primary-glow uppercase tracking-widest mt-0.5">
-            AI Router
-          </span>
+          <div className="flex items-center gap-1 mt-1">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-ping" />
+            <span className="font-mono text-[8px] text-emerald-300 font-semibold uppercase tracking-widest">
+              AI ROUTER
+            </span>
+          </div>
         </div>
       </div>
 
-      {/* SURROUNDING AI BRAND CHIPS */}
+      {/* 8 SURROUNDING HIGH-FIDELITY AI BRAND CHIPS */}
       {AI_NODES.map((node) => {
         const rad = (node.angle * Math.PI) / 180;
         const x = center + node.dist * Math.cos(rad);
         const y = center + node.dist * Math.sin(rad);
+        const isHovered = activeHoverNode === node.id;
 
         return (
           <div
             key={node.id}
+            onMouseEnter={() => setActiveHoverNode(node.id)}
+            onMouseLeave={() => setActiveHoverNode(null)}
             style={{
               left: `${x}px`,
               top: `${y}px`,
               transform: "translate(-50%, -50%)",
             }}
-            className="absolute z-10 group"
+            className="absolute z-20 group"
           >
-            {/* Ambient hover glow */}
+            {/* Glowing aura on hover */}
             <div
-              className="absolute -inset-1 rounded-xl blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+              className={`absolute -inset-1.5 rounded-2xl blur-lg transition-opacity duration-300 pointer-events-none ${
+                isHovered ? "opacity-100 scale-110" : "opacity-0"
+              }`}
               style={{ backgroundColor: node.glowColor }}
             />
 
-            {/* Chip Container */}
-            <div className="relative px-2.5 py-1.5 rounded-xl border border-border/80 bg-surface/90 backdrop-blur-md shadow-card hover:border-primary/50 transition-all duration-300 flex items-center gap-1.5 cursor-pointer hover:scale-105">
-              <span
-                className="h-2 w-2 rounded-full shrink-0 shadow-sm"
-                style={{ backgroundColor: node.color }}
-              />
+            {/* Futuristic Glassmorphic Chip Card */}
+            <div
+              className={`relative px-3 py-2 rounded-2xl border transition-all duration-300 flex items-center gap-2 cursor-pointer shadow-xl backdrop-blur-xl ${
+                isHovered
+                  ? "bg-surface border-white/60 scale-110 shadow-[0_10px_25px_rgba(0,0,0,0.5)]"
+                  : "bg-surface/85 border-border/80 hover:border-primary/50"
+              }`}
+            >
+              {/* Brand Icon Avatar */}
+              <div
+                className="h-6 w-6 rounded-lg grid place-items-center text-xs font-bold font-mono text-white shadow-inner shrink-0"
+                style={{
+                  backgroundColor: node.color,
+                  boxShadow: `0 0 10px ${node.glowColor}`,
+                }}
+              >
+                {node.logo}
+              </div>
+
+              {/* Text Info */}
               <div className="flex flex-col text-left leading-tight">
-                <span className="font-display text-[11px] font-semibold text-foreground tracking-tight whitespace-nowrap">
-                  {node.name}
-                </span>
-                <span className="font-mono text-[8px] text-muted-foreground whitespace-nowrap">
+                <div className="flex items-center gap-1.5">
+                  <span className="font-display text-xs font-bold text-foreground tracking-tight whitespace-nowrap">
+                    {node.name}
+                  </span>
+                  {node.badge && (
+                    <span className="text-[8px] font-mono px-1.5 py-0.2 rounded bg-white/10 text-emerald-400 font-semibold border border-white/10">
+                      {node.badge}
+                    </span>
+                  )}
+                </div>
+                <span className="font-mono text-[9px] text-muted-foreground whitespace-nowrap">
                   {node.sub}
                 </span>
               </div>
@@ -152,4 +212,3 @@ export function AIRouterPipelines() {
     </div>
   );
 }
-
