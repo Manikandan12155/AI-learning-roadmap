@@ -451,9 +451,27 @@ function LevelCard({
   const status = totals.done === 0 ? "empty" : totals.done === totals.total ? "done" : "progress";
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
-  const handleCopy = (e: React.MouseEvent, text: string, key: string) => {
+  const handleCopy = (
+    e: React.MouseEvent,
+    topicName: string,
+    sectionName: string,
+    key: string,
+  ) => {
     e.stopPropagation();
-    navigator.clipboard.writeText(text);
+    const prompt = `Explain "${topicName}" in detail specifically in the context of Artificial Intelligence, Machine Learning, and Modern System Engineering.
+
+Roadmap Context:
+- Level: L${lIdx.toString().padStart(2, "0")} - ${lvl.short}
+- Section: ${sectionName}
+- Topic: ${topicName}
+
+Please cover:
+1. Core intuition & fundamentals (why it matters for AI/ML).
+2. How AI systems, models, or data pipelines utilize this under the hood.
+3. Real-world AI engineering use-case or code snippet/architecture example.
+4. Key interview concepts or common pitfalls when deploying production AI systems.`;
+
+    navigator.clipboard.writeText(prompt);
     setCopiedKey(key);
     setTimeout(() => {
       setCopiedKey((prev) => (prev === key ? null : prev));
@@ -564,8 +582,8 @@ function LevelCard({
                         <span
                           role="button"
                           tabIndex={0}
-                          title="Copy topic to clipboard"
-                          onClick={(e) => handleCopy(e, tp.name, k)}
+                          title="Copy AI study prompt to clipboard"
+                          onClick={(e) => handleCopy(e, tp.name, section.name, k)}
                           className={`ml-1 p-1 rounded-full hover:bg-white/10 active:scale-90 transition-all text-muted-foreground hover:text-foreground ${
                             isCopied ? "text-primary opacity-100" : "opacity-0 group-hover:opacity-100"
                           }`}
