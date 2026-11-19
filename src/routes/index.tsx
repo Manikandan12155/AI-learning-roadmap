@@ -28,12 +28,14 @@ import {
   Sun,
   Moon,
   Lock,
+  Settings,
 } from "lucide-react";
 import { ROADMAP, TOTAL_TOPICS, type Level } from "@/data/roadmap";
 import { AIExplainPanel } from "@/components/AIExplainPanel";
 import { AIKeysModal } from "@/components/AIKeysModal";
 import { AboutModal } from "@/components/AboutModal";
 import { AuthModal } from "@/components/AuthModal";
+import { SettingsModal } from "@/components/SettingsModal";
 import { supabase, isSupabaseConfigured } from "@/utils/supabaseClient";
 import { AI_PROVIDERS } from "@/data/aiProviders";
 import { AIRouterPipelines } from "@/components/AIRouterPipelines";
@@ -91,10 +93,36 @@ function HomePage() {
   const [isKeyModalOpen, setIsKeyModalOpen] = useState(false);
   const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const [journeyTrack, setJourneyTrack] = useState<boolean>(true);
   const [authReason, setAuthReason] = useState<string | undefined>(undefined);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [hasApiKey, setHasApiKey] = useState(false);
   const [theme, setTheme] = useState<"dark" | "light">("dark");
+
+  // Load journey track setting from localStorage (default: true)
+  useEffect(() => {
+    try {
+      const storedTrack = localStorage.getItem("scg_journey_track");
+      if (storedTrack !== null) {
+        setJourneyTrack(storedTrack === "true");
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
+
+  const toggleJourneyTrack = () => {
+    setJourneyTrack((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem("scg_journey_track", String(next));
+      } catch (e) {
+        console.error(e);
+      }
+      return next;
+    });
+  };
 
   // Load user session on mount (Supabase Auth or Demo session)
   useEffect(() => {
@@ -262,6 +290,7 @@ function HomePage() {
           setAuthReason("Sign in with Google to sync your roadmap progress and unlock full AI study features.");
           setIsAuthModalOpen(true);
         }}
+        onOpenSettingsModal={() => setIsSettingsModalOpen(true)}
         onSignOut={handleSignOut}
       />
       <Hero
@@ -289,6 +318,25 @@ function HomePage() {
               return true;
             }).map((lvl, lIdx) => {
               const isLocked = !currentUser && lIdx > 1; // Level 0 & Level 1 are free preview. Level 2+ are locked without login.
+
+              // Journey Track Prerequisite Logic:
+              // If journeyTrack is enabled, level N requires level N-1 to be completed
+              let isPrereqLocked = false;
+              let prereqLevelName = "";
+              if (journeyTrack && lIdx > 0 && lvl.short !== "Technical Abbreviations") {
+                const prevLvl = ROADMAP[lIdx - 1];
+                if (prevLvl) {
+                  const prevTotal = prevLvl.sections.reduce((acc, s) => acc + s.topics.length, 0);
+                  const prevDone = prevLvl.sections
+                    .flatMap((s) => s.topics.map((tp) => keyFor(lIdx - 1, s.name, tp.name)))
+                    .filter((k) => state[k]).length;
+                  if (prevDone < prevTotal) {
+                    isPrereqLocked = true;
+                    prereqLevelName = `L${(lIdx - 1).toString().padStart(2, "0")}: ${prevLvl.short}`;
+                  }
+                }
+              }
+
               return (
                 <LevelCard
                   key={lIdx}
@@ -296,6 +344,8 @@ function HomePage() {
                   lIdx={lIdx}
                   state={state}
                   isLocked={isLocked}
+                  isPrereqLocked={isPrereqLocked}
+                  prereqLevelName={prereqLevelName}
                   open={filter === "abbrev" ? true : !!openLevels[lIdx]}
                   setOpen={(v) => {
                     if (isLocked) {
@@ -374,6 +424,26 @@ function HomePage() {
         }}
       />
 
+      <SettingsModal
+        isOpen={isSettingsModalOpen}
+        onClose={() => setIsSettingsModalOpen(false)}
+        currentUser={currentUser}
+        journeyTrack={journeyTrack}
+        onToggleJourneyTrack={toggleJourneyTrack}
+        onOpenKeysModal={() => setIsKeyModalOpen(true)}
+        hasApiKey={hasApiKey}
+        activeProviderName={activeProviderName}
+        onOpenAuthModal={() => {
+          setAuthReason("Sign in with Google to sync your roadmap progress and unlock full AI study features.");
+          setIsAuthModalOpen(true);
+        }}
+        onSignOut={handleSignOut}
+        theme={theme}
+        onToggleTheme={toggleTheme}
+        completedTopicsCount={done}
+        totalTopicsCount={TOTAL_TOPICS}
+      />
+
       <Footer />
     </div>
   );
@@ -389,6 +459,7 @@ function Header({
   onOpenAboutModal,
   currentUser,
   onOpenAuthModal,
+  onOpenSettingsModal,
   onSignOut,
 }: {
   pct: number;
@@ -400,6 +471,7 @@ function Header({
   onOpenKeyModal: () => void;
   onOpenAboutModal: () => void;
   onOpenAuthModal: () => void;
+  onOpenSettingsModal: () => void;
   onSignOut: () => void;
 }) {
   const userDisplayName =
@@ -423,7 +495,7 @@ function Header({
           </span>
         </div>
 
-        <div className="flex items-center gap-2.5 sm:gap-3">
+        <div className="flex items-center gap-2 sm:gap-2.5">
           {/* Light / Dark Mode Toggle */}
           <button
             onClick={onToggleTheme}
@@ -440,38 +512,35 @@ function Header({
           {/* About Creator Button */}
           <button
             onClick={onOpenAboutModal}
-            className="h-8 px-3 rounded-full text-xs font-mono inline-flex items-center gap-1.5 border border-border bg-surface text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all"
+            className="h-8 px-2.5 sm:px-3 rounded-full text-xs font-mono inline-flex items-center gap-1.5 border border-border bg-surface text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all"
             title="About Creator"
           >
             <Sparkles className="h-3.5 w-3.5 text-primary" />
-            <span>About</span>
+            <span className="hidden sm:inline">About</span>
           </button>
 
-          {/* Multi-AI Provider Key Button in Header */}
+          {/* Settings & Profile Hub Button (Hosts AI Keys, Journey Track & Profile data) */}
           <button
-            onClick={onOpenKeyModal}
-            className={`h-8 px-3 rounded-full text-xs font-mono inline-flex items-center gap-1.5 border transition-all ${
+            onClick={onOpenSettingsModal}
+            className={`h-8 px-2.5 sm:px-3 rounded-full text-xs font-mono inline-flex items-center gap-1.5 border transition-all ${
               hasApiKey
                 ? "bg-primary/10 border-primary/40 text-primary-glow hover:bg-primary/20"
                 : "bg-surface-2 border-border text-muted-foreground hover:text-foreground hover:border-primary/40"
             }`}
-            title="Configure Free AI Keys (Gemini, Groq, OpenRouter, Cerebras, Together)"
+            title="Settings (Profile, Journey Track, AI Keys)"
           >
-            <KeyRound className="h-3.5 w-3.5 text-primary" />
-            <span className="hidden sm:inline">
-              {hasApiKey ? `${activeProviderName || "AI"}: Active` : "Free AI Keys"}
-            </span>
-            <span className="sm:hidden">
-              {hasApiKey ? "AI ✓" : "AI"}
-            </span>
+            <Settings className="h-3.5 w-3.5 text-primary" />
+            <span className="hidden sm:inline">Settings</span>
+            {hasApiKey && <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />}
           </button>
 
           {/* Google Sign In / Profile Avatar */}
           {currentUser ? (
-            <div className="flex items-center gap-2 pl-1">
-              <div
-                className="flex items-center gap-2 p-1 pr-2.5 rounded-full border border-border bg-surface/80 hover:bg-surface-2 transition group"
-                title={`Signed in as ${userDisplayName} (${currentUser?.email || ""})`}
+            <div className="flex items-center gap-1.5 pl-0.5">
+              <button
+                onClick={onOpenSettingsModal}
+                className="flex items-center gap-2 p-1 pr-2 sm:pr-2.5 rounded-full border border-border bg-surface/80 hover:bg-surface-2 transition group"
+                title={`Signed in as ${userDisplayName} — Open Settings`}
               >
                 {userAvatar ? (
                   <img
@@ -484,17 +553,10 @@ function Header({
                     {userDisplayName.slice(0, 1)}
                   </div>
                 )}
-                <span className="hidden md:inline text-xs font-medium text-foreground max-w-[90px] truncate">
+                <span className="hidden md:inline text-xs font-medium text-foreground max-w-[85px] truncate">
                   {userDisplayName}
                 </span>
-                <button
-                  onClick={onSignOut}
-                  className="text-[11px] text-muted-foreground hover:text-rose-400 transition ml-0.5"
-                  title="Sign Out"
-                >
-                  Logout
-                </button>
-              </div>
+              </button>
             </div>
           ) : (
             <button
@@ -779,6 +841,8 @@ function LevelCard({
   filter,
   query,
   isLocked = false,
+  isPrereqLocked = false,
+  prereqLevelName,
 }: {
   lvl: Level;
   lIdx: number;
@@ -791,6 +855,8 @@ function LevelCard({
   filter: Filter;
   query: string;
   isLocked?: boolean;
+  isPrereqLocked?: boolean;
+  prereqLevelName?: string;
 }) {
   const Icon = ICONS[lvl.icon];
   const totals = useMemo(() => {
@@ -888,6 +954,11 @@ Please cover:
             <Lock className="h-3.5 w-3.5 text-amber" />
             <span className="hidden sm:inline text-amber text-[11px] font-sans">Locked</span>
           </div>
+        ) : isPrereqLocked ? (
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-2/80 border border-border/80 text-muted-foreground shrink-0 text-xs font-mono">
+            <Lock className="h-3.5 w-3.5 text-muted-foreground" />
+            <span className="hidden sm:inline text-[11px] font-sans text-muted-foreground">Prerequisite Needed</span>
+          </div>
         ) : (
           <ChevronDown
             className={`h-5 w-5 text-muted-foreground transition-transform shrink-0 ${open ? "rotate-180" : ""}`}
@@ -896,7 +967,30 @@ Please cover:
       </button>
 
       {open && (
-        <div className="border-t border-border px-4 sm:px-5 py-5 space-y-5 bg-surface/40">
+        <div className="relative border-t border-border px-4 sm:px-5 py-5 space-y-5 bg-surface/40">
+          {/* Journey Track Blur Overlay when previous level not completed */}
+          {isPrereqLocked && (
+            <div className="absolute inset-0 z-20 backdrop-blur-[6px] bg-background/60 flex flex-col items-center justify-center p-6 text-center animate-in fade-in duration-300">
+              <div className="max-w-md p-5 rounded-2xl border border-border bg-card/95 shadow-2xl space-y-3">
+                <div className="h-10 w-10 mx-auto rounded-full bg-primary/10 border border-primary/30 grid place-items-center text-primary">
+                  <Lock className="h-5 w-5" />
+                </div>
+                <h4 className="font-display font-bold text-foreground text-base">
+                  Prerequisite Level Required
+                </h4>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Journey Track mode is ON. Complete all topics in{" "}
+                  <span className="font-semibold text-primary-glow">{prereqLevelName || "previous level"}</span>{" "}
+                  to unlock this stage, or switch off Journey Track in Settings.
+                </p>
+                <div className="pt-1 flex items-center justify-center gap-2">
+                  <span className="font-mono text-[10px] text-muted-foreground bg-surface-2 px-2.5 py-1 rounded-full border border-border">
+                    Journey Track: Active
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
           {lvl.sections.map((section) => {
             const filtered = section.topics.filter((tp) => {
               const k = keyFor(lIdx, section.name, tp.name);
