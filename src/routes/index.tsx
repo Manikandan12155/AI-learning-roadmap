@@ -39,6 +39,7 @@ import { AuthModal } from "@/components/AuthModal";
 import { SettingsModal } from "@/components/SettingsModal";
 import { ContentProtection } from "@/components/ContentProtection";
 import { CertificateModal } from "@/components/CertificateModal";
+import { BattlePassJourney } from "@/components/BattlePassJourney";
 import { supabase, isSupabaseConfigured } from "@/utils/supabaseClient";
 import { AI_PROVIDERS } from "@/data/aiProviders";
 import { AIRouterPipelines } from "@/components/AIRouterPipelines";
@@ -308,6 +309,13 @@ function HomePage() {
       <Showcase />
 
       <main className="mx-auto max-w-7xl px-4 sm:px-6 pb-32">
+        {/* Clash of Clans Style Interactive Battle Pass Journey Bar */}
+        <BattlePassJourney
+          completedTopicsCount={done}
+          totalTopicsCount={TOTAL_TOPICS}
+          onOpenCertificateModal={() => setIsCertificateModalOpen(true)}
+        />
+
         <Controls
           filter={filter}
           setFilter={setFilter}
