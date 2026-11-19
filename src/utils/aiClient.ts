@@ -15,11 +15,11 @@ export async function requestAICompletion({
 
   // 1. Google Gemini Native API
   if (provider.id === "gemini") {
-    // If user model quota hits or default is requested, gracefully fallback through available Gemini models
-    const targetModel = model || "gemini-2.5-flash";
+    // Google recommended models: gemini-3.8-flash (primary standard), with fallback to flash-lite
+    const targetModel = model || "gemini-3.8-flash";
     const modelsToTry = [
       targetModel,
-      targetModel !== "gemini-2.5-flash" ? "gemini-2.5-flash" : "gemini-2.5-flash-lite",
+      targetModel !== "gemini-3.8-flash" ? "gemini-3.8-flash" : "gemini-2.5-flash-lite",
       "gemini-2.5-flash-lite",
     ].filter((v, i, a) => a.indexOf(v) === i);
 
@@ -50,12 +50,19 @@ export async function requestAICompletion({
         return text;
       } catch (err: any) {
         lastError = err;
-        // If it's a quota / rate-limit error, try next flash model
         const msg = err?.message?.toLowerCase() || "";
-        if (msg.includes("quota") || msg.includes("rate") || msg.includes("limit") || msg.includes("429")) {
+        // If deprecated, not available, or quota exceeded, try next model
+        if (
+          msg.includes("quota") ||
+          msg.includes("rate") ||
+          msg.includes("limit") ||
+          msg.includes("429") ||
+          msg.includes("no longer available") ||
+          msg.includes("not found")
+        ) {
           continue;
         }
-        // If it's invalid key, break immediately
+        // If it's invalid API key, stop immediately
         break;
       }
     }
