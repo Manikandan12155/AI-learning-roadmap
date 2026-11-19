@@ -30,6 +30,7 @@ import {
   Lock,
   Settings,
   Award,
+  Calendar,
 } from "lucide-react";
 import { ROADMAP, TOTAL_TOPICS, type Level } from "@/data/roadmap";
 import { AIExplainPanel } from "@/components/AIExplainPanel";
@@ -40,6 +41,7 @@ import { SettingsModal } from "@/components/SettingsModal";
 import { ContentProtection } from "@/components/ContentProtection";
 import { CertificateModal } from "@/components/CertificateModal";
 import { BattlePassJourney } from "@/components/BattlePassJourney";
+import { StudyScheduleModal } from "@/components/StudyScheduleModal";
 import { supabase, isSupabaseConfigured } from "@/utils/supabaseClient";
 import { AI_PROVIDERS } from "@/data/aiProviders";
 import { AIRouterPipelines } from "@/components/AIRouterPipelines";
@@ -99,6 +101,7 @@ function HomePage() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [isCertificateModalOpen, setIsCertificateModalOpen] = useState(false);
+  const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [journeyTrack, setJourneyTrack] = useState<boolean>(true);
   const [authReason, setAuthReason] = useState<string | undefined>(undefined);
   const [currentUser, setCurrentUser] = useState<any>(null);
@@ -298,6 +301,7 @@ function HomePage() {
         }}
         onOpenSettingsModal={() => setIsSettingsModalOpen(true)}
         onOpenCertificateModal={() => setIsCertificateModalOpen(true)}
+        onOpenScheduleModal={() => setIsScheduleModalOpen(true)}
         onSignOut={handleSignOut}
       />
       <Hero
@@ -467,6 +471,11 @@ function HomePage() {
         completedLevels={completedLevels}
       />
 
+      <StudyScheduleModal
+        isOpen={isScheduleModalOpen}
+        onClose={() => setIsScheduleModalOpen(false)}
+      />
+
       <Footer />
     </div>
   );
@@ -484,6 +493,7 @@ function Header({
   onOpenAuthModal,
   onOpenSettingsModal,
   onOpenCertificateModal,
+  onOpenScheduleModal,
   onSignOut,
 }: {
   pct: number;
@@ -497,6 +507,7 @@ function Header({
   onOpenAuthModal: () => void;
   onOpenSettingsModal: () => void;
   onOpenCertificateModal: () => void;
+  onOpenScheduleModal: () => void;
   onSignOut: () => void;
 }) {
   const userDisplayName =
@@ -542,6 +553,16 @@ function Header({
           >
             <Sparkles className="h-3.5 w-3.5 text-primary" />
             <span className="hidden sm:inline">About</span>
+          </button>
+
+          {/* Schedule Daily Learning Button (Google Calendar Safe Habit Slot) */}
+          <button
+            onClick={onOpenScheduleModal}
+            className="h-8 px-2.5 sm:px-3 rounded-full text-xs font-mono inline-flex items-center gap-1.5 border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 transition-all shadow-[0_0_10px_rgba(52,199,89,0.2)]"
+            title="Add 30-min Daily AI Study Slot to Google Calendar"
+          >
+            <Calendar className="h-3.5 w-3.5" />
+            <span className="hidden md:inline">Daily Slot</span>
           </button>
 
           {/* Certificate Button (Naukri & LinkedIn Verification) */}

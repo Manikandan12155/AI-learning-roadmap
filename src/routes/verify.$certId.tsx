@@ -235,3 +235,4 @@ export function VerifyCertificatePage() {
     </div>
   );
 }
+
