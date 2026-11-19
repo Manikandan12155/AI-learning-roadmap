@@ -1,138 +1,122 @@
 import React from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
-// Parses markdown bold (**text**), code (`code`), lists, headers and links
 export function MarkdownRenderer({ content }: { content: string }) {
   if (!content) return null;
 
-  // Split into lines or paragraphs
-  const rawBlocks = content.split("\n\n");
-
   return (
-    <div className="space-y-4 text-xs sm:text-[13px] leading-relaxed text-foreground/90">
-      {rawBlocks.map((block, bIdx) => {
-        const trimmed = block.trim();
-        if (!trimmed) return null;
-
-        // Code block
-        if (trimmed.startsWith("```")) {
-          const lines = trimmed.split("\n");
-          const lang = lines[0].replace("```", "").trim();
-          const code = lines.slice(1, lines[lines.length - 1].startsWith("```") ? -1 : undefined).join("\n");
-          return (
-            <div key={bIdx} className="rounded-xl border border-border bg-[#0d1414] overflow-hidden my-3 shadow-sm">
-              {lang && (
-                <div className="px-3.5 py-1.5 bg-surface-2 border-b border-border text-[10px] font-mono text-muted-foreground uppercase tracking-wider">
-                  {lang}
-                </div>
-              )}
+    <div className="text-xs sm:text-[13px] leading-relaxed text-foreground/90 break-words font-sans space-y-3">
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={{
+          h1: ({ children }) => (
+            <h1 className="font-display text-base font-semibold text-primary-glow border-b border-border/60 pb-1.5 mt-5 first:mt-1">
+              {children}
+            </h1>
+          ),
+          h2: ({ children }) => (
+            <h2 className="font-display text-sm sm:text-base font-semibold text-primary-glow border-b border-border/60 pb-1.5 mt-5 first:mt-1">
+              {children}
+            </h2>
+          ),
+          h3: ({ children }) => (
+            <h3 className="font-display text-sm font-semibold text-primary-glow border-b border-border/60 pb-1.5 mt-4 first:mt-1">
+              {children}
+            </h3>
+          ),
+          h4: ({ children }) => (
+            <h4 className="font-display text-xs font-semibold text-primary-glow mt-3">
+              {children}
+            </h4>
+          ),
+          p: ({ children }) => (
+            <p className="leading-relaxed my-2 text-foreground/90 whitespace-normal">
+              {children}
+            </p>
+          ),
+          ul: ({ children }) => (
+            <ul className="space-y-1.5 pl-4 list-disc marker:text-primary my-2">
+              {children}
+            </ul>
+          ),
+          ol: ({ children }) => (
+            <ol className="space-y-1.5 pl-4 list-decimal marker:text-primary font-medium my-2">
+              {children}
+            </ol>
+          ),
+          li: ({ children }) => (
+            <li className="leading-relaxed text-foreground/90">
+              {children}
+            </li>
+          ),
+          strong: ({ children }) => (
+            <strong className="font-semibold text-foreground text-primary-glow">
+              {children}
+            </strong>
+          ),
+          em: ({ children }) => (
+            <em className="italic text-foreground/80">
+              {children}
+            </em>
+          ),
+          code: ({ className, children, ...props }: any) => {
+            const isInline = !className && typeof children === "string" && !children.includes("\n");
+            if (isInline) {
+              return (
+                <code
+                  className="font-mono text-[11px] px-1.5 py-0.5 rounded bg-surface border border-border text-emerald-300 break-all"
+                  {...props}
+                >
+                  {children}
+                </code>
+              );
+            }
+            return (
+              <code className="font-mono text-xs text-emerald-300" {...props}>
+                {children}
+              </code>
+            );
+          },
+          pre: ({ children }) => (
+            <div className="rounded-xl border border-border bg-[#0d1414] overflow-hidden my-3 shadow-sm">
               <pre className="p-3.5 font-mono text-xs text-emerald-300 overflow-x-auto leading-normal">
-                <code>{code}</code>
+                {children}
               </pre>
             </div>
-          );
-        }
-
-        // Section Headings (### or 1. Intuition etc)
-        if (trimmed.startsWith("### ") || trimmed.startsWith("## ") || trimmed.startsWith("# ")) {
-          const headingText = trimmed.replace(/^#{1,3}\s+/, "");
-          return (
-            <h3
-              key={bIdx}
-              className="font-display text-sm sm:text-base font-semibold text-primary-glow border-b border-border/60 pb-1.5 mt-5 first:mt-0 flex items-center gap-2"
-            >
-              {renderInline(headingText)}
-            </h3>
-          );
-        }
-
-        // Horizontal Rule
-        if (trimmed === "---" || trimmed === "***") {
-          return <hr key={bIdx} className="border-border/60 my-3" />;
-        }
-
-        // Bullet lists
-        if (trimmed.split("\n").some((l) => l.trim().startsWith("* ") || l.trim().startsWith("- "))) {
-          const lines = trimmed.split("\n");
-          return (
-            <ul key={bIdx} className="space-y-1.5 pl-4 list-disc marker:text-primary">
-              {lines.map((l, lIdx) => {
-                const cleaned = l.replace(/^[\*\-]\s+/, "");
-                return (
-                  <li key={lIdx} className="leading-relaxed">
-                    {renderInline(cleaned)}
-                  </li>
-                );
-              })}
-            </ul>
-          );
-        }
-
-        // Numbered list items
-        if (/^\d+\.\s/.test(trimmed)) {
-          const lines = trimmed.split("\n");
-          return (
-            <ol key={bIdx} className="space-y-2">
-              {lines.map((l, lIdx) => {
-                const match = l.match(/^(\d+\.)\s+(.*)/);
-                if (match) {
-                  return (
-                    <li key={lIdx} className="flex items-start gap-2">
-                      <span className="font-mono text-primary font-semibold text-xs shrink-0 mt-0.5">
-                        {match[1]}
-                      </span>
-                      <div className="flex-1 leading-relaxed">
-                        {renderInline(match[2])}
-                      </div>
-                    </li>
-                  );
-                }
-                return (
-                  <li key={lIdx} className="leading-relaxed">
-                    {renderInline(l)}
-                  </li>
-                );
-              })}
-            </ol>
-          );
-        }
-
-        // Regular paragraph
-        return (
-          <p key={bIdx} className="leading-relaxed">
-            {renderInline(trimmed)}
-          </p>
-        );
-      })}
+          ),
+          table: ({ children }) => (
+            <div className="overflow-x-auto my-3 border border-border rounded-xl">
+              <table className="w-full text-left text-xs border-collapse">
+                {children}
+              </table>
+            </div>
+          ),
+          thead: ({ children }) => (
+            <thead className="bg-surface-2 border-b border-border text-foreground font-semibold">
+              {children}
+            </thead>
+          ),
+          th: ({ children }) => (
+            <th className="px-3 py-2 border-b border-border font-mono text-[11px] text-muted-foreground uppercase">
+              {children}
+            </th>
+          ),
+          td: ({ children }) => (
+            <td className="px-3 py-2 border-b border-border/50 text-foreground/90">
+              {children}
+            </td>
+          ),
+          hr: () => <hr className="border-border/60 my-4" />,
+          blockquote: ({ children }) => (
+            <blockquote className="border-l-2 border-primary/40 pl-3 my-2 text-muted-foreground italic bg-primary/5 py-1 rounded-r">
+              {children}
+            </blockquote>
+          ),
+        }}
+      >
+        {content}
+      </ReactMarkdown>
     </div>
   );
 }
-
-// Renders bold (**text**), inline code (`code`), and italics (*text*)
-function renderInline(text: string): React.ReactNode {
-  // Regex to split by **bold** or `code`
-  const parts = text.split(/(\*\*[^*]+?\*\*|`[^`]+?`)/g);
-
-  return parts.map((part, index) => {
-    if (part.startsWith("**") && part.endsWith("**")) {
-      const boldContent = part.slice(2, -2);
-      return (
-        <strong key={index} className="font-semibold text-foreground text-primary-glow">
-          {boldContent}
-        </strong>
-      );
-    }
-    if (part.startsWith("`") && part.endsWith("`")) {
-      const codeContent = part.slice(1, -1);
-      return (
-        <code
-          key={index}
-          className="font-mono text-[11px] px-1.5 py-0.5 rounded bg-surface border border-border text-emerald-300"
-        >
-          {codeContent}
-        </code>
-      );
-    }
-    return part;
-  });
-}
-

@@ -1,6 +1,27 @@
 import React, { useState, useEffect } from "react";
-import { KeyRound, Sparkles, X, ExternalLink, Bot, AlertCircle, Loader2, ChevronDown, RotateCcw } from "lucide-react";
+import {
+  KeyRound,
+  Sparkles,
+  X,
+  ExternalLink,
+  Bot,
+  AlertCircle,
+  Loader2,
+  ChevronDown,
+  RotateCcw,
+  Maximize2,
+  Minimize2,
+  BookOpen,
+  HelpCircle,
+  Layers,
+  Network,
+  Headphones,
+} from "lucide-react";
 import { MarkdownRenderer } from "./MarkdownRenderer";
+import { QuizView, type QuizQuestion } from "./notebook/QuizView";
+import { FlashcardsView, type FlashcardItem } from "./notebook/FlashcardsView";
+import { MindMapView } from "./notebook/MindMapView";
+import { AudioOverviewView } from "./notebook/AudioOverviewView";
 
 interface AIExplainPanelProps {
   isOpen: boolean;
@@ -14,7 +35,8 @@ interface AIExplainPanelProps {
   } | null;
 }
 
-// 2026 Active Gemini Models
+type StudioTab = "overview" | "quiz" | "flashcards" | "mindmap" | "audio";
+
 const AVAILABLE_MODELS = [
   { id: "gemini-3.1-pro-preview", name: "Gemini 3.1 Pro (Preview)", tag: "Recommended / Latest" },
   { id: "gemini-2.5-flash", name: "Gemini 2.5 Flash", tag: "Fast" },
@@ -30,9 +52,17 @@ export function AIExplainPanel({
   const [apiKey, setApiKey] = useState("");
   const [savedKey, setSavedKey] = useState<string | null>(null);
   const [selectedModel, setSelectedModel] = useState<string>("gemini-3.1-pro-preview");
+  const [activeTab, setActiveTab] = useState<StudioTab>("overview");
+  const [isExpanded, setIsExpanded] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Tab Data Cache
   const [explanation, setExplanation] = useState<string>("");
+  const [quizData, setQuizData] = useState<QuizQuestion[]>([]);
+  const [flashcardsData, setFlashcardsData] = useState<FlashcardItem[]>([]);
+  const [mindmapData, setMindmapData] = useState<string>("");
+  const [audioScriptData, setAudioScriptData] = useState<string>("");
 
   useEffect(() => {
     try {
@@ -46,7 +76,6 @@ export function AIExplainPanel({
       }
 
       const storedModel = localStorage.getItem("gemini_selected_model");
-      // migrate if old models were saved in user's browser
       if (
         !storedModel ||
         storedModel.includes("1.5") ||
@@ -62,6 +91,16 @@ export function AIExplainPanel({
       console.error(e);
     }
   }, [isOpen]);
+
+  // Clear data on topic switch
+  useEffect(() => {
+    setExplanation("");
+    setQuizData([]);
+    setFlashcardsData([]);
+    setMindmapData("");
+    setAudioScriptData("");
+    setActiveTab("overview");
+  }, [topicContext?.topicName]);
 
   const handleSaveKey = () => {
     const trimmed = apiKey.trim();
@@ -83,7 +122,7 @@ export function AIExplainPanel({
       console.error(e);
     }
     if (savedKey) {
-      generateExplanation(savedKey, modelId);
+      fetchFeature(savedKey, activeTab, modelId);
     }
   };
 
@@ -105,58 +144,26 @@ export function AIExplainPanel({
     return [];
   };
 
-  const generateExplanation = async (activeKey: string, modelToUse = selectedModel) => {
-    if (!topicContext) return;
-    setLoading(true);
-    setError(null);
-    setExplanation("");
-
-    const prompt = `You are a world-class Principal AI & Machine Learning Engineer and Senior Mentor.
-Explain the topic "${topicContext.topicName}" for a learner following an advanced AI engineering roadmap.
-
-Context:
-- Level: L${topicContext.levelNumber.toString().padStart(2, "0")} (${topicContext.levelName})
-- Section: ${topicContext.sectionName}
-- Topic: ${topicContext.topicName}
-
-Structure your response cleanly using Markdown:
-### 1. Intuition & What It Actually Is
-Explain simply with a high-impact real-world analogy. Avoid dry textbook jargon.
-
-### 2. Why It Matters in AI / ML Engineering
-Explain specifically how modern AI systems, neural networks, or ML pipelines use this.
-
-### 3. Practical Implementation & Code Snippet
-Provide a concise, production-grade Python or relevant code snippet demonstrating core usage.
-
-### 4. System Pitfalls & Architecture Tips
-What breaks in production? Common mistakes or scaling bottlenecks.
-
-### 5. Quick Self-Assessment (Interview Question)
-1 challenging interview question with a 1-sentence golden answer.`;
-
-    // Query active models directly from Google if possible
+  const callGemini = async (activeKey: string, prompt: string, modelToUse: string) => {
     let serverModels = await fetchAvailableModels(activeKey);
     let candidateModels = [modelToUse];
 
     if (serverModels.length > 0) {
-      // Prioritize active models supported by the key
       candidateModels = [
         ...new Set([
           modelToUse,
-          ...serverModels.filter(m => m.includes("3.1") || m.includes("2.5")),
+          ...serverModels.filter((m) => m.includes("3.1") || m.includes("2.5")),
           ...serverModels,
-        ])
+        ]),
       ];
     } else {
-      // Hardcoded fallback list in order of 2026 Google API availability
       candidateModels = [
         ...new Set([
           modelToUse,
           "gemini-3.1-pro-preview",
           "gemini-2.5-flash",
           "gemini-2.5-flash-lite",
-        ])
+        ]),
       ];
     }
 
@@ -171,14 +178,10 @@ What breaks in production? Common mistakes or scaling bottlenecks.
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              contents: [
-                {
-                  parts: [{ text: prompt }],
-                },
-              ],
+              contents: [{ parts: [{ text: prompt }] }],
               generationConfig: {
                 temperature: 0.7,
-                maxOutputTokens: 2048,
+                maxOutputTokens: 2500,
               },
             }),
           }
@@ -200,77 +203,230 @@ What breaks in production? Common mistakes or scaling bottlenecks.
 
         const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
         if (!text) {
-          throw new Error("No explanation returned from Gemini.");
+          throw new Error("No response returned from Gemini.");
         }
-        if (curModel !== selectedModel) {
-          setSelectedModel(curModel);
-          localStorage.setItem("gemini_selected_model", curModel);
-        }
-        setExplanation(text);
-        setLoading(false);
-        return;
+        return text;
       } catch (err: any) {
         lastError = err?.message || "An unexpected error occurred.";
       }
     }
+    throw new Error(lastError);
+  };
 
-    setError(lastError);
-    setLoading(false);
+  const fetchFeature = async (
+    activeKey: string,
+    targetTab: StudioTab,
+    modelToUse = selectedModel
+  ) => {
+    if (!topicContext) return;
+    setLoading(true);
+    setError(null);
+
+    const contextPrefix = `Context: Level L${topicContext.levelNumber.toString().padStart(2, "0")} (${topicContext.levelName}), Section: ${topicContext.sectionName}, Topic: ${topicContext.topicName}.\n`;
+
+    try {
+      if (targetTab === "overview") {
+        const prompt = `${contextPrefix} You are a Principal AI Engineer. Explain "${topicContext.topicName}" for a learner.
+Structure cleanly with Markdown:
+### 1. Intuition & What It Actually Is
+High-impact real-world analogy.
+### 2. Why It Matters in AI / ML Engineering
+Modern system usage & architecture relevance.
+### 3. Practical Code Snippet
+Concise Python or config code snippet.
+### 4. System Pitfalls & Bottlenecks
+What breaks in production.
+### 5. Interview Assessment
+1 challenging interview question with a 1-sentence golden answer.`;
+        const res = await callGemini(activeKey, prompt, modelToUse);
+        setExplanation(res);
+      } else if (targetTab === "quiz") {
+        const prompt = `${contextPrefix} Generate a 4-question challenging multiple-choice quiz about "${topicContext.topicName}" for an AI engineer.
+Return ONLY valid JSON matching this exact typescript interface without markdown code block:
+[
+  {
+    "question": "Question text?",
+    "options": ["Option A", "Option B", "Option C", "Option D"],
+    "correctIndex": 0,
+    "explanation": "Why this is correct."
+  }
+]`;
+        const res = await callGemini(activeKey, prompt, modelToUse);
+        const cleaned = res.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+        const parsed = JSON.parse(cleaned);
+        setQuizData(parsed);
+      } else if (targetTab === "flashcards") {
+        const prompt = `${contextPrefix} Generate 5 high-yield flashcards for memorizing key concepts, trade-offs, and formulas for "${topicContext.topicName}".
+Return ONLY valid JSON matching this exact array format without markdown code block:
+[
+  {
+    "front": "Front question / core concept",
+    "back": "Back answer / golden rule takeaway"
+  }
+]`;
+        const res = await callGemini(activeKey, prompt, modelToUse);
+        const cleaned = res.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+        const parsed = JSON.parse(cleaned);
+        setFlashcardsData(parsed);
+      } else if (targetTab === "mindmap") {
+        const prompt = `${contextPrefix} Generate a clean Mermaid.js diagram representing the architecture flow and components of "${topicContext.topicName}".
+Use valid flowchart TD syntax.
+Output ONLY the mermaid code inside a \`\`\`mermaid code block.`;
+        const res = await callGemini(activeKey, prompt, modelToUse);
+        setMindmapData(res);
+      } else if (targetTab === "audio") {
+        const prompt = `${contextPrefix} Create an engaging 2-speaker podcast dialogue between two AI engineers (Alex and Sam) breaking down "${topicContext.topicName}".
+Alex asks intuitive, practical questions and Sam explains with sharp analogies and production war-stories.
+Format each line strictly as:
+Host 1: ...
+Host 2: ...`;
+        const res = await callGemini(activeKey, prompt, modelToUse);
+        setAudioScriptData(res);
+      }
+    } catch (err: any) {
+      setError(err?.message || "Failed to generate content.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Trigger tab data when switching tab
+  const handleTabChange = (tab: StudioTab) => {
+    setActiveTab(tab);
+    if (!savedKey) return;
+
+    if (tab === "overview" && !explanation) fetchFeature(savedKey, "overview");
+    if (tab === "quiz" && quizData.length === 0) fetchFeature(savedKey, "quiz");
+    if (tab === "flashcards" && flashcardsData.length === 0) fetchFeature(savedKey, "flashcards");
+    if (tab === "mindmap" && !mindmapData) fetchFeature(savedKey, "mindmap");
+    if (tab === "audio" && !audioScriptData) fetchFeature(savedKey, "audio");
   };
 
   useEffect(() => {
-    if (isOpen && topicContext && savedKey) {
-      generateExplanation(savedKey, selectedModel);
+    if (isOpen && topicContext && savedKey && !explanation) {
+      fetchFeature(savedKey, "overview", selectedModel);
     }
   }, [isOpen, topicContext]);
 
   if (!isOpen || !topicContext) return null;
 
   return (
-    <aside className="w-full lg:w-[460px] xl:w-[500px] shrink-0 h-[calc(100vh-5rem)] sticky top-16 rounded-2xl border border-border/80 bg-card shadow-2xl flex flex-col overflow-hidden transition-all duration-300 z-30">
+    <aside
+      className={`w-full shrink-0 h-[calc(100vh-5rem)] sticky top-16 rounded-2xl border border-border/80 bg-card shadow-2xl flex flex-col overflow-hidden transition-all duration-300 z-30 ${
+        isExpanded ? "lg:w-[680px] xl:w-[780px]" : "lg:w-[460px] xl:w-[500px]"
+      }`}
+    >
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3.5 border-b border-border bg-surface/70 backdrop-blur-md">
-        <div className="flex items-center gap-2.5 min-w-0">
-          <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-accent grid place-items-center shadow-glow shrink-0">
-            <Bot className="h-4 w-4 text-primary-foreground" />
-          </div>
-          <div className="min-w-0">
-            <div className="flex items-center gap-1.5">
-              <span className="font-mono text-[9px] uppercase tracking-wider text-primary-glow font-semibold">
-                AI Tutor Breakdown
-              </span>
-              <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-surface-2 border border-border text-muted-foreground font-mono">
-                L{topicContext.levelNumber.toString().padStart(2, "0")}
-              </span>
+      <div className="px-4 pt-3.5 pb-2 border-b border-border bg-surface/70 backdrop-blur-md space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-accent grid place-items-center shadow-glow shrink-0">
+              <Bot className="h-4 w-4 text-primary-foreground" />
             </div>
-            <h2 className="font-display text-sm font-semibold text-foreground truncate">
-              {topicContext.topicName}
-            </h2>
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5">
+                <span className="font-mono text-[9px] uppercase tracking-wider text-primary-glow font-semibold">
+                  AI Study Studio
+                </span>
+                <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-surface-2 border border-border text-muted-foreground font-mono">
+                  L{topicContext.levelNumber.toString().padStart(2, "0")}
+                </span>
+              </div>
+              <h2 className="font-display text-sm font-semibold text-foreground truncate">
+                {topicContext.topicName}
+              </h2>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1.5 shrink-0 ml-2">
+            <button
+              onClick={() => setIsExpanded(!isExpanded)}
+              title={isExpanded ? "Collapse panel width" : "Expand panel width"}
+              className="h-7 w-7 rounded-full border border-border hover:bg-surface-2 grid place-items-center text-muted-foreground hover:text-foreground transition hidden sm:grid"
+            >
+              {isExpanded ? (
+                <Minimize2 className="h-3.5 w-3.5 text-primary" />
+              ) : (
+                <Maximize2 className="h-3.5 w-3.5" />
+              )}
+            </button>
+
+            {savedKey && (
+              <button
+                onClick={() => fetchFeature(savedKey, activeTab, selectedModel)}
+                disabled={loading}
+                title="Regenerate this view"
+                className="h-7 w-7 rounded-full border border-border hover:bg-surface-2 grid place-items-center text-muted-foreground hover:text-foreground transition disabled:opacity-40"
+              >
+                <RotateCcw className={`h-3 w-3 ${loading ? "animate-spin" : ""}`} />
+              </button>
+            )}
+            <button
+              onClick={onClose}
+              className="h-7 w-7 rounded-full border border-border hover:bg-surface-2 grid place-items-center text-muted-foreground hover:text-foreground transition"
+              title="Close panel"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5 shrink-0 ml-2">
-          {savedKey && (
-            <button
-              onClick={() => generateExplanation(savedKey, selectedModel)}
-              disabled={loading}
-              title="Regenerate explanation"
-              className="h-7 w-7 rounded-full border border-border hover:bg-surface-2 grid place-items-center text-muted-foreground hover:text-foreground transition disabled:opacity-40"
-            >
-              <RotateCcw className={`h-3 w-3 ${loading ? "animate-spin" : ""}`} />
-            </button>
-          )}
+        {/* NotebookLM Style Feature Tabs */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-xs">
           <button
-            onClick={onClose}
-            className="h-7 w-7 rounded-full border border-border hover:bg-surface-2 grid place-items-center text-muted-foreground hover:text-foreground transition"
-            title="Close panel"
+            onClick={() => handleTabChange("overview")}
+            className={`px-3 py-1.5 rounded-lg border font-medium inline-flex items-center gap-1.5 transition shrink-0 ${
+              activeTab === "overview"
+                ? "bg-primary text-primary-foreground border-primary shadow-glow font-semibold"
+                : "bg-surface-2/60 border-border text-muted-foreground hover:text-foreground hover:bg-surface-2"
+            }`}
           >
-            <X className="h-3.5 w-3.5" />
+            <BookOpen className="h-3.5 w-3.5" /> Overview
+          </button>
+          <button
+            onClick={() => handleTabChange("quiz")}
+            className={`px-3 py-1.5 rounded-lg border font-medium inline-flex items-center gap-1.5 transition shrink-0 ${
+              activeTab === "quiz"
+                ? "bg-primary text-primary-foreground border-primary shadow-glow font-semibold"
+                : "bg-surface-2/60 border-border text-muted-foreground hover:text-foreground hover:bg-surface-2"
+            }`}
+          >
+            <HelpCircle className="h-3.5 w-3.5" /> Quiz
+          </button>
+          <button
+            onClick={() => handleTabChange("flashcards")}
+            className={`px-3 py-1.5 rounded-lg border font-medium inline-flex items-center gap-1.5 transition shrink-0 ${
+              activeTab === "flashcards"
+                ? "bg-primary text-primary-foreground border-primary shadow-glow font-semibold"
+                : "bg-surface-2/60 border-border text-muted-foreground hover:text-foreground hover:bg-surface-2"
+            }`}
+          >
+            <Layers className="h-3.5 w-3.5" /> Flashcards
+          </button>
+          <button
+            onClick={() => handleTabChange("mindmap")}
+            className={`px-3 py-1.5 rounded-lg border font-medium inline-flex items-center gap-1.5 transition shrink-0 ${
+              activeTab === "mindmap"
+                ? "bg-primary text-primary-foreground border-primary shadow-glow font-semibold"
+                : "bg-surface-2/60 border-border text-muted-foreground hover:text-foreground hover:bg-surface-2"
+            }`}
+          >
+            <Network className="h-3.5 w-3.5" /> Mind Map
+          </button>
+          <button
+            onClick={() => handleTabChange("audio")}
+            className={`px-3 py-1.5 rounded-lg border font-medium inline-flex items-center gap-1.5 transition shrink-0 ${
+              activeTab === "audio"
+                ? "bg-primary text-primary-foreground border-primary shadow-glow font-semibold"
+                : "bg-surface-2/60 border-border text-muted-foreground hover:text-foreground hover:bg-surface-2"
+            }`}
+          >
+            <Headphones className="h-3.5 w-3.5" /> Audio Overview
           </button>
         </div>
       </div>
 
-      {/* Panel Scrollable Body */}
+      {/* Body Content */}
       <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4">
         {/* If Key NOT set */}
         {!savedKey && (
@@ -282,7 +438,7 @@ What breaks in production? Common mistakes or scaling bottlenecks.
                   Gemini API Key Required (Free)
                 </h3>
                 <p className="text-[11px] text-muted-foreground leading-relaxed">
-                  Top header-la irukura key icon or inga API key paste panni AI tutoring unlock pannunga.
+                  Enter your free key to unlock Quiz, Flashcards, Mind Map &amp; Audio Overview.
                 </p>
               </div>
             </div>
@@ -298,7 +454,7 @@ What breaks in production? Common mistakes or scaling bottlenecks.
               <button
                 onClick={() => {
                   handleSaveKey();
-                  if (apiKey.trim()) generateExplanation(apiKey.trim(), selectedModel);
+                  if (apiKey.trim()) fetchFeature(apiKey.trim(), activeTab, selectedModel);
                 }}
                 disabled={!apiKey.trim()}
                 className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-medium text-xs hover:opacity-90 disabled:opacity-50 transition flex items-center justify-center gap-1"
@@ -326,7 +482,7 @@ What breaks in production? Common mistakes or scaling bottlenecks.
           <div className="py-24 flex flex-col items-center justify-center gap-3 text-muted-foreground">
             <Loader2 className="h-7 w-7 text-primary animate-spin" />
             <p className="font-mono text-xs animate-pulse text-center">
-              Generating breakdown with {AVAILABLE_MODELS.find(m => m.id === selectedModel)?.name || selectedModel}...
+              Generating {activeTab.toUpperCase()} with {selectedModel}...
             </p>
           </div>
         )}
@@ -336,15 +492,15 @@ What breaks in production? Common mistakes or scaling bottlenecks.
           <div className="p-3.5 rounded-xl border border-destructive/40 bg-destructive/10 text-destructive text-xs space-y-2 flex items-start gap-2">
             <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
             <div className="flex-1">
-              <div className="font-semibold text-xs">Error explaining topic</div>
+              <div className="font-semibold text-xs">Error generating feature</div>
               <div className="opacity-90 text-[11px] leading-relaxed mt-0.5">{error}</div>
               <div className="mt-2 flex items-center gap-2">
                 {savedKey && (
                   <button
-                    onClick={() => generateExplanation(savedKey, "gemini-3.1-pro-preview")}
+                    onClick={() => fetchFeature(savedKey, activeTab, "gemini-3.1-pro-preview")}
                     className="underline text-[10px] text-foreground font-medium"
                   >
-                    Switch to Gemini 3.1 Pro (Preview)
+                    Retry with Gemini 3.1 Pro
                   </button>
                 )}
               </div>
@@ -352,17 +508,37 @@ What breaks in production? Common mistakes or scaling bottlenecks.
           </div>
         )}
 
-        {/* Explanation Content */}
-        {!loading && explanation && (
-          <div className="pt-1">
-            <MarkdownRenderer content={explanation} />
+        {/* Active Tab View */}
+        {!loading && (
+          <div>
+            {activeTab === "overview" && explanation && (
+              <MarkdownRenderer content={explanation} />
+            )}
+
+            {activeTab === "quiz" && quizData.length > 0 && (
+              <QuizView
+                questions={quizData}
+                onReset={() => savedKey && fetchFeature(savedKey, "quiz")}
+              />
+            )}
+
+            {activeTab === "flashcards" && flashcardsData.length > 0 && (
+              <FlashcardsView cards={flashcardsData} />
+            )}
+
+            {activeTab === "mindmap" && mindmapData && (
+              <MindMapView chart={mindmapData} />
+            )}
+
+            {activeTab === "audio" && audioScriptData && (
+              <AudioOverviewView script={audioScriptData} />
+            )}
           </div>
         )}
       </div>
 
       {/* Footer with Model Selector */}
       <div className="px-3.5 py-2.5 border-t border-border bg-surface/70 backdrop-blur-md flex items-center justify-between gap-2">
-        {/* Model dropdown */}
         <div className="flex items-center gap-1.5">
           <span className="text-[10px] font-mono text-muted-foreground hidden sm:inline">Model:</span>
           <div className="relative">
