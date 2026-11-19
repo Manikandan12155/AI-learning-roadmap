@@ -239,24 +239,40 @@ function Hero({
 
           {/* Right Column: Heading, Description & Stats */}
           <div className="lg:col-span-7 order-1 lg:order-2 self-center">
-            <div className="inline-flex items-center gap-2 rounded-full border border-border bg-surface/60 px-3 py-1 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
-              <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-              Expert edition · 14 levels · {TOTAL_TOPICS}+ topics
+            {/* Pill Badge */}
+            <div className="inline-flex items-center gap-2.5 rounded-full border border-primary/30 bg-primary/10 px-3.5 py-1.5 backdrop-blur-md shadow-[0_0_15px_-3px_oklch(0.72_0.16_160/0.3)]">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+              </span>
+              <span className="font-mono text-[11px] font-medium uppercase tracking-wider text-primary-glow">
+                Expert Edition · 14 Levels · {TOTAL_TOPICS}+ Topics
+              </span>
             </div>
-            <h1 className="mt-5 font-display text-4xl sm:text-6xl lg:text-6xl font-semibold leading-[1.04] tracking-tight">
-              The complete <span className="text-gradient">AI &amp; ML</span> roadmap.
-              <br />
-              From zero to shipping production agents.
-            </h1>
-            <p className="mt-5 text-base sm:text-lg text-muted-foreground leading-relaxed">
-              A guided, level-by-level journey across Python, classical ML, deep learning, LLMs, RAG,
-              agents, deployment and expert systems. Track every topic. Build the projects. Become
-              undeniable.
-            </p>
-            <p className="mt-2 text-xs text-muted-foreground font-mono tracking-wider uppercase">
-              Created by Manikandan
-            </p>
 
+            {/* Main Headline with refined typography and glow */}
+            <h1 className="mt-5 font-display text-4xl sm:text-5xl lg:text-[3.5rem] font-bold leading-[1.08] tracking-tight text-white drop-shadow-sm">
+              The complete <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent">AI &amp; ML</span> roadmap.
+              <span className="block mt-1 font-normal text-muted-foreground/90 text-2xl sm:text-3xl lg:text-[2rem] leading-snug">
+                From zero to shipping production agents.
+              </span>
+            </h1>
+
+            {/* Subtext description with stylish border accent */}
+            <div className="mt-5 pl-4 border-l-2 border-primary/30 py-0.5">
+              <p className="text-sm sm:text-base text-foreground/80 leading-relaxed font-sans max-w-xl">
+                A guided, level-by-level journey across Python, classical ML, deep learning, LLMs, RAG,
+                agents, deployment and enterprise AI systems. Track every topic, build projects, and become undeniable.
+              </p>
+              <div className="mt-2.5 flex items-center gap-2 font-mono text-[11px] text-muted-foreground">
+                <span>Curated by</span>
+                <span className="text-primary-glow font-medium bg-primary/10 px-2 py-0.5 rounded border border-primary/20">
+                  Manikandan
+                </span>
+              </div>
+            </div>
+
+            {/* Quick Stat Highlights */}
             <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-3">
               <Stat label="Total topics" value={TOTAL_TOPICS} icon={<Target className="h-4 w-4" />} />
               <Stat label="Completed" value={done} icon={<Check className="h-4 w-4" />} accent />
