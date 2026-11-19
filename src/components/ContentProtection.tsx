@@ -109,6 +109,9 @@ export function ContentProtection({ currentUser }: ContentProtectionProps) {
 
       if (widthDiff || heightDiff) {
         setDevToolsDetected(true);
+      } else {
+        // Automatically unlock screen when user closes devtools
+        setDevToolsDetected(false);
       }
     };
 
@@ -169,27 +172,15 @@ export function ContentProtection({ currentUser }: ContentProtectionProps) {
               </p>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-white/[0.03] border border-white/10 text-[11px] text-neutral-400 font-mono text-left space-y-1">
-              <div className="flex items-center gap-2 text-white font-semibold">
+            <div className="p-3.5 rounded-xl bg-white/[0.03] border border-white/10 text-[11px] text-neutral-400 font-mono text-center space-y-1">
+              <div className="flex items-center justify-center gap-2 text-white font-semibold">
                 <Lock className="h-3.5 w-3.5 text-amber-400" />
-                <span>How to unlock your screen:</span>
+                <span>Screen Locked</span>
               </div>
-              <p className="pl-5 text-neutral-400">
-                1. Close Developer Tools / Inspect window.
-                <br />
-                2. Click the button below to resume learning.
+              <p className="text-neutral-400">
+                Close your Developer Tools / Inspect window to automatically resume learning.
               </p>
             </div>
-
-            <button
-              onClick={() => {
-                setDevToolsDetected(false);
-                setIsObscured(false);
-              }}
-              className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-500 hover:to-amber-500 text-white font-extrabold text-xs uppercase tracking-wider transition shadow-lg active:scale-95"
-            >
-              Close DevTools &amp; Resume
-            </button>
           </div>
         </div>
       )}
