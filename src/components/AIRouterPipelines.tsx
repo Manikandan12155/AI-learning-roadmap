@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Zap, Sparkles, Cpu, Activity, Layers, ArrowUpRight } from "lucide-react";
+import { Zap } from "lucide-react";
 import { BrandLogo } from "./BrandLogo";
 
 interface NodeData {
@@ -8,46 +8,47 @@ interface NodeData {
   sub: string;
   color: string;
   glowColor: string;
-  angle: number;
-  dist: number;
+  angle: number; // Exact circular angle (degrees)
   badge?: string;
 }
 
+// Exactly symmetrical 8 points (360 / 8 = 45 deg intervals):
+// -90 (Top), -45 (Top-Right), 0 (Right), 45 (Bottom-Right), 90 (Bottom), 135 (Bottom-Left), 180 (Left), 225 (Top-Left)
 const AI_NODES: NodeData[] = [
-  { id: "gemini", name: "Gemini", sub: "Google", color: "#38bdf8", glowColor: "rgba(56, 189, 248, 0.6)", angle: -90, dist: 175, badge: "2M Context" },
-  { id: "deepseek", name: "DeepSeek", sub: "R1 Reasoning", color: "#60a5fa", glowColor: "rgba(96, 165, 250, 0.6)", angle: -45, dist: 185, badge: "SOTA" },
-  { id: "groq", name: "Groq", sub: "LPU Engine", color: "#f97316", glowColor: "rgba(249, 115, 22, 0.6)", angle: 0, dist: 195, badge: "500 tok/s" },
-  { id: "openrouter", name: "OpenRouter", sub: "Universal API", color: "#a855f7", glowColor: "rgba(168, 85, 247, 0.6)", angle: 45, dist: 185, badge: "Free" },
-  { id: "cerebras", name: "Cerebras", sub: "Wafer Scale", color: "#10b981", glowColor: "rgba(16, 185, 129, 0.6)", angle: 90, dist: 175, badge: "1500 t/s" },
-  { id: "together", name: "Together", sub: "Open Source", color: "#ec4899", glowColor: "rgba(236, 72, 153, 0.6)", angle: 135, dist: 185, badge: "Turbo" },
-  { id: "openai", name: "OpenAI", sub: "GPT-4o & o3", color: "#10a37f", glowColor: "rgba(16, 163, 127, 0.6)", angle: 180, dist: 195, badge: "Flagship" },
-  { id: "claude", name: "Claude", sub: "Anthropic 3.7", color: "#d97706", glowColor: "rgba(217, 119, 6, 0.6)", angle: 225, dist: 185, badge: "Hybrid CoT" },
+  { id: "gemini", name: "Gemini", sub: "Google", color: "#38bdf8", glowColor: "rgba(56, 189, 248, 0.6)", angle: -90, badge: "2M Context" },
+  { id: "deepseek", name: "DeepSeek", sub: "R1 Reasoning", color: "#60a5fa", glowColor: "rgba(96, 165, 250, 0.6)", angle: -45, badge: "SOTA" },
+  { id: "groq", name: "Groq", sub: "LPU Engine", color: "#f97316", glowColor: "rgba(249, 115, 22, 0.6)", angle: 0, badge: "500 tok/s" },
+  { id: "openrouter", name: "OpenRouter", sub: "Universal API", color: "#a855f7", glowColor: "rgba(168, 85, 247, 0.6)", angle: 45, badge: "Free" },
+  { id: "cerebras", name: "Cerebras", sub: "Wafer Scale", color: "#10b981", glowColor: "rgba(16, 185, 129, 0.6)", angle: 90, badge: "1500 t/s" },
+  { id: "together", name: "Together", sub: "Open Source", color: "#ec4899", glowColor: "rgba(236, 72, 153, 0.6)", angle: 135, badge: "Turbo" },
+  { id: "openai", name: "OpenAI", sub: "GPT-4o & o3", color: "#10a37f", glowColor: "rgba(16, 163, 127, 0.6)", angle: 180, badge: "Flagship" },
+  { id: "claude", name: "Claude", sub: "Anthropic 3.7", color: "#d97706", glowColor: "rgba(217, 119, 6, 0.6)", angle: 225, badge: "Hybrid CoT" },
 ];
 
 export function AIRouterPipelines() {
-  const center = 230; // 460x460 container center
+  const center = 270; // 540x540 canvas center
+  const radius = 200; // Perfect uniform circular orbit radius
   const [activeHoverNode, setActiveHoverNode] = useState<string | null>(null);
 
   return (
-    <div className="relative w-full max-w-[500px] h-[480px] mx-auto flex items-center justify-center select-none perspective-[1000px]">
-      {/* Dynamic Cyber Ambient Glow */}
-      <div className="absolute inset-0 bg-gradient-to-tr from-primary/25 via-emerald-500/15 to-cyan-500/20 rounded-full blur-3xl pointer-events-none animate-pulse duration-[6000ms]" />
+    <div className="relative w-full max-w-[560px] h-[540px] mx-auto flex items-center justify-center select-none">
+      {/* Symmetrical Cyber Ambient Radial Halo */}
+      <div className="absolute w-[360px] h-[360px] rounded-full bg-gradient-to-tr from-emerald-500/20 via-teal-400/15 to-cyan-500/20 blur-3xl pointer-events-none" />
 
-      {/* SVG Pipeline Circuits & Laser Beams */}
+      {/* SVG Pipeline Circuits & Laser Radar */}
       <svg
         className="absolute inset-0 w-full h-full pointer-events-none overflow-visible"
-        viewBox="0 0 460 460"
+        viewBox="0 0 540 540"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
         <defs>
           <radialGradient id="hubGlow" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#34C759" stopOpacity="0.4" />
-            <stop offset="60%" stopColor="#34C759" stopOpacity="0.1" />
+            <stop offset="0%" stopColor="#34C759" stopOpacity="0.35" />
+            <stop offset="70%" stopColor="#34C759" stopOpacity="0.08" />
             <stop offset="100%" stopColor="transparent" stopOpacity="0" />
           </radialGradient>
 
-          {/* Laser Glow Filter */}
           <filter id="neonGlow" x="-20%" y="-20%" width="140%" height="140%">
             <feGaussianBlur stdDeviation="3.5" result="coloredBlur" />
             <feMerge>
@@ -57,56 +58,56 @@ export function AIRouterPipelines() {
           </filter>
         </defs>
 
-        {/* Outer Circular Radar Tracks */}
-        <circle cx={center} cy={center} r="185" stroke="currentColor" strokeWidth="1" className="text-border/40" strokeDasharray="4 6" />
-        <circle cx={center} cy={center} r="125" stroke="currentColor" strokeWidth="1" className="text-border/30" />
-        <circle cx={center} cy={center} r="70" fill="url(#hubGlow)" />
+        {/* 100% Perfect Concentric Circles */}
+        <circle cx={center} cy={center} r={radius} stroke="currentColor" strokeWidth="1" className="text-border/40" strokeDasharray="4 6" />
+        <circle cx={center} cy={center} r={radius * 0.65} stroke="currentColor" strokeWidth="1" className="text-border/25" />
+        <circle cx={center} cy={center} r={radius * 0.38} fill="url(#hubGlow)" />
 
-        {/* 8 Bus Pipeline Circuits */}
+        {/* 8 Bus Pipeline Circuits Connecting Center to Each Chip */}
         {AI_NODES.map((node) => {
           const rad = (node.angle * Math.PI) / 180;
-          const targetX = center + node.dist * Math.cos(rad);
-          const targetY = center + node.dist * Math.sin(rad);
+          const targetX = center + radius * Math.cos(rad);
+          const targetY = center + radius * Math.sin(rad);
 
-          // S-curve Circuit Mid-points (Real Motherboard Routing look)
-          const midX = center + (node.dist * 0.5) * Math.cos(rad) + Math.sin(rad) * 16;
-          const midY = center + (node.dist * 0.5) * Math.sin(rad) - Math.cos(rad) * 16;
-
-          const pathD = `M ${center} ${center} Q ${midX} ${midY} ${targetX} ${targetY}`;
+          // Connecting directly to chip anchor point
           const isHovered = activeHoverNode === node.id;
 
           return (
             <g key={node.id}>
-              {/* Circuit Bus Back-Trace (Solid) */}
-              <path
-                d={pathD}
+              {/* Circuit Bus Line */}
+              <line
+                x1={center}
+                y1={center}
+                x2={targetX}
+                y2={targetY}
                 stroke={node.color}
                 strokeWidth={isHovered ? "3.5" : "1.8"}
                 strokeOpacity={isHovered ? "0.9" : "0.35"}
-                fill="none"
                 filter={isHovered ? "url(#neonGlow)" : undefined}
                 className="transition-all duration-300"
               />
 
-              {/* High-speed Laser Light Packet Animation */}
-              <path
-                d={pathD}
+              {/* Laser Pulses Traveling Outward */}
+              <line
+                x1={center}
+                y1={center}
+                x2={targetX}
+                y2={targetY}
                 stroke="#ffffff"
                 strokeWidth={isHovered ? "3" : "2"}
-                strokeDasharray="8 20"
-                fill="none"
+                strokeDasharray="6 20"
                 filter="url(#neonGlow)"
               >
                 <animate
                   attributeName="stroke-dashoffset"
-                  from="56"
+                  from="52"
                   to="0"
-                  dur={isHovered ? "0.8s" : "1.8s"}
+                  dur={isHovered ? "0.7s" : "1.6s"}
                   repeatCount="indefinite"
                 />
-              </path>
+              </line>
 
-              {/* Node Terminal Soldering Pad */}
+              {/* Node Terminal Soldering Pad on Circle */}
               <circle
                 cx={targetX}
                 cy={targetY}
@@ -119,13 +120,11 @@ export function AIRouterPipelines() {
         })}
       </svg>
 
-      {/* CENTER ROUTER CORE: 3D Multi-Layered Neumorphic Hexagon */}
+      {/* CENTER ROUTER CORE: 3D Multi-Layered Neumorphic Squircle */}
       <div className="relative z-20 group">
-        {/* Animated Ambient Shockwave */}
         <div className="absolute -inset-3 bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-500 rounded-3xl blur-2xl opacity-60 group-hover:opacity-100 transition-opacity duration-700 animate-pulse" />
 
         <div className="relative h-28 w-28 sm:h-32 sm:w-32 rounded-3xl border-2 border-emerald-400/80 bg-gradient-to-b from-[#132220] to-[#08100f] flex flex-col items-center justify-center shadow-[0_0_50px_rgba(52,199,89,0.5),inset_0_1px_1px_rgba(255,255,255,0.4)] p-2 backdrop-blur-2xl transition-transform duration-500 group-hover:scale-105">
-          {/* Inner Glowing Core Icon */}
           <div className="relative h-12 w-12 sm:h-14 sm:w-14 rounded-2xl bg-gradient-to-br from-emerald-400 via-primary to-cyan-400 grid place-items-center shadow-[0_0_20px_rgba(52,199,89,0.8)] mb-1">
             <Zap className="h-6 w-6 sm:h-7 sm:w-7 text-black fill-current animate-bounce duration-1000" strokeWidth={2.8} />
             <div className="absolute inset-0 rounded-2xl border border-white/40 pointer-events-none" />
@@ -143,11 +142,11 @@ export function AIRouterPipelines() {
         </div>
       </div>
 
-      {/* 8 SURROUNDING HIGH-FIDELITY AI BRAND CHIPS */}
+      {/* 8 SURROUNDING HIGH-FIDELITY AI BRAND CHIPS (Strict Equidistant Angular Alignment) */}
       {AI_NODES.map((node) => {
         const rad = (node.angle * Math.PI) / 180;
-        const x = center + node.dist * Math.cos(rad);
-        const y = center + node.dist * Math.sin(rad);
+        const x = center + radius * Math.cos(rad);
+        const y = center + radius * Math.sin(rad);
         const isHovered = activeHoverNode === node.id;
 
         return (
