@@ -33,6 +33,7 @@ import { AIExplainPanel } from "@/components/AIExplainPanel";
 import { AIKeysModal } from "@/components/AIKeysModal";
 import { AboutModal } from "@/components/AboutModal";
 import { AI_PROVIDERS } from "@/data/aiProviders";
+import { AIRouterPipelines } from "@/components/AIRouterPipelines";
 import heroImg from "@/assets/hero-neural.jpg";
 import iconFoundation from "@/assets/icon-foundation.png";
 import iconML from "@/assets/icon-ml.png";
@@ -396,60 +397,71 @@ function Hero({
           alt=""
           width={1920}
           height={1080}
-          className="h-full w-full object-cover opacity-30"
+          className="h-full w-full object-cover opacity-25"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-background/85 to-background" />
       </div>
-      <div className="mx-auto max-w-5xl px-5 pt-10 pb-16 sm:pt-16 sm:pb-20 text-center">
-        {/* Pill Badge */}
-        <div className="inline-flex items-center gap-2.5 rounded-full border border-primary/30 bg-primary/10 px-3.5 py-1.5 backdrop-blur-md shadow-[0_0_15px_-3px_oklch(0.72_0.16_160/0.3)]">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-          </span>
-          <span className="font-mono text-[11px] font-medium uppercase tracking-wider text-primary-glow">
-            Expert Edition · 14 Levels · {TOTAL_TOPICS}+ Topics
-          </span>
-        </div>
 
-        {/* Main Headline */}
-        <h1 className="mt-6 font-display text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.08] tracking-tight text-white drop-shadow-sm max-w-4xl mx-auto">
-          The complete <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent">AI &amp; ML</span> roadmap.
-          <span className="block mt-2 font-normal text-muted-foreground/90 text-2xl sm:text-3xl lg:text-4xl leading-snug">
-            From zero to shipping production agents.
-          </span>
-        </h1>
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 pt-10 pb-16 sm:pt-14 sm:pb-20">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-8 items-center">
+          {/* Left Column: Heading, Description & Stats */}
+          <div className="lg:col-span-7 text-left space-y-5">
+            {/* Pill Badge */}
+            <div className="inline-flex items-center gap-2.5 rounded-full border border-primary/30 bg-primary/10 px-3.5 py-1.5 backdrop-blur-md shadow-[0_0_15px_-3px_oklch(0.72_0.16_160/0.3)]">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+              </span>
+              <span className="font-mono text-[11px] font-medium uppercase tracking-wider text-primary-glow">
+                Expert Edition · 14 Levels · {TOTAL_TOPICS}+ Topics
+              </span>
+            </div>
 
-        {/* Subtext description */}
-        <p className="mt-5 text-sm sm:text-base text-foreground/80 leading-relaxed font-sans max-w-2xl mx-auto">
-          A guided, level-by-level journey across Python, classical ML, deep learning, LLMs, RAG,
-          autonomous agents, and enterprise AI systems. Track every topic, take AI quizzes, and master production architectures.
-        </p>
+            {/* Main Headline */}
+            <h1 className="font-display text-4xl sm:text-5xl lg:text-[3.25rem] font-bold leading-[1.08] tracking-tight text-white drop-shadow-sm">
+              The complete <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent">AI &amp; ML</span> roadmap.
+              <span className="block mt-1 font-normal text-muted-foreground/90 text-2xl sm:text-3xl leading-snug">
+                From zero to shipping production agents.
+              </span>
+            </h1>
 
-        {/* Curator link button */}
-        <div className="mt-4 flex items-center justify-center gap-2">
-          <span className="font-mono text-xs text-muted-foreground">Curated by</span>
-          <button
-            onClick={onOpenAboutModal}
-            className="text-primary-glow font-medium text-xs bg-primary/10 hover:bg-primary/20 px-3 py-1 rounded-full border border-primary/30 transition-all inline-flex items-center gap-1.5 group"
-          >
-            <span>Manikandan</span>
-            <span className="text-[10px] text-muted-foreground group-hover:text-primary transition">
-              (View Profile →)
-            </span>
-          </button>
-        </div>
+            {/* Subtext description */}
+            <p className="text-sm sm:text-base text-foreground/80 leading-relaxed font-sans max-w-xl">
+              A guided journey across Python, classical ML, deep learning, LLMs, RAG,
+              autonomous agents, and enterprise AI systems. Track every topic with built-in AI Study Studio.
+            </p>
 
-        {/* Quick Stat Highlights */}
-        <div className="mt-10 grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-3xl mx-auto text-left">
-          <Stat label="Total topics" value={TOTAL_TOPICS} icon={<Target className="h-4 w-4" />} />
-          <Stat label="Completed" value={done} icon={<Check className="h-4 w-4" />} accent />
-          <Stat
-            label="Levels cleared"
-            value={`${completedLevels}/15`}
-            icon={<Trophy className="h-4 w-4" />}
-          />
-          <Stat label="Progress" value={`${pct}%`} icon={<Flame className="h-4 w-4" />} accent />
+            {/* Curator link button */}
+            <div className="flex items-center gap-2 pt-1">
+              <span className="font-mono text-xs text-muted-foreground">Curated by</span>
+              <button
+                onClick={onOpenAboutModal}
+                className="text-primary-glow font-medium text-xs bg-primary/10 hover:bg-primary/20 px-3 py-1 rounded-full border border-primary/30 transition-all inline-flex items-center gap-1.5 group"
+              >
+                <span>Manikandan</span>
+                <span className="text-[10px] text-muted-foreground group-hover:text-primary transition">
+                  (View Profile →)
+                </span>
+              </button>
+            </div>
+
+            {/* Quick Stat Highlights */}
+            <div className="pt-2 grid grid-cols-2 sm:grid-cols-4 gap-2.5 max-w-xl">
+              <Stat label="Total topics" value={TOTAL_TOPICS} icon={<Target className="h-4 w-4" />} />
+              <Stat label="Completed" value={done} icon={<Check className="h-4 w-4" />} accent />
+              <Stat
+                label="Levels cleared"
+                value={`${completedLevels}/15`}
+                icon={<Trophy className="h-4 w-4" />}
+              />
+              <Stat label="Progress" value={`${pct}%`} icon={<Flame className="h-4 w-4" />} accent />
+            </div>
+          </div>
+
+          {/* Right Column: 9Router Style Interactive AI Hub Pipeline Graphic */}
+          <div className="lg:col-span-5 flex justify-center items-center">
+            <AIRouterPipelines />
+          </div>
         </div>
       </div>
     </section>
