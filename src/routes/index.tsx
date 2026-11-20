@@ -536,9 +536,9 @@ function HomePage() {
         currentUserId={currentUser?.id}
       />
 
-      {/* MOBILE BOTTOM NAVIGATION BAR (Icon-Only Clean 3D App Bar) */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-background/90 backdrop-blur-2xl border-t border-white/10 px-3 py-2 shadow-[0_-10px_30px_rgba(0,0,0,0.7)]">
-        <div className="flex items-center justify-around gap-2 max-w-sm mx-auto">
+      {/* MOBILE BOTTOM NAVIGATION BAR (Icon-Only Clean 3D App Bar - 4 Essential Items) */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-background/90 backdrop-blur-2xl border-t border-white/10 px-4 py-2 shadow-[0_-10px_30px_rgba(0,0,0,0.7)]">
+        <div className="flex items-center justify-around gap-4 max-w-xs mx-auto">
           {/* 1. Leaderboard (3D Trophy) */}
           <button
             onClick={() => setIsLeaderboardModalOpen(true)}
@@ -566,16 +566,7 @@ function HomePage() {
             <Icon3DCertificate className="w-9 h-9" />
           </button>
 
-          {/* 4. About Creator (3D Crystal Sparkle) */}
-          <button
-            onClick={() => setIsAboutModalOpen(true)}
-            className="p-1.5 rounded-2xl hover:bg-white/5 active:scale-90 transition transform"
-            title="About Creator"
-          >
-            <Icon3DAbout className="w-8 h-8 drop-shadow-[0_2px_8px_rgba(168,85,247,0.35)]" />
-          </button>
-
-          {/* 5. Settings Hub (3D Chrome Gear) */}
+          {/* 4. Settings Hub (3D Chrome Gear) */}
           <button
             onClick={() => setIsSettingsModalOpen(true)}
             className="p-1.5 rounded-2xl hover:bg-white/5 active:scale-90 transition transform relative"
@@ -651,6 +642,16 @@ function Header({
         </div>
 
         <div className="flex items-center gap-2 sm:gap-2.5">
+          {/* About Creator Button (Moved to Topbar for both Mobile and Desktop) */}
+          <button
+            onClick={onOpenAboutModal}
+            className="h-8 w-8 sm:w-auto sm:px-3 rounded-full text-xs font-mono inline-flex items-center justify-center gap-1.5 border border-border bg-surface hover:bg-surface-2 text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all shadow-sm"
+            title="About Creator"
+          >
+            <AboutSparkleIcon className="h-4 w-4" />
+            <span className="hidden sm:inline">About</span>
+          </button>
+
           {/* Light / Dark Mode Toggle (Desktop & Mobile Topbar) */}
           <button
             onClick={onToggleTheme}
