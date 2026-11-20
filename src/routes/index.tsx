@@ -522,6 +522,73 @@ function HomePage() {
         currentUserId={currentUser?.id}
       />
 
+      {/* MOBILE BOTTOM NAVIGATION BAR (Clean Native Mobile App Feel) */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-xl border-t border-border px-2 py-1.5 shadow-[0_-5px_20px_rgba(0,0,0,0.4)]">
+        <div className="flex items-center justify-around gap-1 max-w-md mx-auto">
+          {/* 1. Leaderboard */}
+          <button
+            onClick={() => setIsLeaderboardModalOpen(true)}
+            className="flex-1 flex flex-col items-center justify-center py-1 px-1 rounded-xl text-muted-foreground hover:text-yellow-400 active:scale-95 transition"
+          >
+            <div className="h-6 w-6 rounded-lg grid place-items-center text-yellow-400">
+              <Trophy className="h-4 w-4 fill-current" />
+            </div>
+            <span className="text-[10px] font-mono font-medium mt-0.5">Ranks</span>
+          </button>
+
+          {/* 2. Daily Calendar Slot */}
+          <button
+            onClick={() => setIsScheduleModalOpen(true)}
+            className="flex-1 flex flex-col items-center justify-center py-1 px-1 rounded-xl text-muted-foreground hover:text-emerald-400 active:scale-95 transition"
+          >
+            <div className="h-6 w-6 rounded-lg grid place-items-center text-emerald-400">
+              <Calendar className="h-4 w-4" />
+            </div>
+            <span className="text-[10px] font-mono font-medium mt-0.5">Habit</span>
+          </button>
+
+          {/* 3. Certificate Button (Center Highlight) */}
+          <button
+            onClick={() => setIsCertificateModalOpen(true)}
+            className="flex-1 flex flex-col items-center justify-center py-1 px-1 rounded-xl text-amber-400 active:scale-95 transition"
+          >
+            <div className="h-7 w-7 rounded-xl bg-amber-500/15 border border-amber-500/30 grid place-items-center text-amber-400 shadow-[0_0_10px_rgba(245,158,11,0.25)]">
+              <Award className="h-4 w-4" />
+            </div>
+            <span className="text-[10px] font-mono font-bold mt-0.5 text-amber-300">Cert</span>
+          </button>
+
+          {/* 4. Theme Toggle */}
+          <button
+            onClick={toggleTheme}
+            className="flex-1 flex flex-col items-center justify-center py-1 px-1 rounded-xl text-muted-foreground hover:text-foreground active:scale-95 transition"
+          >
+            <div className="h-6 w-6 rounded-lg grid place-items-center">
+              {theme === "dark" ? (
+                <Sun className="h-4 w-4 text-amber-400" />
+              ) : (
+                <Moon className="h-4 w-4 text-primary" />
+              )}
+            </div>
+            <span className="text-[10px] font-mono font-medium mt-0.5">{theme === "dark" ? "Light" : "Dark"}</span>
+          </button>
+
+          {/* 5. Settings Hub */}
+          <button
+            onClick={() => setIsSettingsModalOpen(true)}
+            className="flex-1 flex flex-col items-center justify-center py-1 px-1 rounded-xl text-muted-foreground hover:text-primary active:scale-95 transition relative"
+          >
+            <div className="h-6 w-6 rounded-lg grid place-items-center text-primary relative">
+              <Settings className="h-4 w-4" />
+              {hasApiKey && (
+                <span className="absolute top-1 right-1 h-1.5 w-1.5 rounded-full bg-emerald-400" />
+              )}
+            </div>
+            <span className="text-[10px] font-mono font-medium mt-0.5">Settings</span>
+          </button>
+        </div>
+      </nav>
+
       <Footer />
     </div>
   );
@@ -580,75 +647,78 @@ function Header({
         </div>
 
         <div className="flex items-center gap-2 sm:gap-2.5">
-          {/* Light / Dark Mode Toggle */}
-          <button
-            onClick={onToggleTheme}
-            className="h-8 w-8 rounded-full border border-border bg-surface hover:bg-surface-2 grid place-items-center text-muted-foreground hover:text-foreground transition-all shadow-sm"
-            title={theme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"}
-          >
-            {theme === "dark" ? (
-              <Sun className="h-4 w-4 text-amber" />
-            ) : (
-              <Moon className="h-4 w-4 text-primary" />
-            )}
-          </button>
+          {/* Desktop Only Buttons (Hidden on Mobile, moved to Mobile Bottom Bar) */}
+          <div className="hidden md:flex items-center gap-2">
+            {/* Light / Dark Mode Toggle */}
+            <button
+              onClick={onToggleTheme}
+              className="h-8 w-8 rounded-full border border-border bg-surface hover:bg-surface-2 grid place-items-center text-muted-foreground hover:text-foreground transition-all shadow-sm"
+              title={theme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"}
+            >
+              {theme === "dark" ? (
+                <Sun className="h-4 w-4 text-amber" />
+              ) : (
+                <Moon className="h-4 w-4 text-primary" />
+              )}
+            </button>
 
-          {/* About Creator Button */}
-          <button
-            onClick={onOpenAboutModal}
-            className="h-8 px-2.5 sm:px-3 rounded-full text-xs font-mono inline-flex items-center gap-1.5 border border-border bg-surface text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all"
-            title="About Creator"
-          >
-            <Sparkles className="h-3.5 w-3.5 text-primary" />
-            <span className="hidden sm:inline">About</span>
-          </button>
+            {/* About Creator Button */}
+            <button
+              onClick={onOpenAboutModal}
+              className="h-8 px-2.5 sm:px-3 rounded-full text-xs font-mono inline-flex items-center gap-1.5 border border-border bg-surface text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all"
+              title="About Creator"
+            >
+              <Sparkles className="h-3.5 w-3.5 text-primary" />
+              <span>About</span>
+            </button>
 
-          {/* Leaderboard Button */}
-          <button
-            onClick={onOpenLeaderboardModal}
-            className="h-8 px-2.5 sm:px-3 rounded-full text-xs font-mono inline-flex items-center gap-1.5 border border-yellow-500/30 bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-400 transition-all shadow-[0_0_10px_rgba(234,179,8,0.2)]"
-            title="View Global AI Learners Leaderboard"
-          >
-            <Trophy className="h-3.5 w-3.5 fill-current" />
-            <span className="hidden sm:inline">Leaderboard</span>
-          </button>
+            {/* Leaderboard Button */}
+            <button
+              onClick={onOpenLeaderboardModal}
+              className="h-8 px-2.5 sm:px-3 rounded-full text-xs font-mono inline-flex items-center gap-1.5 border border-yellow-500/30 bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-400 transition-all shadow-[0_0_10px_rgba(234,179,8,0.2)]"
+              title="View Global AI Learners Leaderboard"
+            >
+              <Trophy className="h-3.5 w-3.5 fill-current" />
+              <span>Leaderboard</span>
+            </button>
 
-          {/* Schedule Daily Learning Button (Google Calendar Safe Habit Slot) */}
-          <button
-            onClick={onOpenScheduleModal}
-            className="h-8 px-2.5 sm:px-3 rounded-full text-xs font-mono inline-flex items-center gap-1.5 border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 transition-all shadow-[0_0_10px_rgba(52,199,89,0.2)]"
-            title="Add 30-min Daily AI Study Slot to Google Calendar"
-          >
-            <Calendar className="h-3.5 w-3.5" />
-            <span className="hidden md:inline">Daily Slot</span>
-          </button>
+            {/* Schedule Daily Learning Button (Google Calendar Safe Habit Slot) */}
+            <button
+              onClick={onOpenScheduleModal}
+              className="h-8 px-2.5 sm:px-3 rounded-full text-xs font-mono inline-flex items-center gap-1.5 border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 transition-all shadow-[0_0_10px_rgba(52,199,89,0.2)]"
+              title="Add 30-min Daily AI Study Slot to Google Calendar"
+            >
+              <Calendar className="h-3.5 w-3.5" />
+              <span>Daily Slot</span>
+            </button>
 
-          {/* Certificate Button (Naukri & LinkedIn Verification) */}
-          <button
-            onClick={onOpenCertificateModal}
-            className="h-8 px-2.5 sm:px-3 rounded-full text-xs font-mono inline-flex items-center gap-1.5 border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 transition-all shadow-[0_0_10px_rgba(245,158,11,0.2)]"
-            title="View Verifiable Certificate for Naukri, LinkedIn & Indeed"
-          >
-            <Award className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">Certificate</span>
-          </button>
+            {/* Certificate Button (Naukri & LinkedIn Verification) */}
+            <button
+              onClick={onOpenCertificateModal}
+              className="h-8 px-2.5 sm:px-3 rounded-full text-xs font-mono inline-flex items-center gap-1.5 border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 transition-all shadow-[0_0_10px_rgba(245,158,11,0.2)]"
+              title="View Verifiable Certificate for Naukri, LinkedIn & Indeed"
+            >
+              <Award className="h-3.5 w-3.5" />
+              <span>Certificate</span>
+            </button>
 
-          {/* Settings & Profile Hub Button (Hosts AI Keys, Journey Track & Profile data) */}
-          <button
-            onClick={onOpenSettingsModal}
-            className={`h-8 px-2.5 sm:px-3 rounded-full text-xs font-mono inline-flex items-center gap-1.5 border transition-all ${
-              hasApiKey
-                ? "bg-primary/10 border-primary/40 text-primary-glow hover:bg-primary/20"
-                : "bg-surface-2 border-border text-muted-foreground hover:text-foreground hover:border-primary/40"
-            }`}
-            title="Settings (Profile, Journey Track, AI Keys)"
-          >
-            <Settings className="h-3.5 w-3.5 text-primary" />
-            <span className="hidden sm:inline">Settings</span>
-            {hasApiKey && <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />}
-          </button>
+            {/* Settings & Profile Hub Button */}
+            <button
+              onClick={onOpenSettingsModal}
+              className={`h-8 px-2.5 sm:px-3 rounded-full text-xs font-mono inline-flex items-center gap-1.5 border transition-all ${
+                hasApiKey
+                  ? "bg-primary/10 border-primary/40 text-primary-glow hover:bg-primary/20"
+                  : "bg-surface-2 border-border text-muted-foreground hover:text-foreground hover:border-primary/40"
+              }`}
+              title="Settings (Profile, Journey Track, AI Keys)"
+            >
+              <Settings className="h-3.5 w-3.5 text-primary" />
+              <span>Settings</span>
+              {hasApiKey && <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />}
+            </button>
+          </div>
 
-          {/* Google Sign In / Profile Avatar */}
+          {/* Google Sign In / Profile Avatar (ALWAYS ON TOPBAR FOR ALL SCREEN SIZES) */}
           {currentUser ? (
             <div className="flex items-center gap-1.5 pl-0.5">
               <button
