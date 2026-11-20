@@ -205,7 +205,19 @@ export function AILabModal({ isOpen, onClose }: AILabModalProps) {
       setIsRuntimeMenuOpen((prev) => !prev);
       return;
     }
-    // Open the 3-step visual guide modal for real GPU connect
+
+    // Check if user clicked "Don't show this guide popup again"
+    const dontShow = localStorage.getItem("scg_colab_dont_show_guide") === "true";
+    const savedTunnel = localStorage.getItem("scg_colab_tunnel_url");
+
+    if (dontShow && savedTunnel) {
+      // Connect directly using saved tunnel
+      setColabTunnelUrl(savedTunnel);
+      setIsConnected(true);
+      return;
+    }
+
+    // Otherwise open the visual instruction guide modal
     setIsTunnelModalOpen(true);
   };
 
