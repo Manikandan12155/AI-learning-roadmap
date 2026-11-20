@@ -558,19 +558,15 @@ function HomePage() {
             <span className="text-[10px] font-mono font-bold mt-0.5 text-amber-300">Cert</span>
           </button>
 
-          {/* 4. Theme Toggle */}
+          {/* 4. About Creator */}
           <button
-            onClick={toggleTheme}
-            className="flex-1 flex flex-col items-center justify-center py-1 px-1 rounded-xl text-muted-foreground hover:text-foreground active:scale-95 transition"
+            onClick={() => setIsAboutModalOpen(true)}
+            className="flex-1 flex flex-col items-center justify-center py-1 px-1 rounded-xl text-muted-foreground hover:text-primary active:scale-95 transition"
           >
-            <div className="h-6 w-6 rounded-lg grid place-items-center">
-              {theme === "dark" ? (
-                <Sun className="h-4 w-4 text-amber-400" />
-              ) : (
-                <Moon className="h-4 w-4 text-primary" />
-              )}
+            <div className="h-6 w-6 rounded-lg grid place-items-center text-primary">
+              <Sparkles className="h-4 w-4" />
             </div>
-            <span className="text-[10px] font-mono font-medium mt-0.5">{theme === "dark" ? "Light" : "Dark"}</span>
+            <span className="text-[10px] font-mono font-medium mt-0.5">About</span>
           </button>
 
           {/* 5. Settings Hub */}
@@ -635,33 +631,37 @@ function Header({
 
   return (
     <header className="sticky top-0 z-40 bg-background/90 backdrop-blur-xl border-b border-border">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 h-14 flex items-center justify-between">
-        <div className="flex items-center gap-2.5">
-          <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-primary to-accent grid place-items-center shadow-glow">
-            <Zap className="h-4 w-4 text-primary-foreground" strokeWidth={2.5} />
+      <div className="mx-auto max-w-7xl px-3 sm:px-6 h-14 flex items-center justify-between">
+        {/* Left: Colorful Logo Icon + SCG (Mobile) / Full Name (Desktop) */}
+        <div className="flex items-center gap-2">
+          <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-emerald-400 via-primary to-cyan-500 grid place-items-center shadow-[0_0_15px_rgba(52,199,89,0.5)] border border-white/20 shrink-0">
+            <Zap className="h-4 w-4 text-black stroke-[2.5]" />
           </div>
-          <span className="font-display text-lg font-semibold tracking-tight text-foreground">Smart Canvas Grow</span>
-          <span className="hidden sm:inline text-xs text-muted-foreground font-mono ml-2">
+          <span className="font-display text-base sm:text-lg font-bold tracking-tight text-foreground">
+            <span className="sm:hidden">SCG</span>
+            <span className="hidden sm:inline">Smart Canvas Grow</span>
+          </span>
+          <span className="hidden md:inline text-xs text-muted-foreground font-mono ml-1">
             / ai-ml-roadmap
           </span>
         </div>
 
         <div className="flex items-center gap-2 sm:gap-2.5">
+          {/* Light / Dark Mode Toggle (Desktop & Mobile Topbar) */}
+          <button
+            onClick={onToggleTheme}
+            className="h-8 w-8 rounded-full border border-border bg-surface hover:bg-surface-2 grid place-items-center text-muted-foreground hover:text-foreground transition-all shadow-sm"
+            title={theme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"}
+          >
+            {theme === "dark" ? (
+              <Sun className="h-4 w-4 text-amber-400" />
+            ) : (
+              <Moon className="h-4 w-4 text-primary" />
+            )}
+          </button>
+
           {/* Desktop Only Buttons (Hidden on Mobile, moved to Mobile Bottom Bar) */}
           <div className="hidden md:flex items-center gap-2">
-            {/* Light / Dark Mode Toggle */}
-            <button
-              onClick={onToggleTheme}
-              className="h-8 w-8 rounded-full border border-border bg-surface hover:bg-surface-2 grid place-items-center text-muted-foreground hover:text-foreground transition-all shadow-sm"
-              title={theme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"}
-            >
-              {theme === "dark" ? (
-                <Sun className="h-4 w-4 text-amber" />
-              ) : (
-                <Moon className="h-4 w-4 text-primary" />
-              )}
-            </button>
-
             {/* About Creator Button */}
             <button
               onClick={onOpenAboutModal}
@@ -723,7 +723,7 @@ function Header({
             <div className="flex items-center gap-1.5 pl-0.5">
               <button
                 onClick={onOpenSettingsModal}
-                className="flex items-center gap-2 p-1 pr-2 sm:pr-2.5 rounded-full border border-border bg-surface/80 hover:bg-surface-2 transition group"
+                className="flex items-center gap-1.5 p-1 pr-2 rounded-full border border-border bg-surface/80 hover:bg-surface-2 transition group"
                 title={`Signed in as ${userDisplayName} — Open Settings`}
               >
                 {userAvatar ? (
@@ -745,10 +745,10 @@ function Header({
           ) : (
             <button
               onClick={onOpenAuthModal}
-              className="h-8 px-3 rounded-full text-xs font-medium inline-flex items-center gap-1.5 bg-gradient-to-r from-emerald-500 to-primary text-black font-semibold hover:opacity-95 shadow-[0_0_12px_rgba(52,199,89,0.35)] transition"
+              className="h-8 px-2.5 sm:px-3 rounded-full text-xs font-medium inline-flex items-center gap-1.5 bg-gradient-to-r from-emerald-500 to-primary text-black font-semibold hover:opacity-95 shadow-[0_0_12px_rgba(52,199,89,0.35)] transition"
               title="Sign in with Google"
             >
-              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24">
+              <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24">
                 <path
                   fill="currentColor"
                   d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -770,22 +770,24 @@ function Header({
             </button>
           )}
 
-          {/* Battery Style Progress Indicator */}
-          <div className="flex items-center gap-2 bg-surface-2/60 border border-border px-2.5 py-1 rounded-lg">
-            <span className="font-mono text-xs text-foreground font-medium tabular-nums">
-              {pct}%
-            </span>
-            {/* Battery Body */}
-            <div className="relative flex items-center">
-              <div className="w-8 h-4 rounded-[4px] border border-border-strong/80 p-[1.5px] flex items-center bg-black/40">
-                <div
-                  className="h-full rounded-[2px] bg-gradient-to-r from-emerald-500 to-primary transition-all duration-500 shadow-[0_0_8px_rgba(52,199,89,0.4)]"
-                  style={{ width: `${Math.max(pct, 4)}%` }}
-                />
-              </div>
-              {/* Battery Terminal Tip */}
-              <div className="w-[2px] h-2 bg-border-strong/80 rounded-r-[1px] ml-[1px]" />
+          {/* Integrated Battery Indicator with Percentage INSIDE Battery */}
+          <div
+            className="relative flex items-center"
+            title={`${pct}% roadmap completed`}
+          >
+            <div className="relative w-12 sm:w-14 h-6 rounded-[6px] border border-emerald-500/50 p-[1.5px] flex items-center bg-black/60 shadow-[0_0_8px_rgba(52,199,89,0.2)] overflow-hidden">
+              {/* Fill Bar */}
+              <div
+                className="h-full rounded-[3px] bg-gradient-to-r from-emerald-500 via-teal-400 to-primary transition-all duration-500 opacity-60"
+                style={{ width: `${Math.max(pct, 5)}%` }}
+              />
+              {/* Text INSIDE Battery Body */}
+              <span className="absolute inset-0 grid place-items-center font-mono text-[10px] font-extrabold text-white drop-shadow-[0_1px_2px_rgba(0,0,0,1)] tabular-nums pointer-events-none">
+                {pct}%
+              </span>
             </div>
+            {/* Battery Terminal Tip */}
+            <div className="w-[2.5px] h-3 bg-emerald-500/70 rounded-r-[1.5px] ml-[1px]" />
           </div>
         </div>
       </div>
