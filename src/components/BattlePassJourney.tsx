@@ -173,7 +173,7 @@ export function BattlePassJourney({
                     if (isClaimed) onOpenCertificateModal();
                   }}
                   className={`relative flex items-center gap-3 cursor-pointer group z-20 ${
-                    isLeft ? "justify-start pl-1" : "justify-end pr-1 flex-row-reverse"
+                    isLeft ? "flex-row justify-start pl-1" : "flex-row justify-end pr-1"
                   }`}
                 >
                   {/* Floating "Next Goal" Bubble */}
@@ -262,11 +262,11 @@ export function BattlePassJourney({
                       </defs>
 
                       {isLeft ? (
-                        // Pipe curves from LEFT card center (x=13, y=0) to RIGHT card center (x=87, y=60)
+                        // Card 0 (Fox, Avatar on Left ~13%) -> Card 1 (Leopard, Avatar on Right ~63%)
                         <g>
                           {/* Conduit Base */}
                           <path
-                            d="M 13 0 C 13 38, 87 22, 87 60"
+                            d="M 13 0 C 13 38, 63 22, 63 60"
                             fill="none"
                             stroke="rgba(255, 255, 255, 0.15)"
                             strokeWidth="5"
@@ -274,7 +274,7 @@ export function BattlePassJourney({
                           />
                           {/* Glowing Core */}
                           <path
-                            d="M 13 0 C 13 38, 87 22, 87 60"
+                            d="M 13 0 C 13 38, 63 22, 63 60"
                             fill="none"
                             stroke="#F59E0B"
                             strokeWidth="2.5"
@@ -282,7 +282,7 @@ export function BattlePassJourney({
                           />
                           {/* Electric Laser Flow */}
                           <path
-                            d="M 13 0 C 13 38, 87 22, 87 60"
+                            d="M 13 0 C 13 38, 63 22, 63 60"
                             fill="none"
                             stroke="#4ADE80"
                             strokeWidth="3.2"
@@ -292,14 +292,14 @@ export function BattlePassJourney({
                           />
                           {/* Connection Joint Rings */}
                           <circle cx="13" cy="2" r="2.5" fill="#4ADE80" />
-                          <circle cx="87" cy="58" r="2.5" fill="#4ADE80" />
+                          <circle cx="63" cy="58" r="2.5" fill="#4ADE80" />
                         </g>
                       ) : (
-                        // Pipe curves from RIGHT card center (x=87, y=0) to LEFT card center (x=13, y=60)
+                        // Card 1 (Leopard, Avatar on Right ~63%) -> Card 2 (Wolf, Avatar on Left ~13%)
                         <g>
                           {/* Conduit Base */}
                           <path
-                            d="M 87 0 C 87 38, 13 22, 13 60"
+                            d="M 63 0 C 63 38, 13 22, 13 60"
                             fill="none"
                             stroke="rgba(255, 255, 255, 0.15)"
                             strokeWidth="5"
@@ -307,7 +307,7 @@ export function BattlePassJourney({
                           />
                           {/* Glowing Core */}
                           <path
-                            d="M 87 0 C 87 38, 13 22, 13 60"
+                            d="M 63 0 C 63 38, 13 22, 13 60"
                             fill="none"
                             stroke="#F59E0B"
                             strokeWidth="2.5"
@@ -315,7 +315,7 @@ export function BattlePassJourney({
                           />
                           {/* Electric Laser Flow */}
                           <path
-                            d="M 87 0 C 87 38, 13 22, 13 60"
+                            d="M 63 0 C 63 38, 13 22, 13 60"
                             fill="none"
                             stroke="#4ADE80"
                             strokeWidth="3.2"
@@ -324,7 +324,7 @@ export function BattlePassJourney({
                             filter={`url(#pipeGlow-${idx})`}
                           />
                           {/* Connection Joint Rings */}
-                          <circle cx="87" cy="2" r="2.5" fill="#4ADE80" />
+                          <circle cx="63" cy="2" r="2.5" fill="#4ADE80" />
                           <circle cx="13" cy="58" r="2.5" fill="#4ADE80" />
                         </g>
                       )}
