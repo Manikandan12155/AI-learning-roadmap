@@ -43,6 +43,13 @@ import { CertificateModal } from "@/components/CertificateModal";
 import { BattlePassJourney } from "@/components/BattlePassJourney";
 import { StudyScheduleModal } from "@/components/StudyScheduleModal";
 import { LeaderboardModal } from "@/components/LeaderboardModal";
+import {
+  GoogleCalendarIcon,
+  CertificateDiplomaIcon,
+  LeaderboardTrophyIcon,
+  SettingsGearIcon,
+  AboutSparkleIcon,
+} from "@/components/RealtimeNavIcons";
 import { supabase, isSupabaseConfigured } from "@/utils/supabaseClient";
 import { syncUserProgressToCloud, loadUserProgressFromCloud } from "@/utils/progressSync";
 import { AI_PROVIDERS } from "@/data/aiProviders";
@@ -530,8 +537,8 @@ function HomePage() {
             onClick={() => setIsLeaderboardModalOpen(true)}
             className="flex-1 flex flex-col items-center justify-center py-1 px-1 rounded-xl text-muted-foreground hover:text-yellow-400 active:scale-95 transition"
           >
-            <div className="h-6 w-6 rounded-lg grid place-items-center text-yellow-400">
-              <Trophy className="h-4 w-4 fill-current" />
+            <div className="h-6 w-6 rounded-lg grid place-items-center">
+              <LeaderboardTrophyIcon className="h-4 w-4" />
             </div>
             <span className="text-[10px] font-mono font-medium mt-0.5">Ranks</span>
           </button>
@@ -541,8 +548,8 @@ function HomePage() {
             onClick={() => setIsScheduleModalOpen(true)}
             className="flex-1 flex flex-col items-center justify-center py-1 px-1 rounded-xl text-muted-foreground hover:text-emerald-400 active:scale-95 transition"
           >
-            <div className="h-6 w-6 rounded-lg grid place-items-center text-emerald-400">
-              <Calendar className="h-4 w-4" />
+            <div className="h-6 w-6 rounded-lg grid place-items-center">
+              <GoogleCalendarIcon className="h-4 w-4" />
             </div>
             <span className="text-[10px] font-mono font-medium mt-0.5">Habit</span>
           </button>
@@ -552,8 +559,8 @@ function HomePage() {
             onClick={() => setIsCertificateModalOpen(true)}
             className="flex-1 flex flex-col items-center justify-center py-1 px-1 rounded-xl text-amber-400 active:scale-95 transition"
           >
-            <div className="h-7 w-7 rounded-xl bg-amber-500/15 border border-amber-500/30 grid place-items-center text-amber-400 shadow-[0_0_10px_rgba(245,158,11,0.25)]">
-              <Award className="h-4 w-4" />
+            <div className="h-7 w-7 rounded-xl bg-amber-500/15 border border-amber-500/30 grid place-items-center shadow-[0_0_10px_rgba(245,158,11,0.25)]">
+              <CertificateDiplomaIcon className="h-4 w-4" />
             </div>
             <span className="text-[10px] font-mono font-bold mt-0.5 text-amber-300">Cert</span>
           </button>
@@ -563,8 +570,8 @@ function HomePage() {
             onClick={() => setIsAboutModalOpen(true)}
             className="flex-1 flex flex-col items-center justify-center py-1 px-1 rounded-xl text-muted-foreground hover:text-primary active:scale-95 transition"
           >
-            <div className="h-6 w-6 rounded-lg grid place-items-center text-primary">
-              <Sparkles className="h-4 w-4" />
+            <div className="h-6 w-6 rounded-lg grid place-items-center">
+              <AboutSparkleIcon className="h-4 w-4" />
             </div>
             <span className="text-[10px] font-mono font-medium mt-0.5">About</span>
           </button>
@@ -574,8 +581,8 @@ function HomePage() {
             onClick={() => setIsSettingsModalOpen(true)}
             className="flex-1 flex flex-col items-center justify-center py-1 px-1 rounded-xl text-muted-foreground hover:text-primary active:scale-95 transition relative"
           >
-            <div className="h-6 w-6 rounded-lg grid place-items-center text-primary relative">
-              <Settings className="h-4 w-4" />
+            <div className="h-6 w-6 rounded-lg grid place-items-center relative">
+              <SettingsGearIcon className="h-4 w-4" />
               {hasApiKey && (
                 <span className="absolute top-1 right-1 h-1.5 w-1.5 rounded-full bg-emerald-400" />
               )}
@@ -665,10 +672,10 @@ function Header({
             {/* About Creator Button */}
             <button
               onClick={onOpenAboutModal}
-              className="h-8 px-2.5 sm:px-3 rounded-full text-xs font-mono inline-flex items-center gap-1.5 border border-border bg-surface text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all"
+              className="h-8 px-2.5 sm:px-3 rounded-full text-xs font-mono inline-flex items-center gap-1.5 border border-border bg-surface text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all shadow-sm"
               title="About Creator"
             >
-              <Sparkles className="h-3.5 w-3.5 text-primary" />
+              <AboutSparkleIcon className="h-3.5 w-3.5" />
               <span>About</span>
             </button>
 
@@ -678,17 +685,17 @@ function Header({
               className="h-8 px-2.5 sm:px-3 rounded-full text-xs font-mono inline-flex items-center gap-1.5 border border-yellow-500/30 bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-400 transition-all shadow-[0_0_10px_rgba(234,179,8,0.2)]"
               title="View Global AI Learners Leaderboard"
             >
-              <Trophy className="h-3.5 w-3.5 fill-current" />
+              <LeaderboardTrophyIcon className="h-3.5 w-3.5" />
               <span>Leaderboard</span>
             </button>
 
             {/* Schedule Daily Learning Button (Google Calendar Safe Habit Slot) */}
             <button
               onClick={onOpenScheduleModal}
-              className="h-8 px-2.5 sm:px-3 rounded-full text-xs font-mono inline-flex items-center gap-1.5 border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 transition-all shadow-[0_0_10px_rgba(52,199,89,0.2)]"
+              className="h-8 px-2.5 sm:px-3 rounded-full text-xs font-mono inline-flex items-center gap-1.5 border border-blue-500/30 bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 transition-all shadow-[0_0_10px_rgba(66,133,244,0.2)]"
               title="Add 30-min Daily AI Study Slot to Google Calendar"
             >
-              <Calendar className="h-3.5 w-3.5" />
+              <GoogleCalendarIcon className="h-3.5 w-3.5" />
               <span>Daily Slot</span>
             </button>
 
@@ -698,7 +705,7 @@ function Header({
               className="h-8 px-2.5 sm:px-3 rounded-full text-xs font-mono inline-flex items-center gap-1.5 border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 transition-all shadow-[0_0_10px_rgba(245,158,11,0.2)]"
               title="View Verifiable Certificate for Naukri, LinkedIn & Indeed"
             >
-              <Award className="h-3.5 w-3.5" />
+              <CertificateDiplomaIcon className="h-3.5 w-3.5" />
               <span>Certificate</span>
             </button>
 
@@ -707,12 +714,12 @@ function Header({
               onClick={onOpenSettingsModal}
               className={`h-8 px-2.5 sm:px-3 rounded-full text-xs font-mono inline-flex items-center gap-1.5 border transition-all ${
                 hasApiKey
-                  ? "bg-primary/10 border-primary/40 text-primary-glow hover:bg-primary/20"
+                  ? "bg-primary/10 border-primary/40 text-primary-glow hover:bg-primary/20 shadow-sm"
                   : "bg-surface-2 border-border text-muted-foreground hover:text-foreground hover:border-primary/40"
               }`}
               title="Settings (Profile, Journey Track, AI Keys)"
             >
-              <Settings className="h-3.5 w-3.5 text-primary" />
+              <SettingsGearIcon className="h-3.5 w-3.5" />
               <span>Settings</span>
               {hasApiKey && <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />}
             </button>
