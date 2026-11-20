@@ -269,3 +269,4 @@ export function Icon3DSettings({ className = "w-7 h-7" }: { className?: string }
     </svg>
   );
 }
+
