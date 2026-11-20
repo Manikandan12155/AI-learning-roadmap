@@ -119,7 +119,7 @@ export function AIRouterPipelines() {
         {/* SVG Power Supply Wires with Electric Energy Surges */}
         <svg
           className="absolute inset-0 w-full h-full pointer-events-none z-10 overflow-visible"
-          viewBox="0 0 600 380"
+          viewBox="0 0 100 100"
           preserveAspectRatio="none"
         >
           <defs>
@@ -130,7 +130,7 @@ export function AIRouterPipelines() {
             </linearGradient>
 
             <filter id="laserGlow" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="3" result="blur" />
+              <feGaussianBlur stdDeviation="1" result="blur" />
               <feMerge>
                 <feMergeNode in="blur" />
                 <feMergeNode in="SourceGraphic" />
@@ -138,60 +138,67 @@ export function AIRouterPipelines() {
             </filter>
           </defs>
 
-          {/* Draw each branching curved power wire */}
-          {AI_NODES.map((node) => {
+          {/* Draw each branching curved power wire using percentage coords (0-100) */}
+          {AI_NODES.map((node, idx) => {
             const isHovered = activeHoverNode === node.id;
+            // Left Hub center is at x: ~22%, y: 50%
+            // Right 6 chips are evenly spaced vertically at y: ~7%, ~24%, ~41%, ~58%, ~75%, ~92%
+            // Right socket attachment point is at x: ~60% (left edge of right column)
+            const targetY = 7.5 + idx * 17.0;
+            const pathD = `M 23 50 C 35 50, 45 ${targetY}, 60 ${targetY}`;
 
             return (
               <g key={node.id}>
                 {/* 1. Underlying Dark High-Voltage Conduit Tube */}
                 <path
-                  d={node.wirePath}
+                  d={pathD}
                   fill="none"
                   stroke="rgba(255, 255, 255, 0.12)"
-                  strokeWidth={isHovered ? "4" : "3"}
+                  strokeWidth={isHovered ? "1.2" : "0.8"}
                   strokeLinecap="round"
+                  vectorEffect="non-scaling-stroke"
                 />
 
                 {/* 2. Core Fiber Light Wire */}
                 <path
-                  d={node.wirePath}
+                  d={pathD}
                   fill="none"
-                  stroke={isHovered ? node.color : "rgba(52, 199, 89, 0.45)"}
-                  strokeWidth={isHovered ? "2.5" : "1.8"}
+                  stroke={isHovered ? node.color : "rgba(52, 199, 89, 0.5)"}
+                  strokeWidth={isHovered ? "0.9" : "0.5"}
                   strokeLinecap="round"
+                  vectorEffect="non-scaling-stroke"
                 />
 
                 {/* 3. Electric Laser Energy Packets Traveling from Hub to Node (Power Supply) */}
                 <path
-                  d={node.wirePath}
+                  d={pathD}
                   fill="none"
                   stroke={isHovered ? node.color : "#4ADE80"}
-                  strokeWidth={isHovered ? "3.5" : "2.5"}
+                  strokeWidth={isHovered ? "1.2" : "0.8"}
                   strokeLinecap="round"
                   className={isHovered ? "animate-fast-pulse" : "animate-electric-pulse"}
                   filter={isHovered ? "url(#laserGlow)" : undefined}
+                  vectorEffect="non-scaling-stroke"
                 />
 
-                {/* 4. Terminal Spark Plug at Connection Points */}
+                {/* 4. Connection Terminal Dot on Right Chip Socket */}
                 <circle
-                  cx="130"
-                  cy="175"
-                  r="3.5"
-                  fill="#4ADE80"
-                  className="animate-ping opacity-30"
+                  cx="60"
+                  cy={targetY}
+                  r="0.8"
+                  fill={isHovered ? node.color : "#4ADE80"}
                 />
               </g>
             );
           })}
         </svg>
 
-        {/* LEFT PARENT HUB: Smart Canvas AI Router (Power Generator) */}
-        <div className="relative z-20 w-[115px] sm:w-[135px] h-[130px] sm:h-[145px] rounded-2xl sm:rounded-3xl border-2 border-emerald-400 bg-gradient-to-b from-[#14281e] via-[#0c1a14] to-[#07110d] shadow-[0_0_35px_rgba(52,199,89,0.5)] flex flex-col items-center justify-center text-center p-3">
+        {/* LEFT PARENT HUB: Smart Canvas Power Generator */}
+        <div className="relative z-20 w-[120px] sm:w-[135px] h-[120px] sm:h-[135px] rounded-2xl sm:rounded-3xl border-2 border-emerald-400 bg-gradient-to-b from-[#14281e] via-[#0c1a14] to-[#07110d] shadow-[0_0_35px_rgba(52,199,89,0.5)] flex flex-col items-center justify-center text-center p-3 shrink-0 ml-1">
           {/* Pulsing Power Reactor Orb */}
           <div className="relative mb-2">
-            <div className="h-11 w-11 sm:h-12 sm:w-12 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 grid place-items-center text-black shadow-[0_0_20px_rgba(52,199,89,0.7)] animate-pulse">
-              <Zap className="h-6 w-6 stroke-[2.5]" />
+            <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 grid place-items-center text-black shadow-[0_0_20px_rgba(52,199,89,0.7)] animate-pulse">
+              <Zap className="h-7 w-7 stroke-[2.5]" />
             </div>
             {/* Energy Ring */}
             <div className="absolute -inset-1 rounded-2xl border border-emerald-400/50 animate-ping pointer-events-none" />
@@ -200,19 +207,10 @@ export function AIRouterPipelines() {
           <h3 className="font-display font-black text-xs sm:text-sm text-white tracking-tight leading-tight">
             Smart Canvas
           </h3>
-          <span className="font-mono text-[9px] uppercase tracking-widest text-emerald-400 font-extrabold mt-0.5">
-            AI ROUTER
-          </span>
-
-          {/* Live Status Pip */}
-          <div className="mt-2 flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-[8px] font-mono font-bold text-emerald-300">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-ping" />
-            <span>POWER ON</span>
-          </div>
         </div>
 
         {/* RIGHT BRANCHED NODES: The 6 AI Chips (Receiving Power Supply) */}
-        <div className="relative z-20 flex flex-col justify-between h-full pl-3 sm:pl-8 py-1 flex-1 max-w-[210px] sm:max-w-[250px] ml-auto">
+        <div className="relative z-20 flex flex-col justify-between h-full py-1 w-[200px] sm:w-[240px] shrink-0 mr-1">
           {AI_NODES.map((node) => {
             const isHovered = activeHoverNode === node.id;
 

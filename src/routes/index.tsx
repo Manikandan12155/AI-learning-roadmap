@@ -34,6 +34,9 @@ import {
   FlaskConical,
   Youtube,
   Globe,
+  Cpu,
+  ShieldAlert,
+  MessageSquare,
 } from "lucide-react";
 import { ROADMAP, TOTAL_TOPICS, type Level } from "@/data/roadmap";
 import { getLabForTopic } from "@/data/labExperiments";
@@ -63,6 +66,7 @@ import {
   Icon3DCertificate,
   Icon3DAbout,
   Icon3DSettings,
+  Icon3DAILab,
 } from "@/components/Icons3D";
 import { supabase, isSupabaseConfigured } from "@/utils/supabaseClient";
 import { syncUserProgressToCloud, loadUserProgressFromCloud } from "@/utils/progressSync";
@@ -696,14 +700,13 @@ function Header({
         </div>
 
         <div className="flex items-center gap-2 sm:gap-2.5">
-          {/* About Creator Button (Moved to Topbar for both Mobile and Desktop) */}
+          {/* About Creator Button */}
           <button
             onClick={onOpenAboutModal}
-            className="h-8 w-8 sm:w-auto sm:px-3 rounded-full text-xs font-mono inline-flex items-center justify-center gap-1.5 border border-border bg-surface hover:bg-surface-2 text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all shadow-sm"
+            className="h-8 w-8 rounded-full border border-border bg-surface hover:bg-surface-2 grid place-items-center text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all shadow-sm"
             title="About Creator"
           >
-            <AboutSparkleIcon className="h-4 w-4" />
-            <span className="hidden sm:inline">About</span>
+            <Icon3DAbout className="h-5 w-5" />
           </button>
 
           {/* Light / Dark Mode Toggle (Desktop & Mobile Topbar) */}
@@ -719,61 +722,56 @@ function Header({
             )}
           </button>
 
-          {/* Desktop Only Buttons (Hidden on Mobile, moved to Mobile Bottom Bar) */}
+          {/* Desktop Only Buttons (Real 3D Icon Only with Tooltip) */}
           <div className="hidden md:flex items-center gap-2">
             {/* AI Lab Terminal Launcher Button */}
             <button
               onClick={onOpenAILabModal}
-              className="h-8 px-2.5 sm:px-3 rounded-full text-xs font-mono inline-flex items-center gap-1.5 border border-primary/40 bg-primary/10 hover:bg-primary/20 text-primary-glow transition-all shadow-[0_0_12px_rgba(52,199,89,0.25)]"
+              className="h-8 w-8 rounded-full grid place-items-center border border-primary/40 bg-primary/10 hover:bg-primary/20 text-primary-glow transition-all shadow-[0_0_12px_rgba(52,199,89,0.25)]"
               title="Launch AI & GPU Experimentation Lab"
             >
-              <FlaskConical className="h-3.5 w-3.5 text-primary" />
-              <span>AI Lab</span>
+              <Icon3DAILab className="h-5 w-5" />
             </button>
 
             {/* Leaderboard Button */}
             <button
               onClick={onOpenLeaderboardModal}
-              className="h-8 px-2.5 sm:px-3 rounded-full text-xs font-mono inline-flex items-center gap-1.5 border border-yellow-500/30 bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-400 transition-all shadow-[0_0_10px_rgba(234,179,8,0.2)]"
+              className="h-8 w-8 rounded-full grid place-items-center border border-yellow-500/30 bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-400 transition-all shadow-[0_0_10px_rgba(234,179,8,0.2)]"
               title="View Global AI Learners Leaderboard"
             >
-              <LeaderboardTrophyIcon className="h-3.5 w-3.5" />
-              <span>Leaderboard</span>
+              <Icon3DLeaderboard className="h-5 w-5" />
             </button>
 
-            {/* Schedule Daily Learning Button (Google Calendar Safe Habit Slot) */}
+            {/* Schedule Daily Learning Button */}
             <button
               onClick={onOpenScheduleModal}
-              className="h-8 px-2.5 sm:px-3 rounded-full text-xs font-mono inline-flex items-center gap-1.5 border border-blue-500/30 bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 transition-all shadow-[0_0_10px_rgba(66,133,244,0.2)]"
+              className="h-8 w-8 rounded-full grid place-items-center border border-blue-500/30 bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 transition-all shadow-[0_0_10px_rgba(66,133,244,0.2)]"
               title="Add 30-min Daily AI Study Slot to Google Calendar"
             >
-              <GoogleCalendarIcon className="h-3.5 w-3.5" />
-              <span>Daily Slot</span>
+              <Icon3DCalendar className="h-5 w-5" />
             </button>
 
-            {/* Certificate Button (Naukri & LinkedIn Verification) */}
+            {/* Certificate Button */}
             <button
               onClick={onOpenCertificateModal}
-              className="h-8 px-2.5 sm:px-3 rounded-full text-xs font-mono inline-flex items-center gap-1.5 border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 transition-all shadow-[0_0_10px_rgba(245,158,11,0.2)]"
+              className="h-8 w-8 rounded-full grid place-items-center border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 transition-all shadow-[0_0_10px_rgba(245,158,11,0.2)]"
               title="View Verifiable Certificate for Naukri, LinkedIn & Indeed"
             >
-              <CertificateDiplomaIcon className="h-3.5 w-3.5" />
-              <span>Certificate</span>
+              <Icon3DCertificate className="h-5 w-5" />
             </button>
 
             {/* Settings & Profile Hub Button */}
             <button
               onClick={onOpenSettingsModal}
-              className={`h-8 px-2.5 sm:px-3 rounded-full text-xs font-mono inline-flex items-center gap-1.5 border transition-all ${
+              className={`h-8 w-8 rounded-full relative grid place-items-center border transition-all ${
                 hasApiKey
                   ? "bg-primary/10 border-primary/40 text-primary-glow hover:bg-primary/20 shadow-sm"
                   : "bg-surface-2 border-border text-muted-foreground hover:text-foreground hover:border-primary/40"
               }`}
               title="Settings (Profile, Journey Track, AI Keys)"
             >
-              <SettingsGearIcon className="h-3.5 w-3.5" />
-              <span>Settings</span>
-              {hasApiKey && <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />}
+              <Icon3DSettings className="h-5 w-5" />
+              {hasApiKey && <span className="absolute top-1 right-1 h-1.5 w-1.5 rounded-full bg-emerald-400" />}
             </button>
           </div>
 
@@ -804,7 +802,7 @@ function Header({
           ) : (
             <button
               onClick={onOpenAuthModal}
-              className="h-8 w-8 sm:w-auto sm:px-3 rounded-full text-xs font-medium inline-flex items-center justify-center gap-2 bg-surface hover:bg-surface-2 border border-border/80 text-foreground font-semibold hover:border-primary/50 shadow-sm transition active:scale-95"
+              className="h-8 w-8 rounded-full border border-border/80 bg-surface hover:bg-surface-2 grid place-items-center text-foreground font-semibold hover:border-primary/50 shadow-sm transition active:scale-95"
               title="Sign in with Google"
             >
               <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
@@ -825,7 +823,6 @@ function Header({
                   d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
                 />
               </svg>
-              <span className="hidden sm:inline">Sign In</span>
             </button>
           )}
 

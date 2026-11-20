@@ -270,3 +270,57 @@ export function Icon3DSettings({ className = "w-7 h-7" }: { className?: string }
   );
 }
 
+export function Icon3DAILab({ className = "w-7 h-7" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 36 36" fill="none">
+      <defs>
+        <radialGradient id="labFlaskGrad" cx="40%" cy="30%" r="70%">
+          <stop offset="0%" stopColor="#A7F3D0" />
+          <stop offset="35%" stopColor="#34D399" />
+          <stop offset="75%" stopColor="#059669" />
+          <stop offset="100%" stopColor="#064E3B" />
+        </radialGradient>
+        <linearGradient id="glassReflection" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.8" />
+          <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0.05" />
+        </linearGradient>
+        <filter id="flaskGlow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="2" stdDeviation="2.5" floodColor="#10B981" floodOpacity="0.6" />
+        </filter>
+      </defs>
+
+      {/* Conical Flask Body (Erlenmeyer) */}
+      <path
+        d="M15 5H21V12L28.5 25.5C29.5 27.3 28.2 29.5 26.1 29.5H9.9C7.8 29.5 6.5 27.3 7.5 25.5L15 12V5Z"
+        fill="url(#labFlaskGrad)"
+        filter="url(#flaskGlow)"
+        stroke="#6EE7B7"
+        strokeWidth="1"
+      />
+
+      {/* Liquid Wave inside */}
+      <path
+        d="M9.5 24C12 22.5 15 25 18 23.5C21 22 24 24.5 26.5 23.5L27.5 26C27.9 26.9 27.2 28 26.1 28H9.9C8.8 28 8.1 26.9 8.5 26L9.5 24Z"
+        fill="#34D399"
+        opacity="0.85"
+      />
+
+      {/* Glowing Bubbles */}
+      <circle cx="14" cy="22" r="1.2" fill="#FFFFFF" opacity="0.9" />
+      <circle cx="21" cy="20" r="1.5" fill="#FFFFFF" opacity="0.8" />
+      <circle cx="17" cy="16" r="1" fill="#FFFFFF" opacity="0.7" />
+
+      {/* Glass Top Lip */}
+      <rect x="14" y="3.5" width="8" height="2.5" rx="1.2" fill="#D1FAE5" stroke="#10B981" strokeWidth="0.8" />
+
+      {/* Highlight reflection stripe */}
+      <path
+        d="M16 13L10.5 23.5C10 24.4 10.5 25.5 11.5 25.5"
+        stroke="url(#glassReflection)"
+        strokeWidth="1.2"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
