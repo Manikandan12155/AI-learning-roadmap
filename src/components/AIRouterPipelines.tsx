@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Zap, Sparkles } from "lucide-react";
+import { Zap } from "lucide-react";
 import { BrandLogo } from "./BrandLogo";
 
 interface NodeData {
@@ -9,108 +9,264 @@ interface NodeData {
   color: string;
   glowColor: string;
   badge: string;
+  wirePath: string; // Exact curved SVG path from Left Hub to this specific Node
+  yPos: number; // Vertical anchor on right side
 }
 
+// 6 Nodes distributed vertically (0 to 350)
 const AI_NODES: NodeData[] = [
-  { id: "gemini", name: "Gemini", sub: "Google 2.5 & 3.8", color: "#38bdf8", glowColor: "rgba(56, 189, 248, 0.4)", badge: "2M Context" },
-  { id: "claude", name: "Claude", sub: "Anthropic 3.7", color: "#d97706", glowColor: "rgba(217, 119, 6, 0.4)", badge: "Hybrid CoT" },
-  { id: "deepseek", name: "DeepSeek", sub: "R1 Reasoning", color: "#60a5fa", glowColor: "rgba(96, 165, 250, 0.4)", badge: "SOTA" },
-  { id: "openai", name: "OpenAI", sub: "GPT-4o & o3", color: "#10a37f", glowColor: "rgba(16, 163, 127, 0.4)", badge: "Flagship" },
-  { id: "groq", name: "Groq", sub: "LPU Engine", color: "#f97316", glowColor: "rgba(249, 115, 22, 0.4)", badge: "500 tok/s" },
-  { id: "together", name: "Together", sub: "Open Source", color: "#ec4899", glowColor: "rgba(236, 72, 153, 0.4)", badge: "Turbo" },
+  {
+    id: "gemini",
+    name: "Gemini",
+    sub: "Google 2.5 & 3.8",
+    color: "#38bdf8",
+    glowColor: "rgba(56, 189, 248, 0.8)",
+    badge: "2M Context",
+    yPos: 15,
+    // Top-most curved wire: Exits top-right of hub, arches up and travels right
+    wirePath: "M 130 175 C 130 50, 180 32, 280 32",
+  },
+  {
+    id: "claude",
+    name: "Claude",
+    sub: "Anthropic 3.7",
+    color: "#d97706",
+    glowColor: "rgba(217, 119, 6, 0.8)",
+    badge: "Hybrid CoT",
+    yPos: 78,
+    // Upper-mid curved wire: Exits upper-right of hub, curves upward into node
+    wirePath: "M 130 175 C 145 110, 195 95, 280 95",
+  },
+  {
+    id: "deepseek",
+    name: "DeepSeek",
+    sub: "R1 Reasoning",
+    color: "#60a5fa",
+    glowColor: "rgba(96, 165, 250, 0.8)",
+    badge: "SOTA",
+    yPos: 141,
+    // Straight-ish middle upper branch
+    wirePath: "M 130 175 C 170 175, 210 158, 280 158",
+  },
+  {
+    id: "openai",
+    name: "OpenAI",
+    sub: "GPT-4o & o3",
+    color: "#10a37f",
+    glowColor: "rgba(16, 163, 127, 0.8)",
+    badge: "Flagship",
+    yPos: 204,
+    // Straight-ish middle lower branch
+    wirePath: "M 130 175 C 170 175, 210 221, 280 221",
+  },
+  {
+    id: "groq",
+    name: "Groq",
+    sub: "LPU Engine",
+    color: "#f97316",
+    glowColor: "rgba(249, 115, 22, 0.8)",
+    badge: "500 tok/s",
+    yPos: 267,
+    // Lower-mid curved wire: Exits lower-right of hub, curves downward into node
+    wirePath: "M 130 175 C 145 240, 195 284, 280 284",
+  },
+  {
+    id: "together",
+    name: "Together",
+    sub: "Open Source",
+    color: "#ec4899",
+    glowColor: "rgba(236, 72, 153, 0.8)",
+    badge: "Turbo",
+    yPos: 330,
+    // Bottom-most curved wire: Exits bottom-right of hub, arches down and travels right
+    wirePath: "M 130 175 C 130 300, 180 347, 280 347",
+  },
 ];
 
 export function AIRouterPipelines() {
   const [activeHoverNode, setActiveHoverNode] = useState<string | null>(null);
 
   return (
-    <div className="w-full max-w-xl mx-auto my-6 p-4 sm:p-6 rounded-3xl border border-emerald-500/30 bg-gradient-to-b from-[#0e1612] via-[#090d0b] to-[#050806] shadow-[0_15px_50px_rgba(0,0,0,0.85)] relative overflow-hidden">
-      {/* Background Ambient Glow */}
-      <div className="absolute top-1/2 left-1/3 -translate-y-1/2 w-72 h-72 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none" />
+    <div className="w-full max-w-2xl mx-auto my-8 relative select-none">
+      <style>{`
+        @keyframes electricPulse {
+          0% {
+            stroke-dashoffset: 100;
+          }
+          100% {
+            stroke-dashoffset: 0;
+          }
+        }
+        @keyframes glowPulse {
+          0%, 100% { opacity: 0.6; filter: drop-shadow(0 0 4px #34C759); }
+          50% { opacity: 1; filter: drop-shadow(0 0 12px #34C759); }
+        }
+        .animate-electric-pulse {
+          stroke-dasharray: 10 20;
+          animation: electricPulse 1.8s linear infinite;
+        }
+        .animate-fast-pulse {
+          stroke-dasharray: 6 12;
+          animation: electricPulse 0.9s linear infinite;
+        }
+      `}</style>
 
-      {/* Header Info */}
-      <div className="flex items-center justify-between mb-5 pb-3 border-b border-white/10">
-        <div className="flex items-center gap-2">
-          <div className="h-6 w-6 rounded-lg bg-emerald-500/20 border border-emerald-400/40 grid place-items-center text-emerald-400">
-            <Zap className="h-3.5 w-3.5 fill-current" />
-          </div>
-          <span className="font-display font-bold text-xs uppercase tracking-wider text-white">
-            Universal AI Router Matrix
-          </span>
-        </div>
-        <span className="font-mono text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/30">
-          6 Active LLM Backbones
-        </span>
-      </div>
+      {/* Background Cyber Glow */}
+      <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-80 h-80 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none" />
 
-      {/* Tree Mind-Map Layout (Exact match to User's Hand-drawn Diagram) */}
-      <div className="relative flex items-center gap-3 sm:gap-6 py-2">
-        {/* Left Parent Hub: Smart Canvas AI Router */}
-        <div className="relative shrink-0 w-32 sm:w-40 p-4 rounded-2xl border-2 border-emerald-400/70 bg-gradient-to-br from-[#12231b] via-[#0b1712] to-[#07100c] shadow-[0_0_25px_rgba(52,199,89,0.35)] flex flex-col items-center justify-center text-center z-20">
-          <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 grid place-items-center text-black shadow-glow mb-2">
-            <Zap className="h-6 w-6 stroke-[2.5]" />
-          </div>
-          <h4 className="font-display font-extrabold text-xs sm:text-sm text-white tracking-tight">
-            Smart Canvas
-          </h4>
-          <span className="font-mono text-[9px] uppercase tracking-widest text-emerald-400 font-bold mt-0.5">
-            AI ROUTER
-          </span>
-          <div className="mt-2 flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-[9px] font-mono text-emerald-300">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span>Multi-Model</span>
-          </div>
-        </div>
+      {/* Main Schematic Diagram Area (Exact 1:1 match to Hand-Drawn Sketch) */}
+      <div className="relative w-full h-[410px] sm:h-[420px] flex items-center justify-between">
+        {/* SVG Power Supply Wires with Electric Energy Surges */}
+        <svg
+          className="absolute inset-0 w-full h-full pointer-events-none z-10 overflow-visible"
+          viewBox="0 0 600 380"
+          preserveAspectRatio="none"
+        >
+          <defs>
+            <linearGradient id="hubWireGrad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="#34C759" stopOpacity="0.8" />
+              <stop offset="60%" stopColor="#22C55E" stopOpacity="0.4" />
+              <stop offset="100%" stopColor="#10B981" stopOpacity="0.7" />
+            </linearGradient>
 
-        {/* Dynamic Curved Trunk SVG Bus Lines (Branching from Left Hub to Each Right Node) */}
-        <div className="relative flex-1 flex flex-col justify-between py-1 space-y-2">
+            <filter id="laserGlow" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="3" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
+
+          {/* Draw each branching curved power wire */}
           {AI_NODES.map((node) => {
             const isHovered = activeHoverNode === node.id;
+
+            return (
+              <g key={node.id}>
+                {/* 1. Underlying Dark High-Voltage Conduit Tube */}
+                <path
+                  d={node.wirePath}
+                  fill="none"
+                  stroke="rgba(255, 255, 255, 0.12)"
+                  strokeWidth={isHovered ? "4" : "3"}
+                  strokeLinecap="round"
+                />
+
+                {/* 2. Core Fiber Light Wire */}
+                <path
+                  d={node.wirePath}
+                  fill="none"
+                  stroke={isHovered ? node.color : "rgba(52, 199, 89, 0.45)"}
+                  strokeWidth={isHovered ? "2.5" : "1.8"}
+                  strokeLinecap="round"
+                />
+
+                {/* 3. Electric Laser Energy Packets Traveling from Hub to Node (Power Supply) */}
+                <path
+                  d={node.wirePath}
+                  fill="none"
+                  stroke={isHovered ? node.color : "#4ADE80"}
+                  strokeWidth={isHovered ? "3.5" : "2.5"}
+                  strokeLinecap="round"
+                  className={isHovered ? "animate-fast-pulse" : "animate-electric-pulse"}
+                  filter={isHovered ? "url(#laserGlow)" : undefined}
+                />
+
+                {/* 4. Terminal Spark Plug at Connection Points */}
+                <circle
+                  cx="130"
+                  cy="175"
+                  r="3.5"
+                  fill="#4ADE80"
+                  className="animate-ping opacity-30"
+                />
+              </g>
+            );
+          })}
+        </svg>
+
+        {/* LEFT PARENT HUB: Smart Canvas AI Router (Power Generator) */}
+        <div className="relative z-20 w-[115px] sm:w-[135px] h-[130px] sm:h-[145px] rounded-2xl sm:rounded-3xl border-2 border-emerald-400 bg-gradient-to-b from-[#14281e] via-[#0c1a14] to-[#07110d] shadow-[0_0_35px_rgba(52,199,89,0.5)] flex flex-col items-center justify-center text-center p-3">
+          {/* Pulsing Power Reactor Orb */}
+          <div className="relative mb-2">
+            <div className="h-11 w-11 sm:h-12 sm:w-12 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 grid place-items-center text-black shadow-[0_0_20px_rgba(52,199,89,0.7)] animate-pulse">
+              <Zap className="h-6 w-6 stroke-[2.5]" />
+            </div>
+            {/* Energy Ring */}
+            <div className="absolute -inset-1 rounded-2xl border border-emerald-400/50 animate-ping pointer-events-none" />
+          </div>
+
+          <h3 className="font-display font-black text-xs sm:text-sm text-white tracking-tight leading-tight">
+            Smart Canvas
+          </h3>
+          <span className="font-mono text-[9px] uppercase tracking-widest text-emerald-400 font-extrabold mt-0.5">
+            AI ROUTER
+          </span>
+
+          {/* Live Status Pip */}
+          <div className="mt-2 flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-[8px] font-mono font-bold text-emerald-300">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-ping" />
+            <span>POWER ON</span>
+          </div>
+        </div>
+
+        {/* RIGHT BRANCHED NODES: The 6 AI Chips (Receiving Power Supply) */}
+        <div className="relative z-20 flex flex-col justify-between h-full pl-3 sm:pl-8 py-1 flex-1 max-w-[210px] sm:max-w-[250px] ml-auto">
+          {AI_NODES.map((node) => {
+            const isHovered = activeHoverNode === node.id;
+
             return (
               <div
                 key={node.id}
                 onMouseEnter={() => setActiveHoverNode(node.id)}
                 onMouseLeave={() => setActiveHoverNode(null)}
-                className={`group relative flex items-center justify-between p-2 sm:p-2.5 rounded-xl border transition-all duration-200 cursor-pointer ${
+                className={`relative group flex items-center justify-between p-2 sm:p-2.5 rounded-xl border transition-all duration-300 cursor-pointer ${
                   isHovered
-                    ? "bg-white/[0.08] border-white/40 shadow-lg translate-x-1"
-                    : "bg-white/[0.03] border-white/10 hover:border-white/20"
+                    ? "bg-white/[0.12] border-white/60 shadow-xl translate-x-1 scale-[1.03]"
+                    : "bg-[#0b120f]/90 border-white/15 hover:border-white/30 backdrop-blur-md"
                 }`}
                 style={{
                   borderColor: isHovered ? node.color : undefined,
-                  boxShadow: isHovered ? `0 0 15px ${node.glowColor}` : undefined,
+                  boxShadow: isHovered
+                    ? `0 0 20px ${node.glowColor}, inset 0 0 10px ${node.glowColor}`
+                    : "0 4px 15px rgba(0,0,0,0.6)",
                 }}
               >
-                {/* Horizontal branch indicator line on left of chip */}
+                {/* Power Socket Plug on Left Edge of Chip */}
                 <div
-                  className="absolute -left-3 sm:-left-6 top-1/2 -translate-y-1/2 h-[2px] w-3 sm:w-6 transition-all duration-300"
+                  className="absolute -left-1.5 top-1/2 -translate-y-1/2 w-3 h-3 rounded-full border-2 transition-all duration-300"
                   style={{
-                    backgroundColor: isHovered ? node.color : "rgba(255, 255, 255, 0.2)",
+                    backgroundColor: isHovered ? node.color : "#22C55E",
+                    borderColor: "#FFFFFF",
+                    boxShadow: isHovered
+                      ? `0 0 10px ${node.color}`
+                      : "0 0 6px rgba(52,199,89,0.8)",
                   }}
                 />
 
-                {/* Left side info */}
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <div className="h-7 w-7 rounded-lg bg-black/60 border border-white/10 p-1 shrink-0 grid place-items-center">
+                {/* Left Side: Brand Logo + Name + Context */}
+                <div className="flex items-center gap-2 min-w-0 pl-1">
+                  <div className="h-6 w-6 rounded-lg bg-black/70 border border-white/10 p-0.5 shrink-0 grid place-items-center">
                     <BrandLogo id={node.id} className="h-full w-full object-contain" />
                   </div>
                   <div className="text-left min-w-0">
-                    <span className="font-display font-bold text-xs sm:text-sm text-white block leading-tight truncate">
+                    <span className="font-display font-extrabold text-xs text-white block leading-tight truncate">
                       {node.name}
                     </span>
-                    <span className="font-mono text-[9px] sm:text-[10px] text-neutral-400 block truncate">
+                    <span className="font-mono text-[9px] text-neutral-400 block truncate leading-none mt-0.5">
                       {node.sub}
                     </span>
                   </div>
                 </div>
 
-                {/* Right side spec badge */}
+                {/* Right Side: High-Precision Badge */}
                 <span
-                  className="font-mono text-[9px] px-2 py-0.5 rounded-md border font-semibold shrink-0 ml-2"
+                  className="font-mono text-[8px] sm:text-[9px] px-1.5 py-0.5 rounded border font-bold shrink-0 ml-1.5"
                   style={{
                     color: node.color,
                     backgroundColor: `${node.color}15`,
-                    borderColor: `${node.color}35`,
+                    borderColor: `${node.color}40`,
                   }}
                 >
                   {node.badge}
