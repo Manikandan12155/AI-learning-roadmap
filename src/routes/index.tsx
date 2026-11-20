@@ -920,38 +920,61 @@ function Showcase() {
       img: iconFoundation,
       title: "Strong foundation",
       body: "OS, terminal, Git, Python — built like a real engineer.",
+      badge: "Levels 00-01",
+      topics: "61 Topics",
     },
     {
       img: iconML,
       title: "Deep ML intuition",
       body: "From regression and forests to transformers and attention.",
+      badge: "Levels 02-05",
+      topics: "102 Topics",
     },
     {
       img: iconAgent,
       title: "Production agents",
       body: "RAG, MCP, multi-agent orchestration, observability, scale.",
+      badge: "Levels 06-14",
+      topics: "420 Topics",
     },
   ];
   return (
-    <section className="mx-auto max-w-6xl px-5 -mt-4 pb-10">
-      <div className="grid sm:grid-cols-3 gap-4">
+    <section className="mx-auto max-w-6xl px-4 sm:px-5 -mt-4 pb-10">
+      <div className="grid sm:grid-cols-3 gap-3.5 sm:gap-4">
         {items.map((it, i) => (
           <div
             key={i}
-            className="glass rounded-2xl p-5 shadow-card hover:border-primary/40 transition-colors group"
+            className="glass rounded-2xl p-4 sm:p-5 shadow-card hover:border-primary/40 transition-all group flex flex-row sm:flex-col items-center sm:items-start gap-4 sm:gap-0"
           >
-            <div className="h-20 w-20 -mt-1 mb-3 grid place-items-center rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 border border-border group-hover:shadow-glow transition-shadow">
+            {/* 3D Icon Box */}
+            <div className="h-16 w-16 sm:h-20 sm:w-20 shrink-0 sm:-mt-1 sm:mb-3 grid place-items-center rounded-xl bg-gradient-to-br from-primary/15 to-accent/10 border border-primary/20 group-hover:shadow-glow group-hover:scale-105 transition-all">
               <img
                 src={it.img}
                 alt=""
                 width={64}
                 height={64}
-                className="h-16 w-16 object-contain"
+                className="h-12 w-12 sm:h-16 sm:w-16 object-contain"
                 loading="lazy"
               />
             </div>
-            <h3 className="font-display text-lg font-semibold">{it.title}</h3>
-            <p className="text-sm text-muted-foreground mt-1.5">{it.body}</p>
+
+            {/* Content filling the empty space */}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="font-mono text-[9px] px-2 py-0.5 rounded-full bg-primary/10 text-primary-glow border border-primary/25 font-bold uppercase">
+                  {it.badge}
+                </span>
+                <span className="font-mono text-[10px] text-muted-foreground font-semibold">
+                  {it.topics}
+                </span>
+              </div>
+              <h3 className="font-display text-base sm:text-lg font-bold text-foreground leading-snug">
+                {it.title}
+              </h3>
+              <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                {it.body}
+              </p>
+            </div>
           </div>
         ))}
       </div>
