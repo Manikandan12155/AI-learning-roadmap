@@ -94,12 +94,12 @@ export function BattlePassJourney({
     <div className="w-full my-6 sm:my-8 rounded-3xl border-2 border-amber-500/30 bg-gradient-to-b from-[#171411] via-[#0d0c0a] to-[#070605] p-4 sm:p-7 shadow-[0_10px_40px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.1)] relative overflow-hidden">
       <style>{`
         @keyframes energyFlow {
-          0% { stroke-dashoffset: 80; }
+          0% { stroke-dashoffset: 60; }
           100% { stroke-dashoffset: 0; }
         }
         .animate-energy-pipe {
           stroke-dasharray: 8 16;
-          animation: energyFlow 1.6s linear infinite;
+          animation: energyFlow 1.4s linear infinite;
         }
       `}</style>
 
@@ -149,74 +149,12 @@ export function BattlePassJourney({
       </div>
 
       {/* ─────────────────────────────────────────────────────────────
-          1. MOBILE VIEW: VERTICAL SERPENTINE / S-CURVE PIPE PATHWAY
-          (Exact 1:1 match to User's Hand-Drawn Winding Pipe Sketch)
+          1. MOBILE VIEW: EXACT S-CURVE INTER-CARD CONNECTING PIPES
+          (Each step has an individual custom SVG pipe that connects
+           directly from the bottom of Card N to the top of Card N+1)
           ───────────────────────────────────────────────────────────── */}
-      <div className="block sm:hidden relative py-4 px-2">
-        {/* SVG Continuous Winding Energy Pipe connecting all 4 animal cards */}
-        <svg
-          className="absolute inset-0 w-full h-full pointer-events-none z-10 overflow-visible"
-          viewBox="0 0 340 540"
-          preserveAspectRatio="none"
-        >
-          <defs>
-            <linearGradient id="pipeGradMobile" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#EAB308" />
-              <stop offset="50%" stopColor="#34D399" />
-              <stop offset="100%" stopColor="#F59E0B" />
-            </linearGradient>
-            <filter id="pipeGlow" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="3" result="blur" />
-              <feMerge>
-                <feMergeNode in="blur" />
-                <feMergeNode in="SourceGraphic" />
-              </feMerge>
-            </filter>
-          </defs>
-
-          {/* S-Curve Continuous Pipe Path:
-              Node 0 (Left: x=75, y=55) -> Node 1 (Right: x=265, y=185)
-              Node 1 (Right: x=265, y=185) -> Node 2 (Left: x=75, y=315)
-              Node 2 (Left: x=75, y=315) -> Node 3 (Right: x=265, y=445)
-          */}
-          {/* Outer Industrial Metallic Pipe Conduit */}
-          <path
-            d="M 125 55 C 220 55, 265 100, 265 140
-               M 215 185 C 120 185, 75 230, 75 270
-               M 125 315 C 220 315, 265 360, 265 400"
-            fill="none"
-            stroke="rgba(255, 255, 255, 0.15)"
-            strokeWidth="7"
-            strokeLinecap="round"
-          />
-
-          {/* Inner Glowing Core Pipe */}
-          <path
-            d="M 125 55 C 220 55, 265 100, 265 140
-               M 215 185 C 120 185, 75 230, 75 270
-               M 125 315 C 220 315, 265 360, 265 400"
-            fill="none"
-            stroke="#F59E0B"
-            strokeWidth="3.5"
-            strokeLinecap="round"
-          />
-
-          {/* Flowing Laser Energy Pulse along the Pipe */}
-          <path
-            d="M 125 55 C 220 55, 265 100, 265 140
-               M 215 185 C 120 185, 75 230, 75 270
-               M 125 315 C 220 315, 265 360, 265 400"
-            fill="none"
-            stroke="#4ADE80"
-            strokeWidth="4.5"
-            strokeLinecap="round"
-            className="animate-energy-pipe"
-            filter="url(#pipeGlow)"
-          />
-        </svg>
-
-        {/* 4 Serpentine Nodes (Alternating Left and Right with Cards) */}
-        <div className="relative z-20 space-y-12 py-2">
+      <div className="block sm:hidden relative py-2 px-1">
+        <div className="flex flex-col space-y-0">
           {REWARD_CHESTS.map((chest, idx) => {
             const isClaimed = completedTopicsCount >= chest.topicsNeeded;
             const isCurrentTarget =
@@ -224,81 +162,176 @@ export function BattlePassJourney({
               (idx === 0 || completedTopicsCount >= REWARD_CHESTS[idx - 1].topicsNeeded);
 
             const isLeft = idx % 2 === 0;
+            const isLast = idx === REWARD_CHESTS.length - 1;
 
             return (
-              <div
-                key={chest.level}
-                onClick={() => {
-                  setActiveTooltip(idx);
-                  if (isClaimed) onOpenCertificateModal();
-                }}
-                className={`relative flex items-center gap-3 cursor-pointer group ${
-                  isLeft ? "justify-start" : "justify-end flex-row-reverse"
-                }`}
-              >
-                {/* Floating "Next Goal" Bubble for Current Target */}
-                {isCurrentTarget && (
+              <React.Fragment key={chest.level}>
+                {/* Animal Hero Step Container */}
+                <div
+                  onClick={() => {
+                    setActiveTooltip(idx);
+                    if (isClaimed) onOpenCertificateModal();
+                  }}
+                  className={`relative flex items-center gap-3 cursor-pointer group z-20 ${
+                    isLeft ? "justify-start pl-1" : "justify-end pr-1 flex-row-reverse"
+                  }`}
+                >
+                  {/* Floating "Next Goal" Bubble */}
+                  {isCurrentTarget && (
+                    <div
+                      className={`absolute -top-7 ${
+                        isLeft ? "left-2" : "right-2"
+                      } z-30 animate-bounce duration-700 pointer-events-auto`}
+                    >
+                      <div className="bg-gradient-to-b from-[#4cd964] to-[#2ac046] border border-[#bbf7c8] text-black px-2.5 py-0.5 rounded-lg shadow-[0_4px_15px_rgba(76,217,100,0.6)] flex items-center gap-1 whitespace-nowrap">
+                        <Sparkles className="h-3 w-3 text-white" />
+                        <span className="font-display font-extrabold text-[10px] uppercase text-black">
+                          Goal: {chest.topicsNeeded - completedTopicsCount} left
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 3D Animal Avatar Card */}
                   <div
-                    className={`absolute -top-7 ${
-                      isLeft ? "left-2" : "right-2"
-                    } z-30 animate-bounce duration-700 pointer-events-auto`}
+                    className={`relative w-20 h-20 rounded-2xl flex flex-col items-center justify-center transition-all duration-300 transform group-hover:scale-105 overflow-hidden shrink-0 ${
+                      isClaimed
+                        ? "border-2 border-amber-400 shadow-[0_0_25px_rgba(245,158,11,0.6)]"
+                        : isCurrentTarget
+                        ? "border-2 border-emerald-400 shadow-[0_0_20px_rgba(52,199,89,0.5)] ring-2 ring-emerald-400/40"
+                        : "border border-white/20 opacity-60 grayscale-[40%]"
+                    }`}
                   >
-                    <div className="bg-gradient-to-b from-[#4cd964] to-[#2ac046] border border-[#bbf7c8] text-black px-2.5 py-0.5 rounded-lg shadow-[0_4px_15px_rgba(76,217,100,0.6)] flex items-center gap-1 whitespace-nowrap">
-                      <Sparkles className="h-3 w-3 text-white" />
-                      <span className="font-display font-extrabold text-[10px] uppercase text-black">
-                        Goal: {chest.topicsNeeded - completedTopicsCount} left
-                      </span>
+                    <img
+                      src={chest.avatarImg}
+                      alt={chest.title}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20 pointer-events-none" />
+
+                    <div className="absolute bottom-1 right-1 z-10">
+                      {isClaimed ? (
+                        <div className="h-5 w-5 rounded-full bg-emerald-500 text-black border border-white grid place-items-center shadow-glow">
+                          <Check className="h-3 w-3 stroke-[3]" />
+                        </div>
+                      ) : (
+                        <div className="h-5 w-5 rounded-full bg-black/80 border border-white/30 text-white grid place-items-center shadow-md">
+                          <Lock className="h-2.5 w-2.5" />
+                        </div>
+                      )}
                     </div>
                   </div>
-                )}
 
-                {/* 3D Animal Avatar Card */}
-                <div
-                  className={`relative w-20 h-20 rounded-2xl flex flex-col items-center justify-center transition-all duration-300 transform group-hover:scale-105 overflow-hidden shrink-0 ${
-                    isClaimed
-                      ? "border-2 border-amber-400 shadow-[0_0_25px_rgba(245,158,11,0.6)]"
-                      : isCurrentTarget
-                      ? "border-2 border-emerald-400 shadow-[0_0_20px_rgba(52,199,89,0.5)] ring-2 ring-emerald-400/40"
-                      : "border border-white/20 opacity-60 grayscale-[40%]"
-                  }`}
-                >
-                  <img
-                    src={chest.avatarImg}
-                    alt={chest.title}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20 pointer-events-none" />
-
-                  <div className="absolute bottom-1 right-1 z-10">
-                    {isClaimed ? (
-                      <div className="h-5 w-5 rounded-full bg-emerald-500 text-black border border-white grid place-items-center shadow-glow">
-                        <Check className="h-3 w-3 stroke-[3]" />
-                      </div>
-                    ) : (
-                      <div className="h-5 w-5 rounded-full bg-black/80 border border-white/30 text-white grid place-items-center shadow-md">
-                        <Lock className="h-2.5 w-2.5" />
-                      </div>
-                    )}
+                  {/* Card Title & Milestone Info */}
+                  <div
+                    className={`bg-[#121815]/90 border border-white/10 rounded-xl p-2.5 max-w-[170px] backdrop-blur-md shadow-md ${
+                      isLeft ? "text-left" : "text-right"
+                    }`}
+                  >
+                    <span className="font-display font-extrabold text-xs text-white uppercase block leading-tight">
+                      {chest.title}
+                    </span>
+                    <span className="font-mono text-[10px] text-amber-400 font-bold block mt-0.5">
+                      {chest.topicsNeeded} Topics
+                    </span>
+                    <span className="font-mono text-[9px] text-neutral-400 block truncate mt-0.5">
+                      {chest.badge}
+                    </span>
                   </div>
                 </div>
 
-                {/* Card Title & Milestone Info */}
-                <div
-                  className={`bg-[#121815]/90 border border-white/10 rounded-xl p-2.5 max-w-[170px] backdrop-blur-md shadow-md ${
-                    isLeft ? "text-left" : "text-right"
-                  }`}
-                >
-                  <span className="font-display font-extrabold text-xs text-white uppercase block leading-tight">
-                    {chest.title}
-                  </span>
-                  <span className="font-mono text-[10px] text-amber-400 font-bold block mt-0.5">
-                    {chest.topicsNeeded} Topics
-                  </span>
-                  <span className="font-mono text-[9px] text-neutral-400 block truncate mt-0.5">
-                    {chest.badge}
-                  </span>
-                </div>
-              </div>
+                {/* EXACT S-CURVE PIPE CONNECTOR BETWEEN CARDS:
+                    - If Left Card (idx 0 or 2): Pipe leaves bottom-center of left card, curves over to top-center of right card.
+                    - If Right Card (idx 1): Pipe leaves bottom-center of right card, curves over to top-center of left card.
+                */}
+                {!isLast && (
+                  <div className="relative w-full h-16 pointer-events-none my-[-6px] z-10">
+                    <svg
+                      className="w-full h-full overflow-visible"
+                      viewBox="0 0 100 60"
+                      preserveAspectRatio="none"
+                    >
+                      <defs>
+                        <filter id={`pipeGlow-${idx}`} x="-20%" y="-20%" width="140%" height="140%">
+                          <feGaussianBlur stdDeviation="1.5" result="blur" />
+                          <feMerge>
+                            <feMergeNode in="blur" />
+                            <feMergeNode in="SourceGraphic" />
+                          </feMerge>
+                        </filter>
+                      </defs>
+
+                      {isLeft ? (
+                        // Pipe curves from LEFT card center (x=13, y=0) to RIGHT card center (x=87, y=60)
+                        <g>
+                          {/* Conduit Base */}
+                          <path
+                            d="M 13 0 C 13 38, 87 22, 87 60"
+                            fill="none"
+                            stroke="rgba(255, 255, 255, 0.15)"
+                            strokeWidth="5"
+                            strokeLinecap="round"
+                          />
+                          {/* Glowing Core */}
+                          <path
+                            d="M 13 0 C 13 38, 87 22, 87 60"
+                            fill="none"
+                            stroke="#F59E0B"
+                            strokeWidth="2.5"
+                            strokeLinecap="round"
+                          />
+                          {/* Electric Laser Flow */}
+                          <path
+                            d="M 13 0 C 13 38, 87 22, 87 60"
+                            fill="none"
+                            stroke="#4ADE80"
+                            strokeWidth="3.2"
+                            strokeLinecap="round"
+                            className="animate-energy-pipe"
+                            filter={`url(#pipeGlow-${idx})`}
+                          />
+                          {/* Connection Joint Rings */}
+                          <circle cx="13" cy="2" r="2.5" fill="#4ADE80" />
+                          <circle cx="87" cy="58" r="2.5" fill="#4ADE80" />
+                        </g>
+                      ) : (
+                        // Pipe curves from RIGHT card center (x=87, y=0) to LEFT card center (x=13, y=60)
+                        <g>
+                          {/* Conduit Base */}
+                          <path
+                            d="M 87 0 C 87 38, 13 22, 13 60"
+                            fill="none"
+                            stroke="rgba(255, 255, 255, 0.15)"
+                            strokeWidth="5"
+                            strokeLinecap="round"
+                          />
+                          {/* Glowing Core */}
+                          <path
+                            d="M 87 0 C 87 38, 13 22, 13 60"
+                            fill="none"
+                            stroke="#F59E0B"
+                            strokeWidth="2.5"
+                            strokeLinecap="round"
+                          />
+                          {/* Electric Laser Flow */}
+                          <path
+                            d="M 87 0 C 87 38, 13 22, 13 60"
+                            fill="none"
+                            stroke="#4ADE80"
+                            strokeWidth="3.2"
+                            strokeLinecap="round"
+                            className="animate-energy-pipe"
+                            filter={`url(#pipeGlow-${idx})`}
+                          />
+                          {/* Connection Joint Rings */}
+                          <circle cx="87" cy="2" r="2.5" fill="#4ADE80" />
+                          <circle cx="13" cy="58" r="2.5" fill="#4ADE80" />
+                        </g>
+                      )}
+                    </svg>
+                  </div>
+                )}
+              </React.Fragment>
             );
           })}
         </div>
