@@ -211,8 +211,8 @@ export function AIRouterPipelines() {
           </div>
         </div>
 
-        {/* RIGHT BRANCHED NODES: The 6 AI Chips (Receiving Power Supply) */}
-        <div className="relative z-20 flex flex-col justify-between h-full pl-3 sm:pl-8 py-1 flex-1 max-w-[210px] sm:max-w-[250px] ml-auto">
+        {/* RIGHT BRANCHED NODES: Pure 3D / Brand Logos Receiving Power Supply */}
+        <div className="relative z-20 flex flex-col justify-between h-full pl-4 sm:pl-10 py-1 flex-1 max-w-[120px] sm:max-w-[140px] ml-auto">
           {AI_NODES.map((node) => {
             const isHovered = activeHoverNode === node.id;
 
@@ -221,17 +221,18 @@ export function AIRouterPipelines() {
                 key={node.id}
                 onMouseEnter={() => setActiveHoverNode(node.id)}
                 onMouseLeave={() => setActiveHoverNode(null)}
-                className={`relative group flex items-center justify-between p-2 sm:p-2.5 rounded-xl border transition-all duration-300 cursor-pointer ${
+                className={`relative group flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-2xl border transition-all duration-300 cursor-pointer ${
                   isHovered
-                    ? "bg-white/[0.12] border-white/60 shadow-xl translate-x-1 scale-[1.03]"
-                    : "bg-[#0b120f]/90 border-white/15 hover:border-white/30 backdrop-blur-md"
+                    ? "bg-white/[0.15] border-white/80 shadow-2xl translate-x-1.5 scale-110"
+                    : "bg-[#0b120f]/90 border-white/20 hover:border-white/40 backdrop-blur-md"
                 }`}
                 style={{
                   borderColor: isHovered ? node.color : undefined,
                   boxShadow: isHovered
-                    ? `0 0 20px ${node.glowColor}, inset 0 0 10px ${node.glowColor}`
-                    : "0 4px 15px rgba(0,0,0,0.6)",
+                    ? `0 0 25px ${node.glowColor}, inset 0 0 10px ${node.glowColor}`
+                    : "0 6px 18px rgba(0,0,0,0.6)",
                 }}
+                title={`${node.name} (${node.sub})`}
               >
                 {/* Power Socket Plug on Left Edge of Chip */}
                 <div
@@ -240,37 +241,15 @@ export function AIRouterPipelines() {
                     backgroundColor: isHovered ? node.color : "#22C55E",
                     borderColor: "#FFFFFF",
                     boxShadow: isHovered
-                      ? `0 0 10px ${node.color}`
+                      ? `0 0 12px ${node.color}`
                       : "0 0 6px rgba(52,199,89,0.8)",
                   }}
                 />
 
-                {/* Left Side: Brand Logo + Name + Context */}
-                <div className="flex items-center gap-2 min-w-0 pl-1">
-                  <div className="h-6 w-6 rounded-lg bg-black/70 border border-white/10 p-0.5 shrink-0 grid place-items-center">
-                    <BrandLogo id={node.id} className="h-full w-full object-contain" />
-                  </div>
-                  <div className="text-left min-w-0">
-                    <span className="font-display font-extrabold text-xs text-white block leading-tight truncate">
-                      {node.name}
-                    </span>
-                    <span className="font-mono text-[9px] text-neutral-400 block truncate leading-none mt-0.5">
-                      {node.sub}
-                    </span>
-                  </div>
+                {/* Pure Brand Logo Only (Centered & Crisp) */}
+                <div className="h-7 w-7 sm:h-8 sm:w-8 grid place-items-center">
+                  <BrandLogo id={node.id} className="h-full w-full object-contain filter drop-shadow" />
                 </div>
-
-                {/* Right Side: High-Precision Badge */}
-                <span
-                  className="font-mono text-[8px] sm:text-[9px] px-1.5 py-0.5 rounded border font-bold shrink-0 ml-1.5"
-                  style={{
-                    color: node.color,
-                    backgroundColor: `${node.color}15`,
-                    borderColor: `${node.color}40`,
-                  }}
-                >
-                  {node.badge}
-                </span>
               </div>
             );
           })}
