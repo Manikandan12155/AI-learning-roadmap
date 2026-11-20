@@ -9,7 +9,16 @@ export function ContentProtection({ currentUser }: ContentProtectionProps) {
   const [isObscured, setIsObscured] = useState(false);
   const [devToolsDetected, setDevToolsDetected] = useState(false);
 
+  // Check if developer restriction is disabled via environment variable
+  const isDevMode = import.meta.env.VITE_DEV_MODE === "true" || import.meta.env.DEV;
+
   useEffect(() => {
+    // If DEV mode is ON in env or local dev, bypass all restrictions so developer can inspect freely
+    if (isDevMode) {
+      console.info("🔓 Developer Restriction is OFF (VITE_DEV_MODE=true). Inspecting allowed.");
+      return;
+    }
+
     // 1. Console Sanitization & Warning Banner
     try {
       console.clear();
