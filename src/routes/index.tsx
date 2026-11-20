@@ -50,6 +50,13 @@ import {
   SettingsGearIcon,
   AboutSparkleIcon,
 } from "@/components/RealtimeNavIcons";
+import {
+  Icon3DLeaderboard,
+  Icon3DCalendar,
+  Icon3DCertificate,
+  Icon3DAbout,
+  Icon3DSettings,
+} from "@/components/Icons3D";
 import { supabase, isSupabaseConfigured } from "@/utils/supabaseClient";
 import { syncUserProgressToCloud, loadUserProgressFromCloud } from "@/utils/progressSync";
 import { AI_PROVIDERS } from "@/data/aiProviders";
@@ -529,65 +536,55 @@ function HomePage() {
         currentUserId={currentUser?.id}
       />
 
-      {/* MOBILE BOTTOM NAVIGATION BAR (Clean Native Mobile App Feel) */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-xl border-t border-border px-2 py-1.5 shadow-[0_-5px_20px_rgba(0,0,0,0.4)]">
-        <div className="flex items-center justify-around gap-1 max-w-md mx-auto">
-          {/* 1. Leaderboard */}
+      {/* MOBILE BOTTOM NAVIGATION BAR (Icon-Only Clean 3D App Bar) */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-background/90 backdrop-blur-2xl border-t border-white/10 px-3 py-2 shadow-[0_-10px_30px_rgba(0,0,0,0.7)]">
+        <div className="flex items-center justify-around gap-2 max-w-sm mx-auto">
+          {/* 1. Leaderboard (3D Trophy) */}
           <button
             onClick={() => setIsLeaderboardModalOpen(true)}
-            className="flex-1 flex flex-col items-center justify-center py-1 px-1 rounded-xl text-muted-foreground hover:text-yellow-400 active:scale-95 transition"
+            className="p-1.5 rounded-2xl hover:bg-white/5 active:scale-90 transition transform"
+            title="Leaderboard Ranks"
           >
-            <div className="h-6 w-6 rounded-lg grid place-items-center">
-              <LeaderboardTrophyIcon className="h-4 w-4" />
-            </div>
-            <span className="text-[10px] font-mono font-medium mt-0.5">Ranks</span>
+            <Icon3DLeaderboard className="w-8 h-8 drop-shadow-[0_2px_8px_rgba(234,179,8,0.35)]" />
           </button>
 
-          {/* 2. Daily Calendar Slot */}
+          {/* 2. Daily Calendar Slot (3D Calendar) */}
           <button
             onClick={() => setIsScheduleModalOpen(true)}
-            className="flex-1 flex flex-col items-center justify-center py-1 px-1 rounded-xl text-muted-foreground hover:text-emerald-400 active:scale-95 transition"
+            className="p-1.5 rounded-2xl hover:bg-white/5 active:scale-90 transition transform"
+            title="Google Calendar Daily Slot"
           >
-            <div className="h-6 w-6 rounded-lg grid place-items-center">
-              <GoogleCalendarIcon className="h-4 w-4" />
-            </div>
-            <span className="text-[10px] font-mono font-medium mt-0.5">Habit</span>
+            <Icon3DCalendar className="w-8 h-8 drop-shadow-[0_2px_8px_rgba(59,130,246,0.35)]" />
           </button>
 
-          {/* 3. Certificate Button (Center Highlight) */}
+          {/* 3. Certificate (Center Highlight 3D Gold Medal) */}
           <button
             onClick={() => setIsCertificateModalOpen(true)}
-            className="flex-1 flex flex-col items-center justify-center py-1 px-1 rounded-xl text-amber-400 active:scale-95 transition"
+            className="p-2 -my-2 rounded-2xl bg-gradient-to-b from-amber-500/20 to-transparent border border-amber-400/40 shadow-[0_0_20px_rgba(245,158,11,0.35)] active:scale-90 transition transform"
+            title="Verifiable Certificates"
           >
-            <div className="h-7 w-7 rounded-xl bg-amber-500/15 border border-amber-500/30 grid place-items-center shadow-[0_0_10px_rgba(245,158,11,0.25)]">
-              <CertificateDiplomaIcon className="h-4 w-4" />
-            </div>
-            <span className="text-[10px] font-mono font-bold mt-0.5 text-amber-300">Cert</span>
+            <Icon3DCertificate className="w-9 h-9" />
           </button>
 
-          {/* 4. About Creator */}
+          {/* 4. About Creator (3D Crystal Sparkle) */}
           <button
             onClick={() => setIsAboutModalOpen(true)}
-            className="flex-1 flex flex-col items-center justify-center py-1 px-1 rounded-xl text-muted-foreground hover:text-primary active:scale-95 transition"
+            className="p-1.5 rounded-2xl hover:bg-white/5 active:scale-90 transition transform"
+            title="About Creator"
           >
-            <div className="h-6 w-6 rounded-lg grid place-items-center">
-              <AboutSparkleIcon className="h-4 w-4" />
-            </div>
-            <span className="text-[10px] font-mono font-medium mt-0.5">About</span>
+            <Icon3DAbout className="w-8 h-8 drop-shadow-[0_2px_8px_rgba(168,85,247,0.35)]" />
           </button>
 
-          {/* 5. Settings Hub */}
+          {/* 5. Settings Hub (3D Chrome Gear) */}
           <button
             onClick={() => setIsSettingsModalOpen(true)}
-            className="flex-1 flex flex-col items-center justify-center py-1 px-1 rounded-xl text-muted-foreground hover:text-primary active:scale-95 transition relative"
+            className="p-1.5 rounded-2xl hover:bg-white/5 active:scale-90 transition transform relative"
+            title="Settings & AI Keys"
           >
-            <div className="h-6 w-6 rounded-lg grid place-items-center relative">
-              <SettingsGearIcon className="h-4 w-4" />
-              {hasApiKey && (
-                <span className="absolute top-1 right-1 h-1.5 w-1.5 rounded-full bg-emerald-400" />
-              )}
-            </div>
-            <span className="text-[10px] font-mono font-medium mt-0.5">Settings</span>
+            <Icon3DSettings className="w-8 h-8 drop-shadow-[0_2px_8px_rgba(14,165,233,0.35)]" />
+            {hasApiKey && (
+              <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-emerald-400 ring-2 ring-black" />
+            )}
           </button>
         </div>
       </nav>
