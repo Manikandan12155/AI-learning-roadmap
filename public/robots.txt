@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://smart-canvas-grow.vercel.app/sitemap.xml
+

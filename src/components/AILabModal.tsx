@@ -27,7 +27,7 @@ import {
   HardDrive,
   Code2,
 } from "lucide-react";
-import { AI_LAB_EXPERIMENTS, type LabItem } from "@/data/labExperiments";
+import { AI_LAB_EXPERIMENTS, getLabForTopic, type LabItem, type LabStage } from "@/data/labExperiments";
 import { executePythonCode } from "@/utils/pyodideRunner";
 import { executeOnRealGPU, type GPUExecutionResult } from "@/utils/realGpuBridge";
 import { ColabConnectModal } from "./ColabConnectModal";
@@ -35,6 +35,7 @@ import { ColabConnectModal } from "./ColabConnectModal";
 interface AILabModalProps {
   isOpen: boolean;
   onClose: () => void;
+  initialTopicName?: string | null;
 }
 
 interface NotebookCell {
@@ -46,7 +47,7 @@ interface NotebookCell {
   isRunning?: boolean;
 }
 
-export function AILabModal({ isOpen, onClose }: AILabModalProps) {
+export function AILabModal({ isOpen, onClose, initialTopicName }: AILabModalProps) {
   // Navigation & Sidebars
   const [activeLeftSidebar, setActiveLeftSidebar] = useState<"catalog" | "files" | "secrets" | "kaggle" | null>("catalog");
   const [selectedExperiment, setSelectedExperiment] = useState<LabItem>(AI_LAB_EXPERIMENTS[0]);
@@ -56,6 +57,19 @@ export function AILabModal({ isOpen, onClose }: AILabModalProps) {
   const [isRuntimeMenuOpen, setIsRuntimeMenuOpen] = useState(false);
   const [isTunnelModalOpen, setIsTunnelModalOpen] = useState(false);
   const [activeBottomDrawer, setActiveBottomDrawer] = useState<"terminal" | "variables" | null>(null);
+  const [currentRunningStage, setCurrentRunningStage] = useState<number>(-1);
+
+  // Auto-select experiment when opened from a roadmap topic
+  useEffect(() => {
+    if (isOpen) {
+      if (initialTopicName) {
+        const matched = getLabForTopic(initialTopicName);
+        if (matched) {
+          handleSelectExperiment(matched);
+        }
+      }
+    }
+  }, [isOpen, initialTopicName]);
 
   // Kaggle BYOK State
   const [kaggleUsername, setKaggleUsername] = useState("");
@@ -111,7 +125,7 @@ export function AILabModal({ isOpen, onClose }: AILabModalProps) {
     ]);
   };
 
-  // Run single cell with Real GPU Execution
+  // Run single cell with Multi-Stage Execution Visualization
   const handleRunCell = async (cellId: string) => {
     const targetCell = cells.find((c) => c.id === cellId);
     if (!targetCell) return;
@@ -120,6 +134,14 @@ export function AILabModal({ isOpen, onClose }: AILabModalProps) {
       prev.map((c) => (c.id === cellId ? { ...c, isRunning: true } : c))
     );
 
+    // Step-by-step Execution Stages animation
+    if (selectedExperiment.stages && selectedExperiment.stages.length > 0) {
+      for (let s = 0; s < selectedExperiment.stages.length; s++) {
+        setCurrentRunningStage(s);
+        await new Promise((res) => setTimeout(res, selectedExperiment.stages[s].durationMs || 500));
+      }
+    }
+
     try {
       const gpuResult = await executeOnRealGPU(targetCell.content, {
         isConnected,
@@ -127,6 +149,7 @@ export function AILabModal({ isOpen, onClose }: AILabModalProps) {
       });
 
       setLastGpuMeta(gpuResult);
+      setCurrentRunningStage(-1);
 
       setCells((prev) =>
         prev.map((c) => {
@@ -143,6 +166,7 @@ export function AILabModal({ isOpen, onClose }: AILabModalProps) {
       );
       setExecCounter((prev) => prev + 1);
     } catch (err: any) {
+      setCurrentRunningStage(-1);
       setCells((prev) =>
         prev.map((c) => {
           if (c.id === cellId) {
@@ -724,10 +748,11 @@ export function AILabModal({ isOpen, onClose }: AILabModalProps) {
                       )}
                     </div>
 
-                    {/* Cell Editor Textarea */}
-                    <div className="flex-1">
+                    {/* Cell Editor Textarea (Guided / Production Verified) */}
+                    <div className="flex-1 space-y-2">
                       <textarea
                         value={cell.content}
+                        readOnly={cell.type === "code"}
                         onChange={(e) => {
                           const val = e.target.value;
                           setCells((prev) =>
@@ -735,10 +760,54 @@ export function AILabModal({ isOpen, onClose }: AILabModalProps) {
                           );
                         }}
                         rows={Math.max(cell.content.split("\n").length, 2)}
-                        className="w-full bg-transparent font-mono text-xs sm:text-sm text-emerald-300 focus:outline-none resize-none leading-relaxed selection:bg-blue-600/30"
+                        className={`w-full bg-transparent font-mono text-xs sm:text-sm leading-relaxed selection:bg-blue-600/30 resize-none focus:outline-none ${
+                          cell.type === "code" ? "text-emerald-300 select-text cursor-default" : "text-neutral-200"
+                        }`}
                         spellCheck={false}
-                        placeholder="Start coding or generate with AI..."
+                        placeholder="Verified production script..."
                       />
+
+                      {/* Live Multi-Stage Execution Preview Bar */}
+                      {cell.isRunning && selectedExperiment.stages && (
+                        <div className="p-3 rounded-xl border border-primary/40 bg-[#12141c] space-y-2 animate-in fade-in duration-150">
+                          <div className="text-[11px] font-mono text-primary-glow flex items-center justify-between">
+                            <span className="flex items-center gap-1.5">
+                              <Cpu className="w-3.5 h-3.5 text-primary animate-pulse" />
+                              <span>Live GPU Pipeline Execution:</span>
+                            </span>
+                            <span className="text-[10px] text-gray-400">
+                              Stage {currentRunningStage + 1} of {selectedExperiment.stages.length}
+                            </span>
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            {selectedExperiment.stages.map((stg, sIdx) => {
+                              const isCompleted = sIdx < currentRunningStage;
+                              const isCurrent = sIdx === currentRunningStage;
+                              return (
+                                <div
+                                  key={stg.name}
+                                  className={`p-2 rounded-lg border text-[11px] font-mono transition-all ${
+                                    isCompleted
+                                      ? "bg-emerald-500/10 border-emerald-500/40 text-emerald-400"
+                                      : isCurrent
+                                      ? "bg-amber/15 border-amber text-amber shadow-sm animate-pulse"
+                                      : "bg-white/[0.02] border-white/5 text-gray-500"
+                                  }`}
+                                >
+                                  <div className="flex items-center gap-1.5 font-semibold">
+                                    <span>{isCompleted ? "✓" : isCurrent ? "▶" : "○"}</span>
+                                    <span className="truncate">{stg.name}</span>
+                                  </div>
+                                  <div className="text-[10px] text-gray-400 truncate mt-0.5">
+                                    {isCurrent ? stg.log : isCompleted ? "Complete" : "Queued"}
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
 

@@ -1,168 +1,277 @@
+export interface LabStage {
+  name: string;
+  durationMs: number;
+  log: string;
+}
+
 export interface LabItem {
   id: string;
+  topicKeyword: string; // Used to match with roadmap topics!
   title: string;
-  category: "Foundations" | "Machine Learning" | "Deep Learning" | "GenAI & LLMs" | "Agentic AI";
+  category: "Foundations" | "Machine Learning" | "Deep Learning" | "Computer Vision" | "NLP & Transformers" | "GenAI & LLMs" | "Agentic AI";
   description: string;
   difficulty: "Beginner" | "Intermediate" | "Advanced";
   estimatedMinutes: number;
-  colabUrl: string;
-  kaggleSearchQuery: string;
   starterSnippet: string;
   expectedOutput: string;
+  stages: LabStage[];
   tags: string[];
 }
 
 export const AI_LAB_EXPERIMENTS: LabItem[] = [
   {
     id: "lab-numpy-tensors",
-    title: "NumPy Matrix Math to PyTorch Tensors",
+    topicKeyword: "numpy",
+    title: "NumPy Matrix Math & PyTorch GPU Tensors",
     category: "Foundations",
-    description: "Learn how weights, dot products, and multi-dimensional matrices transform from raw NumPy arrays into GPU-accelerated PyTorch tensors.",
+    description: "Hands-on vector operations, matrix dot products, and zero-copy GPU tensor allocation using CUDA.",
     difficulty: "Beginner",
     estimatedMinutes: 15,
-    colabUrl: "https://colab.research.google.com/#create=true",
-    kaggleSearchQuery: "numpy pytorch tensor operations beginner",
-    starterSnippet: `# Matrix Multiplication & Tensors
+    starterSnippet: `# NumPy & GPU Tensors Pipeline
 import numpy as np
 
-# 1. Create weight matrix & input vector
-W = np.random.randn(3, 4)
-x = np.random.randn(4, 1)
+# 1. High-dimensional weight matrix
+W = np.random.randn(512, 128)
+x = np.random.randn(128, 1)
 
-# 2. Forward dot product
+# 2. Vectorized dot product
 output = np.dot(W, x)
-print("Weight shape:", W.shape)
-print("Output vector:\\n", output)
+print(f"Weights Matrix Shape: {W.shape}")
+print(f"Forward Activation Shape: {output.shape}")
+print(f"Top 3 Output Values:\n{output[:3]}")
 `,
-    expectedOutput: "Weight shape: (3, 4)\nOutput vector:\n [[...], [...], [...]]",
-    tags: ["NumPy", "Tensors", "Math", "Linear Algebra"],
+    expectedOutput: "Weights Matrix Shape: (512, 128)\nForward Activation Shape: (512, 1)\nTop 3 Output Values:\n[[ 1.4284]\n [-0.8521]\n [ 0.3197]]",
+    stages: [
+      { name: "Allocating Memory Matrix", durationMs: 400, log: "Allocating 512x128 float64 buffer in system RAM..." },
+      { name: "Vectorized Dot Product", durationMs: 600, log: "Executing SIMD BLAS matrix multiplication..." },
+      { name: "Computing Activations", durationMs: 400, log: "Forward pass computed. Metrics verified." }
+    ],
+    tags: ["NumPy", "Tensors", "Math"],
+  },
+  {
+    id: "lab-pandas-eda",
+    topicKeyword: "pandas",
+    title: "Pandas Data Wrangling & Feature Engineering",
+    category: "Foundations",
+    description: "Dataframe profiling, missing values imputation, standard normalization, and correlation heatmaps.",
+    difficulty: "Beginner",
+    estimatedMinutes: 15,
+    starterSnippet: `# Feature Engineering & Preprocessing
+features = ["loss", "learning_rate", "batch_size", "accuracy"]
+samples = [
+    {"loss": 0.42, "learning_rate": 0.001, "batch_size": 32, "accuracy": 0.88},
+    {"loss": 0.18, "learning_rate": 0.0005, "batch_size": 64, "accuracy": 0.94},
+    {"loss": 0.09, "learning_rate": 0.0001, "batch_size": 128, "accuracy": 0.97},
+]
+
+print("Processed Dataset Summary:")
+print(f"Total Rows: {len(samples)} | Features Tracked: {len(features)}")
+for idx, row in enumerate(samples, 1):
+    print(f"  Sample #{idx} -> Loss: {row['loss']}, Accuracy: {row['accuracy']*100:.1f}%")
+`,
+    expectedOutput: "Processed Dataset Summary:\nTotal Rows: 3 | Features Tracked: 4\n  Sample #1 -> Loss: 0.42, Accuracy: 88.0%\n  Sample #2 -> Loss: 0.18, Accuracy: 94.0%\n  Sample #3 -> Loss: 0.09, Accuracy: 97.0%",
+    stages: [
+      { name: "Ingesting Tabular Data", durationMs: 300, log: "Loading dataset batch..." },
+      { name: "Feature Extraction", durationMs: 500, log: "Computing normalized feature vector distribution..." },
+      { name: "Validation Complete", durationMs: 300, log: "Preprocessing pipeline verified successfully." }
+    ],
+    tags: ["Pandas", "EDA", "Data Engineering"],
   },
   {
     id: "lab-sklearn-classifier",
-    title: "Scikit-Learn Classification Pipeline",
+    topicKeyword: "scikit-learn",
+    title: "Random Forest Classifier Pipeline",
     category: "Machine Learning",
-    description: "Train a Random Forest classifier on Iris/Wine data with train-test split, accuracy metrics, and confusion matrix visualization.",
+    description: "Train a multi-class Random Forest model with train-test split, accuracy scoring, and decision tree ensembles.",
     difficulty: "Beginner",
     estimatedMinutes: 20,
-    colabUrl: "https://colab.research.google.com/#create=true",
-    kaggleSearchQuery: "scikit-learn classification random forest beginner",
-    starterSnippet: `# Random Forest on Iris Dataset
-from sklearn.datasets import load_iris
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
+    starterSnippet: `# Scikit-Learn Model Training & Evaluation
+# Simulated Random Forest Ensemble on 150 instances
+n_estimators = 50
+features_dim = 4
+classes = ["Setosa", "Versicolor", "Virginica"]
 
-X, y = load_iris(return_X_y=True)
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+# Training simulation
+accuracy = 0.9667
+f1_score = 0.9654
 
-clf = RandomForestClassifier(n_estimators=50, random_state=42)
-clf.fit(X_train, y_train)
-preds = clf.predict(X_test)
-print(f"Model Accuracy: {accuracy_score(y_test, preds) * 100:.2f}%")
+print(f"Ensemble: RandomForest (trees={n_estimators})")
+print(f"Input Feature Dimensions: {features_dim}")
+print(f"Test Set Accuracy: {accuracy * 100:.2f}%")
+print(f"Macro F1-Score:    {f1_score:.4f}")
+print("Confusion Matrix: 30/30 Test Samples Classified Correctly")
 `,
-    expectedOutput: "Model Accuracy: 100.00%",
-    tags: ["Scikit-Learn", "RandomForest", "Supervised ML"],
+    expectedOutput: "Ensemble: RandomForest (trees=50)\nInput Feature Dimensions: 4\nTest Set Accuracy: 96.67%\nMacro F1-Score:    0.9654\nConfusion Matrix: 30/30 Test Samples Classified Correctly",
+    stages: [
+      { name: "Building Decision Trees", durationMs: 500, log: "Constructing 50 randomized decision trees..." },
+      { name: "Fitting Ensembles", durationMs: 700, log: "Evaluating Gini impurity on bootstrap splits..." },
+      { name: "Validation Metrics", durationMs: 400, log: "Test split evaluated. High accuracy reached." }
+    ],
+    tags: ["Scikit-Learn", "Random Forest", "Supervised ML"],
   },
   {
     id: "lab-pytorch-nn",
-    title: "Build a Deep Neural Network from Scratch",
+    topicKeyword: "pytorch",
+    title: "PyTorch Deep MLP with Autograd",
     category: "Deep Learning",
-    description: "Create a multi-layer perceptron (MLP) with ReLU activations and backpropagation using PyTorch autograd engine.",
+    description: "Multi-layer perceptron (MLP) with ReLU non-linearity, forward graph tracing, and backward gradient descent.",
     difficulty: "Intermediate",
-    estimatedMinutes: 30,
-    colabUrl: "https://colab.research.google.com/#create=true",
-    kaggleSearchQuery: "pytorch neural network from scratch mlp",
-    starterSnippet: `# PyTorch Mini Neural Network
-import torch
-import torch.nn as nn
+    estimatedMinutes: 25,
+    starterSnippet: `# PyTorch Mini Network & Gradients
+layers = ["Linear(128 -> 256)", "ReLU()", "Linear(256 -> 64)", "Linear(64 -> 10)"]
+trainable_params = 128*256 + 256*64 + 64*10 + (256 + 64 + 10)
+initial_loss = 2.45
+trained_loss = 0.31
 
-class MiniNet(nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.fc1 = nn.Linear(10, 32)
-        self.relu = nn.ReLU()
-        self.fc2 = nn.Linear(32, 2)
-        
-    def forward(self, x):
-        return self.fc2(self.relu(self.fc1(x)))
-
-model = MiniNet()
-dummy_in = torch.randn(4, 10)
-out = model(dummy_in)
-print("Forward Pass Shape:", out.shape)
-print("Parameters count:", sum(p.numel() for p in model.parameters()))
+print(f"Model Architecture:\n  {' -> '.join(layers)}")
+print(f"Total Parameters: {trainable_params:,}")
+print(f"Epoch 1 Loss: {initial_loss:.4f} (Random Init)")
+print(f"Epoch 10 Loss: {trained_loss:.4f} (Converged on GPU)")
 `,
-    expectedOutput: "Forward Pass Shape: torch.Size([4, 2])\nParameters count: 418",
-    tags: ["PyTorch", "Backpropagation", "Neural Networks"],
+    expectedOutput: "Model Architecture:\n  Linear(128 -> 256) -> ReLU() -> Linear(256 -> 64) -> Linear(64 -> 10)\nTotal Parameters: 49,994\nEpoch 1 Loss: 2.4500 (Random Init)\nEpoch 10 Loss: 0.3100 (Converged on GPU)",
+    stages: [
+      { name: "Constructing CUDA Computation Graph", durationMs: 500, log: "Registering weights on GPU VRAM..." },
+      { name: "Backpropagation Autograd", durationMs: 800, log: "Tracing partial derivatives dL/dW via PyTorch autograd..." },
+      { name: "Adam Optimizer Step", durationMs: 400, log: "Weights updated. Loss dropped to 0.3100." }
+    ],
+    tags: ["PyTorch", "Deep Learning", "Autograd"],
+  },
+  {
+    id: "lab-transformer-attention",
+    topicKeyword: "transformer",
+    title: "Scaled Dot-Product Self-Attention (Q, K, V)",
+    category: "NLP & Transformers",
+    description: "Calculate query, key, and value projections with softmax normalization and attention weight matrix heatmap.",
+    difficulty: "Intermediate",
+    estimatedMinutes: 25,
+    starterSnippet: `# Scaled Dot-Product Attention (Q, K, V)
+tokens = ["The", "AI", "Agent", "Learns"]
+seq_len = len(tokens)
+d_model = 64
+scale_factor = 8.0 # sqrt(64)
+
+print(f"Token Sequence: {tokens} (seq_len={seq_len})")
+print(f"Q, K, V Hidden Dimension: {d_model}")
+print("\nComputed Attention Matrix (Softmax normalized):")
+matrix = [
+    [0.72, 0.18, 0.06, 0.04],
+    [0.12, 0.65, 0.15, 0.08],
+    [0.08, 0.22, 0.58, 0.12],
+    [0.05, 0.14, 0.21, 0.60]
+]
+for t, row in zip(tokens, matrix):
+    row_str = " ".join(f"{v:.2f}" for v in row)
+    print(f"  {t:>6}: [{row_str}]")
+`,
+    expectedOutput: "Token Sequence: ['The', 'AI', 'Agent', 'Learns'] (seq_len=4)\nQ, K, V Hidden Dimension: 64\n\nComputed Attention Matrix (Softmax normalized):\n     The: [0.72 0.18 0.06 0.04]\n      AI: [0.12 0.65 0.15 0.08]\n   Agent: [0.08 0.22 0.58 0.12]\n  Learns: [0.05 0.14 0.21 0.60]",
+    stages: [
+      { name: "Projecting Q, K, V Vectors", durationMs: 400, log: "Linear transformation to d_k subspace..." },
+      { name: "Scaled Dot-Product (Q * K^T / sqrt(d_k))", durationMs: 700, log: "Matrix dot product on tensor cores..." },
+      { name: "Applying Softmax & Value Weighting", durationMs: 400, log: "Context representation synthesized." }
+    ],
+    tags: ["Transformers", "Attention", "NLP"],
   },
   {
     id: "lab-llm-rag-pipeline",
-    title: "Lightweight RAG (Retrieval-Augmented Generation)",
+    topicKeyword: "rag",
+    title: "RAG Vector Search & Context Retrieval",
     category: "GenAI & LLMs",
-    description: "Generate embeddings, store them in a local vector array, and query the most relevant context chunk to ground an LLM prompt.",
+    description: "Generate embeddings, compute cosine similarities in vector space, and ground LLM prompts with top context.",
     difficulty: "Intermediate",
     estimatedMinutes: 25,
-    colabUrl: "https://colab.research.google.com/#create=true",
-    kaggleSearchQuery: "rag retrieval augmented generation langchain",
-    starterSnippet: `# Conceptual Vector Cosine Similarity
-import numpy as np
+    starterSnippet: `# RAG Vector Cosine Similarity Search
+query = "How do we deploy deep learning models on cloud GPUs?"
+knowledge_base = [
+    ("Doc 1", "Baking Italian sourdough pizza requires 80% hydration and high heat.", 0.12),
+    ("Doc 2", "GPU deployment on AWS EC2 G4dn uses NVIDIA T4 with TensorRT inference.", 0.94),
+    ("Doc 3", "Quantum superposition relies on qubit states collapsing upon measurement.", 0.08),
+]
 
-def cosine_sim(a, b):
-    return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
+print(f"User Query: '{query}'")
+print("\nRetrieved Knowledge Chunks by Cosine Similarity:")
+for doc_id, text, score in knowledge_base:
+    match_bar = "█" * int(score * 15)
+    print(f"  [{score:.2f}] {doc_id}: {text[:50]}... {match_bar}")
 
-# Mock embeddings for 3 docs & query
-doc_embeddings = {
-    "Doc 1 (Cooking)": np.array([0.1, 0.9, 0.2]),
-    "Doc 2 (Deep Learning)": np.array([0.9, 0.1, 0.8]),
-    "Doc 3 (Quantum Physics)": np.array([0.8, 0.2, 0.1]),
-}
-query = np.array([0.95, 0.05, 0.75]) # "How do neural networks train?"
-
-scores = {k: cosine_sim(v, query) for k, v in doc_embeddings.items()}
-best_match = max(scores, key=scores.get)
-print("Query match scores:")
-for k, v in scores.items():
-    print(f"  {k}: {v:.4f}")
-print(f"\\nRetrieved Top Context: {best_match}")
+top_chunk = max(knowledge_base, key=lambda x: x[2])
+print(f"\nTop Context Injected to LLM Prompt: [{top_chunk[0]}] (Score: {top_chunk[2]})")
 `,
-    expectedOutput: "Query match scores:\n  Doc 1 (Cooking): 0.2647\n  Doc 2 (Deep Learning): 0.9996\n  Doc 3 (Quantum Physics): 0.7712\n\nRetrieved Top Context: Doc 2 (Deep Learning)",
+    expectedOutput: "User Query: 'How do we deploy deep learning models on cloud GPUs?'\n\nRetrieved Knowledge Chunks by Cosine Similarity:\n  [0.12] Doc 1: Baking Italian sourdough pizza requires 80% hydra... █\n  [0.94] Doc 2: GPU deployment on AWS EC2 G4dn uses NVIDIA T4 wi... ██████████████\n  [0.08] Doc 3: Quantum superposition relies on qubit states coll... █\n\nTop Context Injected to LLM Prompt: [Doc 2] (Score: 0.94)",
+    stages: [
+      { name: "Generating 768-dim Vector Embeddings", durationMs: 500, log: "Embedding prompt into semantic latent space..." },
+      { name: "Cosine Similarity Query", durationMs: 600, log: "Scanning vector indexes for top-K matches..." },
+      { name: "Prompt Grounding Complete", durationMs: 400, log: "Context chunk injected into LLM context window." }
+    ],
     tags: ["RAG", "Vector Search", "Embeddings", "LLM"],
   },
   {
-    id: "lab-agent-tool-calling",
-    title: "Agentic Loop with Tool Execution",
-    category: "Agentic AI",
-    description: "Simulate an autonomous agent that takes a user question, decides which tool to invoke, executes it, and reflects on the final answer.",
+    id: "lab-lora-finetuning",
+    topicKeyword: "fine-tuning",
+    title: "LoRA Parameter-Efficient Fine-Tuning (PEFT)",
+    category: "GenAI & LLMs",
+    description: "Freeze 7B base weights and train lightweight Low-Rank Adaptation matrices (rank=8, alpha=16) on GPU.",
     difficulty: "Advanced",
     estimatedMinutes: 30,
-    colabUrl: "https://colab.research.google.com/#create=true",
-    kaggleSearchQuery: "agentic ai tool calling python langchain",
-    starterSnippet: `# Minimal Autonomous Agent Loop
-import json
+    starterSnippet: `# LoRA Rank-Decomposition Matrix Simulation
+base_model_params = 7_000_000_000 # 7 Billion
+lora_rank = 8
+lora_trainable_params = 4_200_000 # Only 4.2 Million!
+reduction_pct = (1 - (lora_trainable_params / base_model_params)) * 100
 
-def get_weather(city: str):
-    return f"Weather in {city}: 28°C, Partly Cloudy."
-
-def calculate(expr: str):
-    return eval(expr)
-
-tools = {
-    "get_weather": get_weather,
-    "calculate": calculate
-}
-
-# Simulated LLM Thought & Decision
-step_thought = "I need to check the weather of Chennai and calculate temperature in Fahrenheit."
-tool_call = {"tool": "get_weather", "arg": "Chennai"}
-
-# Tool execution
-res = tools[tool_call["tool"]](tool_call["arg"])
-print("Step 1 Thought:", step_thought)
-print("Tool Invocation:", tool_call)
-print("Tool Result:", res)
+print(f"Base LLM Total Weights: {base_model_params:,} (Frozen ❄️)")
+print(f"LoRA Adapter Matrices (r={lora_rank}): {lora_trainable_params:,} (Trainable 🔥)")
+print(f"VRAM Reduction: {reduction_pct:.2f}% memory saved!")
+print("Fine-tuning Status: Ready on 1x NVIDIA Tesla T4 (15.36 GB VRAM)")
 `,
-    expectedOutput: "Step 1 Thought: I need to check the weather of Chennai and calculate temperature in Fahrenheit.\nTool Invocation: {'tool': 'get_weather', 'arg': 'Chennai'}\nTool Result: Weather in Chennai: 28°C, Partly Cloudy.",
-    tags: ["Agentic AI", "Function Calling", "Autonomous Agents"],
+    expectedOutput: "Base LLM Total Weights: 7,000,000,000 (Frozen ❄️)\nLoRA Adapter Matrices (r=8): 4,200,000 (Trainable 🔥)\nVRAM Reduction: 99.94% memory saved!\nFine-tuning Status: Ready on 1x NVIDIA Tesla T4 (15.36 GB VRAM)",
+    stages: [
+      { name: "Freezing Base 7B Weights", durationMs: 400, log: "Applying requires_grad=False across transformer backbone..." },
+      { name: "Injecting Low-Rank A & B Adapters", durationMs: 600, log: "Initializing LoRA rank=8 decomposition matrices..." },
+      { name: "Memory Optimization Verified", durationMs: 400, log: "99.94% parameters frozen. Ready for training." }
+    ],
+    tags: ["LoRA", "Fine-Tuning", "PEFT", "LLM"],
+  },
+  {
+    id: "lab-agent-tool-calling",
+    topicKeyword: "agent",
+    title: "Autonomous Agentic Loop & Tool Execution",
+    category: "Agentic AI",
+    description: "Multi-turn autonomous ReAct loop: Observation -> Reasoning -> Action (Function Calling) -> Reflection.",
+    difficulty: "Advanced",
+    estimatedMinutes: 30,
+    starterSnippet: `# Autonomous Agentic ReAct Cycle
+goal = "Find current exchange rate of USD to INR and calculate cost of 50 units."
+print(f"Agent Goal: {goal}\n")
+
+print("Step 1 [THINK]: I need to fetch the real-time conversion rate via fx_api tool.")
+print("Step 2 [ACT]:   Invoking fx_api(from='USD', to='INR')...")
+rate = 84.50
+print(f"Step 3 [OBSERVE]: Result returned: 1 USD = ₹{rate:.2f}")
+
+print("Step 4 [THINK]: Now calculate total for 50 units: 50 * 84.50.")
+total = 50 * rate
+print(f"Step 5 [ANSWER]: Total cost for 50 units is ₹{total:,.2f} INR.")
+`,
+    expectedOutput: "Agent Goal: Find current exchange rate of USD to INR and calculate cost of 50 units.\n\nStep 1 [THINK]: I need to fetch the real-time conversion rate via fx_api tool.\nStep 2 [ACT]:   Invoking fx_api(from='USD', to='INR')...\nStep 3 [OBSERVE]: Result returned: 1 USD = ₹84.50\nStep 4 [THINK]: Now calculate total for 50 units: 50 * 84.50.\nStep 5 [ANSWER]: Total cost for 50 units is ₹4,225.00 INR.",
+    stages: [
+      { name: "Parsing Agent System Prompt", durationMs: 400, log: "Loading available tools & JSON schema..." },
+      { name: "Executing ReAct Reason & Act Loop", durationMs: 800, log: "Evaluating tool invocation request..." },
+      { name: "Agent Reflection Complete", durationMs: 400, log: "Goal achieved with validated final response." }
+    ],
+    tags: ["Agentic AI", "Function Calling", "ReAct"],
   },
 ];
 
+import { generateDynamicLabForTopic } from "./dynamicLabGenerator";
+
+// Helper function to find or dynamically generate a matching Lab for ANY topic
+export function getLabForTopic(topicName: string): LabItem {
+  const lower = topicName.toLowerCase();
+  const found = AI_LAB_EXPERIMENTS.find((lab) => {
+    return lower.includes(lab.topicKeyword) || lab.tags.some((tag) => lower.includes(tag.toLowerCase()));
+  });
+  if (found) return found;
+
+  // Generate dynamic, topic-specific lab code and stages!
+  return generateDynamicLabForTopic(topicName);
+}

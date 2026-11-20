@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   KeyRound,
   Sparkles,
@@ -16,6 +16,13 @@ import {
   Layers,
   Network,
   Headphones,
+  Compass,
+  MessageSquare,
+  Send,
+  Youtube,
+  Globe,
+  Github,
+  FileText,
 } from "lucide-react";
 import { MarkdownRenderer } from "./MarkdownRenderer";
 import { QuizView, type QuizQuestion } from "./notebook/QuizView";
@@ -24,6 +31,7 @@ import { MindMapView } from "./notebook/MindMapView";
 import { AudioOverviewView } from "./notebook/AudioOverviewView";
 import { AI_PROVIDERS, type AIProviderConfig } from "@/data/aiProviders";
 import { requestAICompletion } from "@/utils/aiClient";
+import { getCuratedResourcesForTopic, type CuratedResource } from "@/data/curatedResources";
 
 interface AIExplainPanelProps {
   isOpen: boolean;
@@ -37,7 +45,12 @@ interface AIExplainPanelProps {
   } | null;
 }
 
-type StudioTab = "overview" | "quiz" | "flashcards" | "mindmap" | "audio";
+type StudioTab = "overview" | "resources" | "chat" | "quiz" | "flashcards" | "mindmap" | "audio";
+
+interface ChatMessage {
+  role: "user" | "assistant";
+  content: string;
+}
 
 export function AIExplainPanel({
   isOpen,
@@ -61,6 +74,10 @@ export function AIExplainPanel({
   const [flashcardsData, setFlashcardsData] = useState<FlashcardItem[]>([]);
   const [mindmapData, setMindmapData] = useState<string>("");
   const [audioScriptData, setAudioScriptData] = useState<string>("");
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [doubtInput, setDoubtInput] = useState<string>("");
+  const [isAnsweringDoubt, setIsAnsweringDoubt] = useState<boolean>(false);
+  const chatEndRef = useRef<HTMLDivElement | null>(null);
 
   const currentProvider: AIProviderConfig =
     AI_PROVIDERS.find((p) => p.id === selectedProviderId) || AI_PROVIDERS[0];
@@ -103,8 +120,45 @@ export function AIExplainPanel({
     setFlashcardsData([]);
     setMindmapData("");
     setAudioScriptData("");
+    setChatMessages([]);
+    setDoubtInput("");
     setActiveTab("overview");
   }, [topicContext?.topicName]);
+
+  const handleSendDoubt = async () => {
+    if (!doubtInput.trim() || !topicContext) return;
+    if (!activeKey) {
+      if (onOpenKeySettings) onOpenKeySettings();
+      return;
+    }
+
+    const userQ = doubtInput.trim();
+    setDoubtInput("");
+    const updatedMsgs: ChatMessage[] = [...chatMessages, { role: "user", content: userQ }];
+    setChatMessages(updatedMsgs);
+    setIsAnsweringDoubt(true);
+
+    const prompt = `Context: Topic "${topicContext.topicName}" (Level: L${topicContext.levelNumber} - ${topicContext.levelName}, Section: ${topicContext.sectionName}).
+You are an expert AI & ML Tutor. A student has asked this specific doubt:
+"${userQ}"
+
+Provide a crisp, intuitive, and practical explanation. If applicable, give a tiny code example or analogy. Keep it engaging, direct, and under 250 words.`;
+
+    try {
+      const reply = await requestAICompletion({
+        providerId: selectedProviderId,
+        apiKey: activeKey,
+        model: selectedModel,
+        prompt,
+      });
+      setChatMessages([...updatedMsgs, { role: "assistant", content: reply }]);
+    } catch (e: any) {
+      setChatMessages([...updatedMsgs, { role: "assistant", content: `⚠️ Error answering doubt: ${e.message || "Failed to reach AI provider"}` }]);
+    } finally {
+      setIsAnsweringDoubt(false);
+      setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
+    }
+  };
 
   const handleProviderChange = (provId: string) => {
     setSelectedProviderId(provId);
@@ -332,6 +386,26 @@ Host 2: ...`;
             <BookOpen className="h-3.5 w-3.5" /> Overview
           </button>
           <button
+            onClick={() => handleTabChange("resources")}
+            className={`px-3 py-1.5 rounded-lg border font-medium inline-flex items-center gap-1.5 transition shrink-0 ${
+              activeTab === "resources"
+                ? "bg-primary text-primary-foreground border-primary shadow-glow font-semibold"
+                : "bg-surface-2/60 border-border text-muted-foreground hover:text-foreground hover:bg-surface-2"
+            }`}
+          >
+            <Compass className="h-3.5 w-3.5" /> Curated Hub
+          </button>
+          <button
+            onClick={() => handleTabChange("chat")}
+            className={`px-3 py-1.5 rounded-lg border font-medium inline-flex items-center gap-1.5 transition shrink-0 ${
+              activeTab === "chat"
+                ? "bg-primary text-primary-foreground border-primary shadow-glow font-semibold"
+                : "bg-surface-2/60 border-border text-muted-foreground hover:text-foreground hover:bg-surface-2"
+            }`}
+          >
+            <MessageSquare className="h-3.5 w-3.5" /> Ask Doubt
+          </button>
+          <button
             onClick={() => handleTabChange("quiz")}
             className={`px-3 py-1.5 rounded-lg border font-medium inline-flex items-center gap-1.5 transition shrink-0 ${
               activeTab === "quiz"
@@ -436,6 +510,144 @@ Host 2: ...`;
           <div>
             {activeTab === "overview" && explanation && (
               <MarkdownRenderer content={explanation} />
+            )}
+
+            {/* CURATED HUB (YouTube, Wikipedia, GitHub, ArXiv) */}
+            {activeTab === "resources" && topicContext && (
+              <div className="space-y-4">
+                <div className="p-3.5 rounded-xl border border-primary/30 bg-primary/5 text-xs text-muted-foreground flex items-center justify-between">
+                  <span>High-yield learning sources curated for <strong>{topicContext.topicName}</strong></span>
+                  <Compass className="h-4 w-4 text-primary shrink-0" />
+                </div>
+
+                <div className="grid grid-cols-1 gap-2.5">
+                  {getCuratedResourcesForTopic(topicContext.topicName).map((res, i) => (
+                    <a
+                      key={i}
+                      href={res.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="group p-3.5 rounded-xl border border-border bg-surface-2/60 hover:bg-surface hover:border-primary/50 transition-all flex items-start gap-3 shadow-xs"
+                    >
+                      <div className="h-9 w-9 rounded-lg bg-surface border border-border/80 flex items-center justify-center shrink-0 group-hover:scale-105 transition">
+                        {res.type === "youtube" && <Youtube className="h-5 w-5 text-rose-500" />}
+                        {res.type === "wikipedia" && <Globe className="h-5 w-5 text-blue-400" />}
+                        {res.type === "github" && <Github className="h-5 w-5 text-emerald-400" />}
+                        {res.type === "paper" && <FileText className="h-5 w-5 text-amber-400" />}
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-1">
+                          <span className="text-[10px] font-mono uppercase tracking-wider text-primary font-semibold">
+                            {res.channelOrSource}
+                          </span>
+                          <ExternalLink className="h-3 w-3 text-muted-foreground group-hover:text-primary transition" />
+                        </div>
+                        <h4 className="text-xs font-semibold text-foreground mt-0.5 group-hover:text-primary transition">
+                          {res.title}
+                        </h4>
+                        <p className="text-[11px] text-muted-foreground mt-1 line-clamp-2 leading-relaxed">
+                          {res.description}
+                        </p>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* INTERACTIVE DOUBT CHAT */}
+            {activeTab === "chat" && topicContext && (
+              <div className="flex flex-col h-[520px]">
+                <div className="flex-1 overflow-y-auto space-y-3 pr-1">
+                  {chatMessages.length === 0 && (
+                    <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-3 text-muted-foreground">
+                      <div className="h-10 w-10 rounded-full bg-primary/10 border border-primary/30 grid place-items-center text-primary">
+                        <MessageSquare className="h-5 w-5" />
+                      </div>
+                      <div className="space-y-1">
+                        <h4 className="text-xs font-semibold text-foreground">
+                          Ask Any Doubt about {topicContext.topicName}
+                        </h4>
+                        <p className="text-[11px] max-w-xs leading-relaxed">
+                          Stuck on an algorithm, formula, or Python implementation? Ask below for an instant breakdown!
+                        </p>
+                      </div>
+                      <div className="pt-2 flex flex-wrap gap-1.5 justify-center">
+                        <button
+                          onClick={() => setDoubtInput(`Why do we use ${topicContext.topicName} instead of alternatives?`)}
+                          className="text-[10px] px-2.5 py-1 rounded-full border border-border bg-surface hover:border-primary/40 text-foreground transition"
+                        >
+                          Why use this?
+                        </button>
+                        <button
+                          onClick={() => setDoubtInput(`Show me a real-world interview question on ${topicContext.topicName}.`)}
+                          className="text-[10px] px-2.5 py-1 rounded-full border border-border bg-surface hover:border-primary/40 text-foreground transition"
+                        >
+                          Interview question?
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {chatMessages.map((msg, idx) => (
+                    <div
+                      key={idx}
+                      className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                    >
+                      <div
+                        className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-xs ${
+                          msg.role === "user"
+                            ? "bg-primary text-primary-foreground font-medium rounded-br-none"
+                            : "bg-surface-2 border border-border text-foreground rounded-bl-none shadow-sm"
+                        }`}
+                      >
+                        {msg.role === "assistant" ? (
+                          <MarkdownRenderer content={msg.content} />
+                        ) : (
+                          <span>{msg.content}</span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+
+                  {isAnsweringDoubt && (
+                    <div className="flex justify-start">
+                      <div className="bg-surface-2 border border-border rounded-2xl rounded-bl-none px-3.5 py-2 text-xs flex items-center gap-2 text-muted-foreground">
+                        <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
+                        <span>AI Tutor is thinking...</span>
+                      </div>
+                    </div>
+                  )}
+                  <div ref={chatEndRef} />
+                </div>
+
+                {/* Doubt Input Box */}
+                <div className="pt-3 border-t border-border mt-2">
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      handleSendDoubt();
+                    }}
+                    className="flex items-center gap-2"
+                  >
+                    <input
+                      type="text"
+                      value={doubtInput}
+                      onChange={(e) => setDoubtInput(e.target.value)}
+                      placeholder={`Type doubt about ${topicContext.topicName}...`}
+                      className="flex-1 h-9 px-3.5 rounded-xl bg-surface border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition"
+                    />
+                    <button
+                      type="submit"
+                      disabled={isAnsweringDoubt || !doubtInput.trim()}
+                      className="h-9 w-9 rounded-xl bg-primary text-primary-foreground grid place-items-center hover:opacity-90 disabled:opacity-50 transition shadow-glow shrink-0"
+                    >
+                      <Send className="h-3.5 w-3.5" />
+                    </button>
+                  </form>
+                </div>
+              </div>
             )}
 
             {activeTab === "quiz" && quizData.length > 0 && (

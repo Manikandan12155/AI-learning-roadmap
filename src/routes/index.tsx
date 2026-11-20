@@ -31,8 +31,12 @@ import {
   Settings,
   Award,
   Calendar,
+  FlaskConical,
+  Youtube,
+  Globe,
 } from "lucide-react";
 import { ROADMAP, TOTAL_TOPICS, type Level } from "@/data/roadmap";
+import { getLabForTopic } from "@/data/labExperiments";
 import { AIExplainPanel } from "@/components/AIExplainPanel";
 import { AIKeysModal } from "@/components/AIKeysModal";
 import { AboutModal } from "@/components/AboutModal";
@@ -44,6 +48,8 @@ import { CertificateModal } from "@/components/CertificateModal";
 import { BattlePassJourney } from "@/components/BattlePassJourney";
 import { StudyScheduleModal } from "@/components/StudyScheduleModal";
 import { LeaderboardModal } from "@/components/LeaderboardModal";
+import { LegalModal, type LegalDocType } from "@/components/LegalModal";
+import { FeedbackModal } from "@/components/FeedbackModal";
 import {
   GoogleCalendarIcon,
   CertificateDiplomaIcon,
@@ -104,7 +110,7 @@ const ICONS = {
   book: BookOpen,
 } as const;
 
-type Filter = "all" | "pending" | "done" | "new" | "abbrev";
+type Filter = "all" | "pending" | "done" | "new" | "lab" | "abbrev";
 
 const keyFor = (lIdx: number, section: string, topic: string) => `${lIdx}||${section}||${topic}`;
 
@@ -118,9 +124,13 @@ function HomePage() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [isAILabModalOpen, setIsAILabModalOpen] = useState(false);
+  const [activeLabTopic, setActiveLabTopic] = useState<string | null>(null);
   const [isCertificateModalOpen, setIsCertificateModalOpen] = useState(false);
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [isLeaderboardModalOpen, setIsLeaderboardModalOpen] = useState(false);
+  const [isLegalModalOpen, setIsLegalModalOpen] = useState(false);
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
+  const [legalDocType, setLegalDocType] = useState<LegalDocType>("terms");
   const [journeyTrack, setJourneyTrack] = useState<boolean>(true);
   const [authReason, setAuthReason] = useState<string | undefined>(undefined);
   const [currentUser, setCurrentUser] = useState<any>(null);
@@ -350,6 +360,10 @@ function HomePage() {
         onToggleTheme={toggleTheme}
         onOpenKeyModal={() => setIsKeyModalOpen(true)}
         onOpenAboutModal={() => setIsAboutModalOpen(true)}
+        onOpenAILabModal={() => {
+          setActiveLabTopic(null);
+          setIsAILabModalOpen(true);
+        }}
         onOpenAuthModal={() => {
           setAuthReason("Sign in with Google to sync your roadmap progress and unlock full AI study features.");
           setIsAuthModalOpen(true);
@@ -389,6 +403,9 @@ function HomePage() {
           <ol className="flex-1 w-full min-w-0 space-y-4">
             {ROADMAP.filter((lvl) => {
               if (filter === "abbrev") return lvl.short === "Technical Abbreviations";
+              if (filter === "lab") {
+                return lvl.sections.some((s) => s.topics.some((tp) => !!getLabForTopic(tp.name)));
+              }
               return true;
             }).map((lvl, lIdx) => {
               const isLocked = !currentUser && lIdx > 1; // Level 0 & Level 1 are free preview. Level 2+ are locked without login.
@@ -420,7 +437,7 @@ function HomePage() {
                   isLocked={isLocked}
                   isPrereqLocked={isPrereqLocked}
                   prereqLevelName={prereqLevelName}
-                  open={filter === "abbrev" ? true : !!openLevels[lIdx]}
+                  open={filter === "abbrev" || filter === "lab" ? true : !!openLevels[lIdx]}
                   setOpen={(v) => {
                     if (isLocked) {
                       setAuthReason(`Sign in with Google to unlock Level ${lIdx.toString().padStart(2, "0")}: ${lvl.short} and advanced topics.`);
@@ -457,6 +474,10 @@ function HomePage() {
                       sectionName,
                       topicName,
                     });
+                  }}
+                  onOpenLab={(topicName) => {
+                    setActiveLabTopic(topicName);
+                    setIsAILabModalOpen(true);
                   }}
                   filter={filter}
                   query={query.trim().toLowerCase()}
@@ -521,7 +542,11 @@ function HomePage() {
 
       <AILabModal
         isOpen={isAILabModalOpen}
-        onClose={() => setIsAILabModalOpen(false)}
+        onClose={() => {
+          setIsAILabModalOpen(false);
+          setActiveLabTopic(null);
+        }}
+        initialTopicName={activeLabTopic}
       />
 
       <CertificateModal
@@ -542,6 +567,18 @@ function HomePage() {
         isOpen={isLeaderboardModalOpen}
         onClose={() => setIsLeaderboardModalOpen(false)}
         currentUserId={currentUser?.id}
+      />
+
+      <LegalModal
+        isOpen={isLegalModalOpen}
+        initialDoc={legalDocType}
+        onClose={() => setIsLegalModalOpen(false)}
+      />
+
+      <FeedbackModal
+        isOpen={isFeedbackModalOpen}
+        onClose={() => setIsFeedbackModalOpen(false)}
+        currentUser={currentUser}
       />
 
       {/* MOBILE BOTTOM NAVIGATION BAR (Icon-Only Clean 3D App Bar - 4 Essential Items) */}
@@ -588,7 +625,14 @@ function HomePage() {
         </div>
       </nav>
 
-      <Footer />
+      <Footer
+        onOpenLegal={(type) => {
+          setLegalDocType(type);
+          setIsLegalModalOpen(true);
+        }}
+        onOpenAbout={() => setIsAboutModalOpen(true)}
+        onOpenFeedback={() => setIsFeedbackModalOpen(true)}
+      />
     </div>
   );
 }
@@ -601,6 +645,7 @@ function Header({
   onToggleTheme,
   onOpenKeyModal,
   onOpenAboutModal,
+  onOpenAILabModal,
   currentUser,
   onOpenAuthModal,
   onOpenSettingsModal,
@@ -617,6 +662,7 @@ function Header({
   onToggleTheme: () => void;
   onOpenKeyModal: () => void;
   onOpenAboutModal: () => void;
+  onOpenAILabModal: () => void;
   onOpenAuthModal: () => void;
   onOpenSettingsModal: () => void;
   onOpenCertificateModal: () => void;
@@ -675,14 +721,14 @@ function Header({
 
           {/* Desktop Only Buttons (Hidden on Mobile, moved to Mobile Bottom Bar) */}
           <div className="hidden md:flex items-center gap-2">
-            {/* About Creator Button */}
+            {/* AI Lab Terminal Launcher Button */}
             <button
-              onClick={onOpenAboutModal}
-              className="h-8 px-2.5 sm:px-3 rounded-full text-xs font-mono inline-flex items-center gap-1.5 border border-border bg-surface text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all shadow-sm"
-              title="About Creator"
+              onClick={onOpenAILabModal}
+              className="h-8 px-2.5 sm:px-3 rounded-full text-xs font-mono inline-flex items-center gap-1.5 border border-primary/40 bg-primary/10 hover:bg-primary/20 text-primary-glow transition-all shadow-[0_0_12px_rgba(52,199,89,0.25)]"
+              title="Launch AI & GPU Experimentation Lab"
             >
-              <AboutSparkleIcon className="h-3.5 w-3.5" />
-              <span>About</span>
+              <FlaskConical className="h-3.5 w-3.5 text-primary" />
+              <span>AI Lab</span>
             </button>
 
             {/* Leaderboard Button */}
@@ -1003,10 +1049,11 @@ function Controls({
   setQuery: (q: string) => void;
   onReset: () => void;
 }) {
-  const filters: { id: Filter; label: string }[] = [
+  const filters: { id: Filter; label: string; icon?: React.ReactNode }[] = [
     { id: "all", label: "All" },
     { id: "pending", label: "Pending" },
     { id: "done", label: "Done" },
+    { id: "lab", label: "🧪 AI Lab" },
     { id: "new", label: "New" },
     { id: "abbrev", label: "Abbreviations" },
   ];
@@ -1060,6 +1107,7 @@ function LevelCard({
   onToggle,
   onMarkAll,
   onAskAi,
+  onOpenLab,
   filter,
   query,
   isLocked = false,
@@ -1074,6 +1122,7 @@ function LevelCard({
   onToggle: (k: string) => void;
   onMarkAll: () => void;
   onAskAi: (topicName: string, sectionName: string) => void;
+  onOpenLab?: (topicName: string) => void;
   filter: Filter;
   query: string;
   isLocked?: boolean;
@@ -1220,6 +1269,7 @@ Please cover:
               if (filter === "done" && !isDone) return false;
               if (filter === "pending" && isDone) return false;
               if (filter === "new" && !tp.isNew) return false;
+              if (filter === "lab" && !getLabForTopic(tp.name)) return false;
               if (query && !tp.name.toLowerCase().includes(query)) return false;
               return true;
             });
@@ -1234,6 +1284,7 @@ Please cover:
                     const k = keyFor(lIdx, section.name, tp.name);
                     const isDone = !!state[k];
                     const isCopied = copiedKey === k;
+                    const matchedLab = getLabForTopic(tp.name);
                     return (
                       <button
                         key={k}
@@ -1253,15 +1304,56 @@ Please cover:
                         />
                         <span>{tp.name}</span>
                         {isDone && <Check className="h-3 w-3 ml-0.5 text-primary" strokeWidth={3} />}
+                        
+                        {/* 🧪 Run in AI-LAB Trigger Button (Appears only on coding/hands-on topics!) */}
+                        {matchedLab && onOpenLab && (
+                          <span
+                            role="button"
+                            tabIndex={0}
+                            title={`Run "${matchedLab.title}" in AI-LAB`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onOpenLab(tp.name);
+                            }}
+                            className="ml-1 p-1 rounded-full bg-amber/15 hover:bg-amber/30 text-amber transition-all shadow-xs"
+                          >
+                            <FlaskConical className="h-3 w-3" />
+                          </span>
+                        )}
+
+                        {/* 📺 Direct YouTube Tutorial Search */}
+                        <a
+                          href={`https://www.youtube.com/results?search_query=${encodeURIComponent(tp.name + " AI ML tutorial")}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          title={`Watch top video tutorial on "${tp.name}"`}
+                          onClick={(e) => e.stopPropagation()}
+                          className="ml-0.5 p-1 rounded-full hover:bg-rose-500/20 text-muted-foreground hover:text-rose-400 transition-all opacity-0 group-hover:opacity-100"
+                        >
+                          <Youtube className="h-3 w-3" />
+                        </a>
+
+                        {/* 🌐 Wikipedia Theory Reference */}
+                        <a
+                          href={`https://en.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(tp.name.replace(/\s+/g, "_"))}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          title={`Read Wikipedia article on "${tp.name}"`}
+                          onClick={(e) => e.stopPropagation()}
+                          className="p-1 rounded-full hover:bg-blue-500/20 text-muted-foreground hover:text-blue-400 transition-all opacity-0 group-hover:opacity-100"
+                        >
+                          <Globe className="h-3 w-3" />
+                        </a>
+
                         <span
                           role="button"
                           tabIndex={0}
-                          title="Explain with AI Tutor (Gemini)"
+                          title="Explain with AI Tutor & Ask Doubts"
                           onClick={(e) => {
                             e.stopPropagation();
                             onAskAi(tp.name, section.name);
                           }}
-                          className="ml-1 p-1 rounded-full hover:bg-primary/20 text-muted-foreground hover:text-primary transition-all opacity-0 group-hover:opacity-100"
+                          className="p-1 rounded-full hover:bg-primary/20 text-muted-foreground hover:text-primary transition-all opacity-0 group-hover:opacity-100"
                         >
                           <Sparkles className="h-3 w-3 text-primary-glow" />
                         </span>
@@ -1302,18 +1394,142 @@ Please cover:
   );
 }
 
-function Footer() {
+function Footer({
+  onOpenLegal,
+  onOpenAbout,
+  onOpenFeedback,
+}: {
+  onOpenLegal: (type: LegalDocType) => void;
+  onOpenAbout: () => void;
+  onOpenFeedback: () => void;
+}) {
   return (
-    <footer className="border-t border-border bg-surface/40">
-      <div className="mx-auto max-w-6xl px-5 py-10 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
-        <div className="flex items-center gap-2">
-          <div className="h-5 w-5 rounded-md bg-gradient-to-br from-primary to-accent grid place-items-center">
-            <Zap className="h-3 w-3 text-primary-foreground" strokeWidth={2.5} />
+    <footer className="border-t border-border bg-surface/50 backdrop-blur-xl">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12">
+        {/* Top Tier: Brand & Mission */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 pb-10 border-b border-border">
+          {/* Col 1: Brand Info */}
+          <div className="space-y-3 md:col-span-1">
+            <div className="flex items-center gap-2.5">
+              <div className="h-7 w-7 rounded-xl bg-gradient-to-br from-emerald-400 via-primary to-cyan-500 grid place-items-center shadow-[0_0_12px_rgba(52,199,89,0.4)] border border-white/20">
+                <Zap className="h-4 w-4 text-black stroke-[2.5]" />
+              </div>
+              <span className="font-display font-bold text-base text-foreground tracking-tight">
+                Smart Canvas Grow
+              </span>
+            </div>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              The premier autonomous 14-level AI engineering &amp; systems architecture roadmap. Built for real engineering mastery.
+            </p>
+            <div className="pt-1">
+              <span className="font-mono text-[10px] text-primary-glow bg-primary/10 border border-primary/25 px-2.5 py-1 rounded-full">
+                Curated by Manikandan
+              </span>
+            </div>
           </div>
-          <span className="font-display font-semibold text-foreground">Smart Canvas Grow</span>
-          <span>· built for serious AI engineers</span>
+
+          {/* Col 2: Engineering Ecosystem */}
+          <div className="space-y-2.5 text-xs">
+            <h4 className="font-mono text-[11px] uppercase tracking-wider text-foreground font-semibold">
+              Ecosystem &amp; Labs
+            </h4>
+            <ul className="space-y-2 text-muted-foreground">
+              <li>
+                <button
+                  onClick={() => onOpenLegal("safety")}
+                  className="hover:text-primary transition flex items-center gap-1.5"
+                >
+                  <Cpu className="h-3.5 w-3.5 text-primary" /> Colab GPU Cloud Tunnel
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => onOpenLegal("safety")}
+                  className="hover:text-primary transition flex items-center gap-1.5"
+                >
+                  <KeyRound className="h-3.5 w-3.5 text-amber" /> BYOK Multi-LLM Studio
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={onOpenAbout}
+                  className="hover:text-primary transition flex items-center gap-1.5"
+                >
+                  <Sparkles className="h-3.5 w-3.5 text-emerald-400" /> Creator Vision &amp; Architecture
+                </button>
+              </li>
+            </ul>
+          </div>
+
+          {/* Col 3: Compliance & Legal */}
+          <div className="space-y-2.5 text-xs">
+            <h4 className="font-mono text-[11px] uppercase tracking-wider text-foreground font-semibold">
+              Legal &amp; Support
+            </h4>
+            <ul className="space-y-2 text-muted-foreground">
+              <li>
+                <button
+                  onClick={() => onOpenLegal("terms")}
+                  className="hover:text-foreground transition"
+                >
+                  Terms &amp; Conditions
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => onOpenLegal("privacy")}
+                  className="hover:text-foreground transition"
+                >
+                  Privacy Policy (Zero Data Selling)
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => onOpenLegal("restrictions")}
+                  className="hover:text-amber transition font-medium"
+                >
+                  Platform Restrictions
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={onOpenFeedback}
+                  className="text-primary hover:text-primary-glow font-medium transition flex items-center gap-1.5 pt-0.5"
+                >
+                  <MessageSquare className="h-3 w-3" /> Share Feedback / Report Bug
+                </button>
+              </li>
+            </ul>
+          </div>
+
+          {/* Col 4: User Safety Notice Banner */}
+          <div className="space-y-2.5 text-xs">
+            <h4 className="font-mono text-[11px] uppercase tracking-wider text-rose-400 font-semibold flex items-center gap-1.5">
+              <ShieldAlert className="h-3.5 w-3.5 text-rose-400" /> Important Safety Notice
+            </h4>
+            <p className="text-[11px] text-muted-foreground leading-relaxed">
+              Your API keys and Cloudflare tunnels run client-side. Never execute untrusted scripts or share private Colab tokens publicly.
+            </p>
+            <button
+              onClick={() => onOpenLegal("safety")}
+              className="text-[11px] text-rose-400 hover:text-rose-300 font-semibold underline underline-offset-2 transition"
+            >
+              Read full user safety &amp; GPU guidelines →
+            </button>
+          </div>
         </div>
-        <span className="font-mono">Created by Manikandan · progress saved locally · v1</span>
+
+        {/* Bottom Tier: Copyright & Local Storage notice */}
+        <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
+          <div className="flex items-center gap-2">
+            <span>© 2026 Smart Canvas Grow. All rights reserved.</span>
+          </div>
+          <div className="flex items-center gap-3 font-mono text-[11px]">
+            <span>Status: Operational (Local + Cloud Sync)</span>
+            <span>•</span>
+            <span>v2.4 Production Standard</span>
+          </div>
+        </div>
       </div>
     </footer>
   );
