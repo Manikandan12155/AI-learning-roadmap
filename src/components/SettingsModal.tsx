@@ -25,6 +25,7 @@ interface SettingsModalProps {
   hasApiKey: boolean;
   activeProviderName: string | null;
   onOpenAuthModal: () => void;
+  onOpenAILabModal: () => void;
   onSignOut: () => void;
   theme: "dark" | "light";
   onToggleTheme: () => void;
@@ -42,6 +43,7 @@ export function SettingsModal({
   hasApiKey,
   activeProviderName,
   onOpenAuthModal,
+  onOpenAILabModal,
   onSignOut,
   theme,
   onToggleTheme,
@@ -216,6 +218,31 @@ export function SettingsModal({
             className="px-3.5 py-1.5 rounded-lg border border-primary/40 bg-primary/10 hover:bg-primary/20 text-primary-glow text-xs font-mono font-medium transition"
           >
             Configure →
+          </button>
+        </div>
+
+        {/* AI - LAB Workspace Option */}
+        <div className="p-4 rounded-xl border border-amber/30 bg-amber/5 flex items-center justify-between relative overflow-hidden group">
+          <div className="space-y-0.5">
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-amber" />
+              <span className="text-sm font-semibold text-foreground">AI - LAB Workspace</span>
+              <span className="font-mono text-[9px] uppercase px-1.5 py-0.5 rounded bg-amber/15 text-amber border border-amber/30">
+                Colab &amp; Kaggle
+              </span>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Hands-on experiments, 1-click Google Colab launch, &amp; Kaggle token sync.
+            </p>
+          </div>
+          <button
+            onClick={() => {
+              onClose();
+              onOpenAILabModal();
+            }}
+            className="px-3.5 py-1.5 rounded-lg border border-amber/50 bg-amber/20 hover:bg-amber/30 text-amber text-xs font-mono font-medium transition flex items-center gap-1 shadow-sm whitespace-nowrap"
+          >
+            Open Lab Window →
           </button>
         </div>
 

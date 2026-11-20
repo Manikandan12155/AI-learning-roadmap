@@ -38,6 +38,7 @@ import { AIKeysModal } from "@/components/AIKeysModal";
 import { AboutModal } from "@/components/AboutModal";
 import { AuthModal } from "@/components/AuthModal";
 import { SettingsModal } from "@/components/SettingsModal";
+import { AILabModal } from "@/components/AILabModal";
 import { ContentProtection } from "@/components/ContentProtection";
 import { CertificateModal } from "@/components/CertificateModal";
 import { BattlePassJourney } from "@/components/BattlePassJourney";
@@ -116,6 +117,7 @@ function HomePage() {
   const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const [isAILabModalOpen, setIsAILabModalOpen] = useState(false);
   const [isCertificateModalOpen, setIsCertificateModalOpen] = useState(false);
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [isLeaderboardModalOpen, setIsLeaderboardModalOpen] = useState(false);
@@ -509,11 +511,17 @@ function HomePage() {
           setAuthReason("Sign in with Google to sync your roadmap progress and unlock full AI study features.");
           setIsAuthModalOpen(true);
         }}
+        onOpenAILabModal={() => setIsAILabModalOpen(true)}
         onSignOut={handleSignOut}
         theme={theme}
         onToggleTheme={toggleTheme}
         completedTopicsCount={done}
         totalTopicsCount={TOTAL_TOPICS}
+      />
+
+      <AILabModal
+        isOpen={isAILabModalOpen}
+        onClose={() => setIsAILabModalOpen(false)}
       />
 
       <CertificateModal
