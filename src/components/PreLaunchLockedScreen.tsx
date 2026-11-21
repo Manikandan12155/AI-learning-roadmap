@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Zap, Volume2, Sparkles, CheckCircle2, Smartphone, RotateCcw } from "lucide-react";
+import { Zap, Volume2, Sparkles, CheckCircle2, Smartphone, RotateCcw, FastForward } from "lucide-react";
 import { AuthModal } from "./AuthModal";
 
 // Target Release: December 1, 2026 00:00:00 (Local Time)
@@ -444,6 +444,32 @@ export function PreLaunchLockedScreen() {
     }
   }, [teaserStage, currentTrack]);
 
+  // Skip Teaser to Final Card handler for returning users
+  const handleSkipToFinalCard = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    try {
+      if (masterVideoRef.current) {
+        masterVideoRef.current.pause();
+      }
+    } catch {}
+
+    playCinematicSound("celestial_reveal");
+    setTeaserStage("finalCard");
+
+    // Exit fullscreen if active after 5s or smoothly
+    setTimeout(() => {
+      try {
+        if (document.fullscreenElement) {
+          document.exitFullscreen().catch(() => {});
+        } else if ((document as any).webkitFullscreenElement) {
+          (document as any).webkitExitFullscreen();
+        } else if ((document as any).msFullscreenElement) {
+          (document as any).msExitFullscreen();
+        }
+      } catch {}
+    }, 2000);
+  };
+
   const userDisplayName =
     user?.user_metadata?.full_name ||
     user?.user_metadata?.name ||
@@ -455,38 +481,45 @@ export function PreLaunchLockedScreen() {
   return (
     <div className="relative w-screen h-screen overflow-hidden bg-black text-white select-none">
       {/* ========================================================================= */}
-      {/* 0. MOBILE PORTRAIT ROTATE PHONE OVERLAY (Apple-Style Glassmorphism)        */}
+      {/* 0. MOBILE PORTRAIT ROTATE PHONE OVERLAY (Active during video trailer only)  */}
       {/* ========================================================================= */}
-      <div className="fixed inset-0 z-[100] md:hidden portrait:flex landscape:hidden flex-col items-center justify-center p-6 bg-black/95 backdrop-blur-2xl text-center select-none animate-in fade-in duration-300">
-        <div className="absolute w-72 h-72 rounded-full bg-emerald-500/15 blur-[90px] pointer-events-none" />
+      {teaserStage === "video" && (
+        <div className="fixed inset-0 z-[100] md:hidden portrait:flex landscape:hidden flex-col items-center justify-center p-6 bg-black/95 backdrop-blur-2xl text-center select-none animate-in fade-in duration-300">
+          <div className="absolute w-72 h-72 rounded-full bg-emerald-500/15 blur-[90px] pointer-events-none" />
 
-        <div className="relative z-10 flex flex-col items-center space-y-6 max-w-xs">
-          <div className="relative">
-            <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-emerald-400 via-emerald-500 to-teal-600 grid place-items-center text-black shadow-[0_0_40px_rgba(52,199,89,0.7)]">
-              <Smartphone className="h-10 w-10 animate-bounce" />
+          <div className="relative z-10 flex flex-col items-center space-y-6 max-w-xs">
+            <div className="relative">
+              <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-emerald-400 via-emerald-500 to-teal-600 grid place-items-center text-black shadow-[0_0_40px_rgba(52,199,89,0.7)]">
+                <Smartphone className="h-10 w-10 animate-bounce" />
+              </div>
+              <div className="absolute -top-1 -right-1 w-7 h-7 rounded-full bg-black border border-emerald-400 flex items-center justify-center text-emerald-400 shadow-sm animate-spin">
+                <RotateCcw className="h-4 w-4" />
+              </div>
             </div>
-            <div className="absolute -top-1 -right-1 w-7 h-7 rounded-full bg-black border border-emerald-400 flex items-center justify-center text-emerald-400 shadow-sm animate-spin">
-              <RotateCcw className="h-4 w-4" />
-            </div>
-          </div>
 
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-[10px] font-mono font-bold text-emerald-300 uppercase tracking-widest">
-              Cinematic Landscape Mode
+            <div className="space-y-2">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-[10px] font-mono font-bold text-emerald-300 uppercase tracking-widest">
+                Cinematic Landscape Mode
+              </div>
+              <h3 className="text-xl font-display font-extrabold text-white tracking-tight">
+                Please Rotate Your Phone
+              </h3>
+              <p className="text-xs text-neutral-400 leading-relaxed font-sans">
+                For the best theater widescreen trailer experience, rotate your device to <strong className="text-emerald-400">Landscape Mode</strong>.
+              </p>
             </div>
-            <h3 className="text-xl font-display font-extrabold text-white tracking-tight">
-              Please Rotate Your Phone
-            </h3>
-            <p className="text-xs text-neutral-400 leading-relaxed font-sans">
-              For the best theater widescreen trailer experience, rotate your device to <strong className="text-emerald-400">Landscape Mode</strong>.
-            </p>
-          </div>
 
-          <div className="flex items-center gap-2 text-[11px] font-mono text-emerald-400/80 animate-pulse">
-            <span>🔄 Turn Auto-Rotate ON</span>
+            {/* Direct Skip option even from rotate screen */}
+            <button
+              onClick={handleSkipToFinalCard}
+              className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-mono text-neutral-300 flex items-center gap-1.5 cursor-pointer active:scale-95 transition-all"
+            >
+              <FastForward className="h-3.5 w-3.5 text-emerald-400" />
+              <span>Skip Trailer to Launch Card</span>
+            </button>
           </div>
         </div>
-      </div>
+      )}
       {/* ========================================================================= */}
       {/* 1. CINEMA REAL VIDEO DIRECT LAYER (Single-Player Zero-Lag Architecture)   */}
       {/* ========================================================================= */}
@@ -795,33 +828,54 @@ export function PreLaunchLockedScreen() {
       )}
 
       {/* ========================================================================= */}
-      {/* 6. CORNER COUNTDOWN PILL (Visible during videos, hidden when finalCard is active) */}
+      {/* 6. CORNER COUNTDOWN PILL (Bottom-Left) & SKIP TRAILER BUTTON (Bottom-Right) */}
       {/* ========================================================================= */}
       {teaserStage !== "finalCard" && (
-        <div className="fixed bottom-6 left-6 z-50 flex items-center gap-3.5 p-3.5 px-4 rounded-2xl border border-emerald-500/40 bg-[#070d0a]/90 backdrop-blur-2xl shadow-[0_0_40px_rgba(52,199,89,0.3)] select-none">
-          <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-emerald-400 via-emerald-500 to-teal-600 grid place-items-center text-black shadow-[0_0_15px_rgba(52,199,89,0.6)] shrink-0">
-            <Zap className="h-5 w-5 stroke-[2.5]" />
+        <>
+          {/* Bottom Left: Official Launch Countdown Pill */}
+          <div className="fixed bottom-6 left-6 z-50 flex items-center gap-3.5 p-3.5 px-4 rounded-2xl border border-emerald-500/40 bg-[#070d0a]/90 backdrop-blur-2xl shadow-[0_0_40px_rgba(52,199,89,0.3)] select-none">
+            <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-emerald-400 via-emerald-500 to-teal-600 grid place-items-center text-black shadow-[0_0_15px_rgba(52,199,89,0.6)] shrink-0">
+              <Zap className="h-5 w-5 stroke-[2.5]" />
+            </div>
+
+            <div className="flex flex-col">
+              <div className="flex items-center gap-1.5">
+                <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
+                <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-emerald-400">
+                  Official Launch In
+                </span>
+              </div>
+
+              <div className="flex items-center gap-1 font-mono text-sm sm:text-base font-black text-white tabular-nums tracking-tight mt-0.5">
+                <span className="text-emerald-400">{String(timeLeft.days).padStart(2, "0")}d</span>
+                <span className="text-neutral-500">:</span>
+                <span>{String(timeLeft.hours).padStart(2, "0")}h</span>
+                <span className="text-neutral-500">:</span>
+                <span>{String(timeLeft.minutes).padStart(2, "0")}m</span>
+                <span className="text-neutral-500">:</span>
+                <span className="text-teal-300">{String(timeLeft.seconds).padStart(2, "0")}s</span>
+              </div>
+            </div>
           </div>
 
-          <div className="flex flex-col">
-            <div className="flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
-              <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-emerald-400">
-                Official Launch In
+          {/* Bottom Right: Direct Skip to Launch Button for Returning Viewers */}
+          <button
+            onClick={handleSkipToFinalCard}
+            className="fixed bottom-6 right-6 z-50 group flex items-center gap-2.5 px-4 py-3.5 rounded-2xl border border-emerald-500/40 bg-[#070d0a]/90 backdrop-blur-2xl shadow-[0_0_40px_rgba(52,199,89,0.3)] hover:border-emerald-400 hover:bg-[#0c1611] text-neutral-300 hover:text-white transition-all cursor-pointer active:scale-95"
+          >
+            <div className="flex flex-col text-right">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-400">
+                Already Watched?
+              </span>
+              <span className="text-xs sm:text-sm font-display font-bold">
+                Skip to Pre-Launch ➔
               </span>
             </div>
-
-            <div className="flex items-center gap-1 font-mono text-sm sm:text-base font-black text-white tabular-nums tracking-tight mt-0.5">
-              <span className="text-emerald-400">{String(timeLeft.days).padStart(2, "0")}d</span>
-              <span className="text-neutral-500">:</span>
-              <span>{String(timeLeft.hours).padStart(2, "0")}h</span>
-              <span className="text-neutral-500">:</span>
-              <span>{String(timeLeft.minutes).padStart(2, "0")}m</span>
-              <span className="text-neutral-500">:</span>
-              <span className="text-teal-300">{String(timeLeft.seconds).padStart(2, "0")}s</span>
+            <div className="h-9 w-9 rounded-xl bg-emerald-500/15 border border-emerald-500/30 group-hover:bg-emerald-500/25 grid place-items-center text-emerald-300 shrink-0">
+              <FastForward className="h-4 w-4" />
             </div>
-          </div>
-        </div>
+          </button>
+        </>
       )}
 
       {/* Auth Modal for Google Pre-login */}
