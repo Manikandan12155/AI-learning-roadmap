@@ -114,63 +114,82 @@ export function PreLaunchLockedScreen() {
   // Hollywood Audio Synthesizer
   const playCinematicSound = (type: "countdown_tension_tick" | "boom" | "nolan_swell" | "celestial_reveal" | "quantum_pulse_tick" | "doomsday_clock_tick") => {
     try {
-      if (!audioCtxRef.current) return;
+      if (!audioCtxRef.current) {
+        const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+        if (AudioCtx) {
+          audioCtxRef.current = new AudioCtx();
+        }
+      }
       const ctx = audioCtxRef.current;
-      if (ctx.state === "suspended") return;
+      if (!ctx) return;
+      if (ctx.state === "suspended") {
+        ctx.resume().catch(() => {});
+      }
 
       const now = ctx.currentTime;
 
       if (type === "doomsday_clock_tick") {
         // =========================================================================
-        // AVENGERS: DOOMSDAY CINEMATIC TENSION CLOCK (Metallic Click + Deep Sub-Pulse)
+        // AVENGERS: DOOMSDAY CLOCK LIVESTREAM (Loud, Punchy Mechanical Clock Tick)
+        // High-presence metallic ping + crisp mechanical clack + deep resonant bass
         // =========================================================================
         
-        // 1. Heavy Sub-Bass Tension Thump (48Hz deep resonant pulse like a pounding heartbeat)
+        // 1. Crisp Metallic Ping & Anvil Harmonics (1200Hz - 2400Hz resonant bell/gear strike)
+        const pingOsc = ctx.createOscillator();
+        const pingGain = ctx.createGain();
+        const pingFilter = ctx.createBiquadFilter();
+        pingOsc.type = "sine";
+        pingOsc.frequency.setValueAtTime(1760, now); // A6 high pitch
+        pingOsc.frequency.exponentialRampToValueAtTime(880, now + 0.09);
+
+        pingFilter.type = "bandpass";
+        pingFilter.frequency.setValueAtTime(1600, now);
+        pingFilter.Q.setValueAtTime(4.0, now);
+
+        pingGain.gain.setValueAtTime(0.85, now);
+        pingGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.15);
+
+        pingOsc.connect(pingFilter);
+        pingFilter.connect(pingGain);
+        pingGain.connect(ctx.destination);
+        pingOsc.start(now);
+        pingOsc.stop(now + 0.16);
+
+        // 2. Heavy Mechanical Gear Clack / Ratchet Transient (Sharp square/sawtooth crunch)
+        const clackOsc = ctx.createOscillator();
+        const clackGain = ctx.createGain();
+        const clackFilter = ctx.createBiquadFilter();
+        clackOsc.type = "sawtooth";
+        clackOsc.frequency.setValueAtTime(950, now);
+        clackOsc.frequency.exponentialRampToValueAtTime(180, now + 0.05);
+
+        clackFilter.type = "lowpass";
+        clackFilter.frequency.setValueAtTime(2200, now);
+        clackFilter.frequency.exponentialRampToValueAtTime(400, now + 0.05);
+
+        clackGain.gain.setValueAtTime(0.75, now);
+        clackGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.06);
+
+        clackOsc.connect(clackFilter);
+        clackFilter.connect(clackGain);
+        clackGain.connect(ctx.destination);
+        clackOsc.start(now);
+        clackOsc.stop(now + 0.07);
+
+        // 3. Deep Doom Sub-Bass Heartbeat Thud (Heavy punch 85Hz -> 28Hz)
         const subOsc = ctx.createOscillator();
         const subGain = ctx.createGain();
         subOsc.type = "sine";
-        subOsc.frequency.setValueAtTime(54, now);
-        subOsc.frequency.exponentialRampToValueAtTime(22, now + 0.28);
-        subGain.gain.setValueAtTime(0.55, now);
-        subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+        subOsc.frequency.setValueAtTime(85, now);
+        subOsc.frequency.exponentialRampToValueAtTime(28, now + 0.25);
+
+        subGain.gain.setValueAtTime(0.9, now);
+        subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+
         subOsc.connect(subGain);
         subGain.connect(ctx.destination);
         subOsc.start(now);
-        subOsc.stop(now + 0.32);
-
-        // 2. Heavy Metallic Mechanical Gear Click (Resonant bell/anvil strike harmonic)
-        const metalOsc = ctx.createOscillator();
-        const metalFilter = ctx.createBiquadFilter();
-        const metalGain = ctx.createGain();
-        metalOsc.type = "sawtooth";
-        metalOsc.frequency.setValueAtTime(1850, now);
-        metalOsc.frequency.exponentialRampToValueAtTime(420, now + 0.08);
-
-        metalFilter.type = "bandpass";
-        metalFilter.frequency.setValueAtTime(1600, now);
-        metalFilter.Q.setValueAtTime(7.0, now);
-
-        metalGain.gain.setValueAtTime(0.42, now);
-        metalGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
-
-        metalOsc.connect(metalFilter);
-        metalFilter.connect(metalGain);
-        metalGain.connect(ctx.destination);
-        metalOsc.start(now);
-        metalOsc.stop(now + 0.13);
-
-        // 3. Ultra-Crisp Clock Escapement Transient (Sharp glass/metal click)
-        const clickOsc = ctx.createOscillator();
-        const clickGain = ctx.createGain();
-        clickOsc.type = "triangle";
-        clickOsc.frequency.setValueAtTime(3200, now);
-        clickOsc.frequency.exponentialRampToValueAtTime(750, now + 0.025);
-        clickGain.gain.setValueAtTime(0.35, now);
-        clickGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.03);
-        clickOsc.connect(clickGain);
-        clickGain.connect(ctx.destination);
-        clickOsc.start(now);
-        clickOsc.stop(now + 0.035);
+        subOsc.stop(now + 0.3);
 
       } else if (type === "countdown_tension_tick") {
         const osc = ctx.createOscillator();
@@ -288,11 +307,23 @@ export function PreLaunchLockedScreen() {
   useEffect(() => {
     const timer = setInterval(() => {
       setTimeLeft(calculateTimeLeft());
-      if (teaserStage === "finalCard") {
-        playCinematicSound("doomsday_clock_tick");
-      }
     }, 1000);
     return () => clearInterval(timer);
+  }, []);
+
+  // Avengers Doomsday Dedicated Clock Ticker for finalCard
+  useEffect(() => {
+    if (teaserStage !== "finalCard") return;
+
+    // Play immediate first beat on arrival
+    playCinematicSound("doomsday_clock_tick");
+
+    // Continuous 1-second pulse like Marvel livestream
+    const tickInterval = setInterval(() => {
+      playCinematicSound("doomsday_clock_tick");
+    }, 1000);
+
+    return () => clearInterval(tickInterval);
   }, [teaserStage]);
 
   // 5-Second Countdown BGM Loop + Tension Beats (5 -> 4 -> 3 -> 2 -> 1)
