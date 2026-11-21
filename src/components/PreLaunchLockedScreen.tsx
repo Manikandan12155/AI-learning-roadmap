@@ -112,7 +112,7 @@ export function PreLaunchLockedScreen() {
   };
 
   // Hollywood Audio Synthesizer
-  const playCinematicSound = (type: "countdown_tension_tick" | "boom" | "nolan_swell" | "celestial_reveal" | "quantum_pulse_tick") => {
+  const playCinematicSound = (type: "countdown_tension_tick" | "boom" | "nolan_swell" | "celestial_reveal" | "quantum_pulse_tick" | "doomsday_clock_tick") => {
     try {
       if (!audioCtxRef.current) return;
       const ctx = audioCtxRef.current;
@@ -120,7 +120,59 @@ export function PreLaunchLockedScreen() {
 
       const now = ctx.currentTime;
 
-      if (type === "countdown_tension_tick") {
+      if (type === "doomsday_clock_tick") {
+        // =========================================================================
+        // AVENGERS: DOOMSDAY CINEMATIC TENSION CLOCK (Metallic Click + Deep Sub-Pulse)
+        // =========================================================================
+        
+        // 1. Heavy Sub-Bass Tension Thump (48Hz deep resonant pulse like a pounding heartbeat)
+        const subOsc = ctx.createOscillator();
+        const subGain = ctx.createGain();
+        subOsc.type = "sine";
+        subOsc.frequency.setValueAtTime(54, now);
+        subOsc.frequency.exponentialRampToValueAtTime(22, now + 0.28);
+        subGain.gain.setValueAtTime(0.55, now);
+        subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+        subOsc.connect(subGain);
+        subGain.connect(ctx.destination);
+        subOsc.start(now);
+        subOsc.stop(now + 0.32);
+
+        // 2. Heavy Metallic Mechanical Gear Click (Resonant bell/anvil strike harmonic)
+        const metalOsc = ctx.createOscillator();
+        const metalFilter = ctx.createBiquadFilter();
+        const metalGain = ctx.createGain();
+        metalOsc.type = "sawtooth";
+        metalOsc.frequency.setValueAtTime(1850, now);
+        metalOsc.frequency.exponentialRampToValueAtTime(420, now + 0.08);
+
+        metalFilter.type = "bandpass";
+        metalFilter.frequency.setValueAtTime(1600, now);
+        metalFilter.Q.setValueAtTime(7.0, now);
+
+        metalGain.gain.setValueAtTime(0.42, now);
+        metalGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
+
+        metalOsc.connect(metalFilter);
+        metalFilter.connect(metalGain);
+        metalGain.connect(ctx.destination);
+        metalOsc.start(now);
+        metalOsc.stop(now + 0.13);
+
+        // 3. Ultra-Crisp Clock Escapement Transient (Sharp glass/metal click)
+        const clickOsc = ctx.createOscillator();
+        const clickGain = ctx.createGain();
+        clickOsc.type = "triangle";
+        clickOsc.frequency.setValueAtTime(3200, now);
+        clickOsc.frequency.exponentialRampToValueAtTime(750, now + 0.025);
+        clickGain.gain.setValueAtTime(0.35, now);
+        clickGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.03);
+        clickOsc.connect(clickGain);
+        clickGain.connect(ctx.destination);
+        clickOsc.start(now);
+        clickOsc.stop(now + 0.035);
+
+      } else if (type === "countdown_tension_tick") {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
 
@@ -232,12 +284,12 @@ export function PreLaunchLockedScreen() {
     } catch {}
   };
 
-  // Live Launch Time Left Ticker (with high-tech countdown pulse sound on final screen)
+  // Live Launch Time Left Ticker (with Avengers Doomsday tension clock tick on final screen)
   useEffect(() => {
     const timer = setInterval(() => {
       setTimeLeft(calculateTimeLeft());
       if (teaserStage === "finalCard") {
-        playCinematicSound("quantum_pulse_tick");
+        playCinematicSound("doomsday_clock_tick");
       }
     }, 1000);
     return () => clearInterval(timer);
@@ -325,19 +377,22 @@ export function PreLaunchLockedScreen() {
       // Transition immediately to Video 2 at 0.75x
       setCurrentTrack(1);
     } else {
-      // Both videos finished! Exit fullscreen & reveal Final Card
-      try {
-        if (document.fullscreenElement) {
-          document.exitFullscreen().catch(() => {});
-        } else if ((document as any).webkitFullscreenElement) {
-          (document as any).webkitExitFullscreen();
-        } else if ((document as any).msFullscreenElement) {
-          (document as any).msExitFullscreen();
-        }
-      } catch {}
-
+      // Both videos finished -> reveal Final Card immediately while still in Fullscreen
       playCinematicSound("celestial_reveal");
       setTeaserStage("finalCard");
+
+      // Hold Fullscreen for 5 seconds after Final Card launches, then smoothly exit
+      setTimeout(() => {
+        try {
+          if (document.fullscreenElement) {
+            document.exitFullscreen().catch(() => {});
+          } else if ((document as any).webkitFullscreenElement) {
+            (document as any).webkitExitFullscreen();
+          } else if ((document as any).msFullscreenElement) {
+            (document as any).msExitFullscreen();
+          }
+        } catch {}
+      }, 5000);
     }
   };
 
