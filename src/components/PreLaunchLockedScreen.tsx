@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Zap, Volume2, Sparkles, CheckCircle2 } from "lucide-react";
+import { Zap, Volume2, Sparkles, CheckCircle2, Smartphone, RotateCcw } from "lucide-react";
 import { AuthModal } from "./AuthModal";
 
 // Target Release: December 1, 2026 00:00:00 (Local Time)
@@ -454,6 +454,39 @@ export function PreLaunchLockedScreen() {
 
   return (
     <div className="relative w-screen h-screen overflow-hidden bg-black text-white select-none">
+      {/* ========================================================================= */}
+      {/* 0. MOBILE PORTRAIT ROTATE PHONE OVERLAY (Apple-Style Glassmorphism)        */}
+      {/* ========================================================================= */}
+      <div className="fixed inset-0 z-[100] md:hidden portrait:flex landscape:hidden flex-col items-center justify-center p-6 bg-black/95 backdrop-blur-2xl text-center select-none animate-in fade-in duration-300">
+        <div className="absolute w-72 h-72 rounded-full bg-emerald-500/15 blur-[90px] pointer-events-none" />
+
+        <div className="relative z-10 flex flex-col items-center space-y-6 max-w-xs">
+          <div className="relative">
+            <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-emerald-400 via-emerald-500 to-teal-600 grid place-items-center text-black shadow-[0_0_40px_rgba(52,199,89,0.7)]">
+              <Smartphone className="h-10 w-10 animate-bounce" />
+            </div>
+            <div className="absolute -top-1 -right-1 w-7 h-7 rounded-full bg-black border border-emerald-400 flex items-center justify-center text-emerald-400 shadow-sm animate-spin">
+              <RotateCcw className="h-4 w-4" />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-[10px] font-mono font-bold text-emerald-300 uppercase tracking-widest">
+              Cinematic Landscape Mode
+            </div>
+            <h3 className="text-xl font-display font-extrabold text-white tracking-tight">
+              Please Rotate Your Phone
+            </h3>
+            <p className="text-xs text-neutral-400 leading-relaxed font-sans">
+              For the best theater widescreen trailer experience, rotate your device to <strong className="text-emerald-400">Landscape Mode</strong>.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 text-[11px] font-mono text-emerald-400/80 animate-pulse">
+            <span>🔄 Turn Auto-Rotate ON</span>
+          </div>
+        </div>
+      </div>
       {/* ========================================================================= */}
       {/* 1. CINEMA REAL VIDEO DIRECT LAYER (Single-Player Zero-Lag Architecture)   */}
       {/* ========================================================================= */}
