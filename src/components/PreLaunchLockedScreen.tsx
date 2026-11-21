@@ -53,8 +53,11 @@ export function PreLaunchLockedScreen() {
   const [stepPresentsVisible, setStepPresentsVisible] = useState<boolean>(false);
   const [presentsFadeOut, setPresentsFadeOut] = useState<boolean>(false);
 
-  // Crossfade dual active states
-  const [activeVideoSlot, setActiveVideoSlot] = useState<0 | 1>(0);
+  // Master Single-Player State:
+  // currentTrack: 0 = Video A (dc0d945f, 1.0x), 1 = Video B (fb4f728d, 0.75x)
+  const [currentTrack, setCurrentTrack] = useState<0 | 1>(0);
+  const [isVideoBuffering, setIsVideoBuffering] = useState<boolean>(false);
+  const [isVideoReady, setIsVideoReady] = useState<boolean>(false);
 
   // Audio prompt soft fade-out state
   const [promptFadeOut, setPromptFadeOut] = useState<boolean>(false);
@@ -70,8 +73,8 @@ export function PreLaunchLockedScreen() {
     }
   });
 
-  const videoA_Ref = useRef<HTMLVideoElement | null>(null);
-  const videoB_Ref = useRef<HTMLVideoElement | null>(null);
+  const masterVideoRef = useRef<HTMLVideoElement | null>(null);
+  const nextVideoPreloadRef = useRef<HTMLVideoElement | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
 
   // Audio Initializer & Trigger Full Experience Start (with Browser Fullscreen Activation)
@@ -308,54 +311,52 @@ export function PreLaunchLockedScreen() {
     }
   }, [teaserStage]);
 
-  // Video Speed Controller:
+  // Master Single Video Playback Management
   // Video 1 (dc0d945f) -> 1.0x
   // Video 2 (fb4f728d) -> 0.75x
-  const applySpeed = (videoEl: HTMLVideoElement | null, speed: number) => {
-    if (videoEl) {
-      videoEl.playbackRate = speed;
+  const applySpeedForTrack = (track: 0 | 1) => {
+    if (masterVideoRef.current) {
+      masterVideoRef.current.playbackRate = track === 0 ? 1.0 : 0.75;
     }
   };
 
-  // Video 1 Finishes -> Crossfades to Video 2 (0.75x)
-  const handleVideoA_Ended = () => {
-    if (videoB_Ref.current) {
-      videoB_Ref.current.currentTime = 0;
-      applySpeed(videoB_Ref.current, 0.75);
-      videoB_Ref.current.play().catch(() => {});
+  const handleMasterVideoEnded = () => {
+    if (currentTrack === 0) {
+      // Transition immediately to Video 2 at 0.75x
+      setCurrentTrack(1);
+    } else {
+      // Both videos finished! Exit fullscreen & reveal Final Card
+      try {
+        if (document.fullscreenElement) {
+          document.exitFullscreen().catch(() => {});
+        } else if ((document as any).webkitFullscreenElement) {
+          (document as any).webkitExitFullscreen();
+        } else if ((document as any).msFullscreenElement) {
+          (document as any).msExitFullscreen();
+        }
+      } catch {}
+
+      playCinematicSound("celestial_reveal");
+      setTeaserStage("finalCard");
     }
-    setActiveVideoSlot(1);
   };
 
-  // Video 2 Finishes -> Both Videos Completed -> Transition to Big Center Countdown & Pre-login Card!
-  const handleVideoB_Ended = () => {
-    // 1. Automatically exit Browser Fullscreen Mode
-    try {
-      if (document.fullscreenElement) {
-        document.exitFullscreen().catch(() => {});
-      } else if ((document as any).webkitFullscreenElement) {
-        (document as any).webkitExitFullscreen();
-      } else if ((document as any).msFullscreenElement) {
-        (document as any).msExitFullscreen();
-      }
-    } catch {}
-
-    // 2. Play grand celestial reveal soundtrack for the final big box
-    playCinematicSound("celestial_reveal");
-    setTeaserStage("finalCard");
-  };
-
-  // Launch initial video when entering "video" stage
+  // Synchronize playback whenever teaserStage or currentTrack changes
   useEffect(() => {
     if (teaserStage === "video") {
-      if (videoA_Ref.current) {
-        videoA_Ref.current.currentTime = 0;
-        applySpeed(videoA_Ref.current, 1.0);
-        videoA_Ref.current.muted = false;
-        videoA_Ref.current.play().catch(() => {});
+      const vid = masterVideoRef.current;
+      if (vid) {
+        setIsVideoBuffering(false);
+        vid.playbackRate = currentTrack === 0 ? 1.0 : 0.75;
+        const playPromise = vid.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(() => {
+            // If autoplay policy intervened, retry muted or wait for user interaction
+          });
+        }
       }
     }
-  }, [teaserStage]);
+  }, [teaserStage, currentTrack]);
 
   const userDisplayName =
     user?.user_metadata?.full_name ||
@@ -368,39 +369,57 @@ export function PreLaunchLockedScreen() {
   return (
     <div className="relative w-screen h-screen overflow-hidden bg-black text-white select-none">
       {/* ========================================================================= */}
-      {/* 1. CINEMA REAL VIDEO DIRECT CROSSFADE LAYER                               */}
+      {/* 1. CINEMA REAL VIDEO DIRECT LAYER (Single-Player Zero-Lag Architecture)   */}
       {/* ========================================================================= */}
       <div
         className={`absolute inset-0 transition-opacity duration-1000 ${
           teaserStage === "video" || teaserStage === "finalCard" ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
       >
-        {/* VIDEO 1: dc0d945f (1.0x Speed) */}
+        {/* Single Master Video Element: eliminates decode conflict & race conditions */}
         <video
-          ref={videoA_Ref}
-          src={TRAILER_VIDEOS[0]}
-          muted={false}
+          ref={masterVideoRef}
+          key={`track-${currentTrack}`}
+          src={TRAILER_VIDEOS[currentTrack]}
+          preload="auto"
           playsInline
-          autoPlay
-          onLoadedMetadata={() => applySpeed(videoA_Ref.current, 1.0)}
-          onEnded={handleVideoA_Ended}
-          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-[1800ms] ease-in-out ${
-            activeVideoSlot === 0 ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"
+          muted={false}
+          onLoadedMetadata={() => applySpeedForTrack(currentTrack)}
+          onCanPlay={() => {
+            setIsVideoReady(true);
+            setIsVideoBuffering(false);
+          }}
+          onWaiting={() => setIsVideoBuffering(true)}
+          onPlaying={() => setIsVideoBuffering(false)}
+          onEnded={handleMasterVideoEnded}
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-in-out ${
+            isVideoReady ? "opacity-100" : "opacity-0"
           }`}
         />
 
-        {/* VIDEO 2: fb4f728d (0.75x Speed) */}
-        <video
-          ref={videoB_Ref}
-          src={TRAILER_VIDEOS[1]}
-          muted={false}
-          playsInline
-          onLoadedMetadata={() => applySpeed(videoB_Ref.current, 0.75)}
-          onEnded={handleVideoB_Ended}
-          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-[1800ms] ease-in-out ${
-            activeVideoSlot === 1 ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"
-          }`}
-        />
+        {/* Hidden Preloader for Track 2 while Track 1 is playing */}
+        {currentTrack === 0 && (
+          <video
+            ref={nextVideoPreloadRef}
+            src={TRAILER_VIDEOS[1]}
+            preload="auto"
+            muted
+            playsInline
+            className="hidden"
+          />
+        )}
+
+        {/* Subtle cinematic loading spinner when video is buffering */}
+        {isVideoBuffering && (
+          <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none bg-black/40 backdrop-blur-sm transition-opacity duration-300">
+            <div className="flex flex-col items-center gap-3">
+              <div className="w-12 h-12 rounded-full border-2 border-emerald-400 border-t-transparent animate-spin shadow-[0_0_20px_rgba(52,199,89,0.5)]" />
+              <span className="text-xs font-mono tracking-widest text-emerald-300 uppercase animate-pulse">
+                Buffering High-Def Stream...
+              </span>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* ============================================================== */}
