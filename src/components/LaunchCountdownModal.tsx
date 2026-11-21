@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Sparkles, ShieldCheck, CheckCircle2, ArrowRight, Zap, Clock, Bell, UserCheck } from "lucide-react";
+import { Sparkles, ShieldCheck, CheckCircle2, ArrowRight, Zap, Clock, Bell, UserCheck, Minimize2, Maximize2 } from "lucide-react";
 
 interface LaunchCountdownModalProps {
   currentUser: any;
@@ -34,6 +34,7 @@ function calculateTimeLeft(): TimeLeft {
 }
 
 export function LaunchCountdownModal({ currentUser, onOpenAuthModal }: LaunchCountdownModalProps) {
+  const [isMinimized, setIsMinimized] = useState<boolean>(false);
   const [timeLeft, setTimeLeft] = useState<TimeLeft>(calculateTimeLeft());
   // Allow creator/admin preview bypass with local state or stored bypass key
   const [adminBypassed, setAdminBypassed] = useState<boolean>(() => {
@@ -62,6 +63,39 @@ export function LaunchCountdownModal({ currentUser, onOpenAuthModal }: LaunchCou
 
   const userAvatar = currentUser?.user_metadata?.avatar_url || currentUser?.user_metadata?.picture;
 
+  // Minimized Widget: Floating in bottom-left/right as a compact countdown pill
+  if (isMinimized) {
+    return (
+      <div className="fixed bottom-5 left-5 z-50 flex items-center gap-3 p-3 px-4 rounded-2xl border border-emerald-500/40 bg-[#070d0a]/95 backdrop-blur-2xl shadow-[0_0_30px_rgba(52,199,89,0.3)] animate-in slide-in-from-bottom-5 duration-300">
+        <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-emerald-400 via-emerald-500 to-teal-600 grid place-items-center text-black shadow-[0_0_15px_rgba(52,199,89,0.5)] shrink-0">
+          <Zap className="h-4 w-4 stroke-[2.5]" />
+        </div>
+        <div className="flex flex-col">
+          <span className="text-[10px] font-mono uppercase tracking-wider text-emerald-400 font-bold flex items-center gap-1">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-ping" />
+            AI Launch In
+          </span>
+          <div className="flex items-center gap-1 font-mono text-xs font-black text-white tabular-nums">
+            <span className="text-emerald-400">{String(timeLeft.days).padStart(2, "0")}d</span>
+            <span>:</span>
+            <span>{String(timeLeft.hours).padStart(2, "0")}h</span>
+            <span>:</span>
+            <span>{String(timeLeft.minutes).padStart(2, "0")}m</span>
+            <span>:</span>
+            <span className="text-teal-300">{String(timeLeft.seconds).padStart(2, "0")}s</span>
+          </div>
+        </div>
+        <button
+          onClick={() => setIsMinimized(false)}
+          className="p-1.5 rounded-lg text-neutral-400 hover:text-white hover:bg-white/10 transition ml-1"
+          title="Expand Countdown"
+        >
+          <Maximize2 className="h-4 w-4" />
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-2xl select-none animate-in fade-in duration-300">
       {/* Background Neural / Radial Ambient Light */}
@@ -69,6 +103,15 @@ export function LaunchCountdownModal({ currentUser, onOpenAuthModal }: LaunchCou
 
       {/* Main Glass Popup Card */}
       <div className="relative w-full max-w-lg rounded-3xl border border-emerald-500/30 bg-[#070d0a]/95 backdrop-blur-3xl shadow-[0_0_60px_rgba(52,199,89,0.25)] p-6 sm:p-8 text-center space-y-6 overflow-hidden">
+        {/* Minimize Button */}
+        <button
+          onClick={() => setIsMinimized(true)}
+          className="absolute top-4 right-4 z-20 p-2 rounded-xl text-neutral-400 hover:text-white hover:bg-white/10 transition"
+          title="Minimize to corner"
+        >
+          <Minimize2 className="h-4 w-4" />
+        </button>
+
         {/* Subtle Top Glowing Line */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-[2px] bg-gradient-to-r from-transparent via-emerald-400 to-transparent shadow-[0_0_15px_#34C759]" />
 

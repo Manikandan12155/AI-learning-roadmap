@@ -47,7 +47,7 @@ import { AuthModal } from "@/components/AuthModal";
 import { SettingsModal } from "@/components/SettingsModal";
 import { AILabModal } from "@/components/AILabModal";
 import { ContentProtection } from "@/components/ContentProtection";
-import { LaunchCountdownModal } from "@/components/LaunchCountdownModal";
+// import { LaunchCountdownModal } from "@/components/LaunchCountdownModal";
 import { CertificateModal } from "@/components/CertificateModal";
 import { BattlePassJourney } from "@/components/BattlePassJourney";
 import { StudyScheduleModal } from "@/components/StudyScheduleModal";
@@ -355,13 +355,6 @@ function HomePage() {
 
   return (
     <div className="min-h-screen">
-      <LaunchCountdownModal
-        currentUser={currentUser}
-        onOpenAuthModal={() => {
-          setAuthReason("Pre-login with Google to secure early access & cloud sync for the Dec 1, 2026 launch.");
-          setIsAuthModalOpen(true);
-        }}
-      />
       <ContentProtection currentUser={currentUser} />
       <Header
         pct={pct}
