@@ -35,8 +35,40 @@ const TRAILER_VIDEOS = [
   "./gemini_generated_video_fb4f728d.mp4",
 ];
 
-export function PreLaunchLockedScreen() {
+interface PreLaunchLockedScreenProps {
+  onDevBypass?: () => void;
+}
+
+export function PreLaunchLockedScreen({ onDevBypass }: PreLaunchLockedScreenProps) {
   const [timeLeft, setTimeLeft] = useState<TimeLeft>(calculateTimeLeft());
+  const [bypassTapCount, setBypassTapCount] = useState<number>(0);
+  const bypassTimerRef = useRef<any>(null);
+
+  const handleSecretTap = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setBypassTapCount((prev) => {
+      const next = prev + 1;
+      if (next >= 5) {
+        if (onDevBypass) {
+          onDevBypass();
+        } else {
+          try {
+            localStorage.setItem("scg_dev_unlocked", "true");
+            window.location.reload();
+          } catch {}
+        }
+        return 0;
+      }
+      return next;
+    });
+
+    if (bypassTimerRef.current) {
+      clearTimeout(bypassTimerRef.current);
+    }
+    bypassTimerRef.current = setTimeout(() => {
+      setBypassTapCount(0);
+    }, 2500);
+  };
 
   // Stages:
   // "idle"      -> Waiting for user to click to turn on audio & start
@@ -586,7 +618,11 @@ export function PreLaunchLockedScreen() {
           <div className="absolute w-[500px] h-[500px] rounded-full bg-emerald-500/15 blur-[120px] pointer-events-none animate-pulse" />
 
           <div className="relative z-10 flex flex-col items-center space-y-5 text-center px-6">
-            <div className="h-16 w-16 rounded-3xl bg-gradient-to-br from-emerald-400 via-emerald-500 to-teal-600 grid place-items-center text-black shadow-[0_0_35px_rgba(52,199,89,0.7)] animate-bounce">
+            <div 
+              onClick={handleSecretTap}
+              className="h-16 w-16 rounded-3xl bg-gradient-to-br from-emerald-400 via-emerald-500 to-teal-600 grid place-items-center text-black shadow-[0_0_35px_rgba(52,199,89,0.7)] animate-bounce cursor-pointer active:scale-90 transition-transform"
+              title="Cinematic AI Experience"
+            >
               <Sparkles className="h-8 w-8 stroke-[2.5]" />
             </div>
 
@@ -658,7 +694,8 @@ export function PreLaunchLockedScreen() {
             </p>
 
             <h2
-              className={`text-4xl sm:text-7xl md:text-8xl font-display font-extrabold tracking-[0.25em] indent-[0.25em] text-white drop-shadow-[0_0_60px_rgba(52,199,89,0.7)] text-center w-full transition-all duration-1000 ease-out ${
+              onClick={handleSecretTap}
+              className={`text-4xl sm:text-7xl md:text-8xl font-display font-extrabold tracking-[0.25em] indent-[0.25em] text-white drop-shadow-[0_0_60px_rgba(52,199,89,0.7)] text-center w-full transition-all duration-1000 ease-out cursor-pointer active:scale-95 ${
                 stepNameVisible
                   ? "opacity-100 scale-100 filter blur-0"
                   : "opacity-0 scale-95 filter blur-sm"
@@ -697,7 +734,11 @@ export function PreLaunchLockedScreen() {
 
             {/* Header Icon */}
             <div className="flex flex-col items-center space-y-3">
-              <div className="relative">
+              <div 
+                onClick={handleSecretTap}
+                className="relative cursor-pointer active:scale-90 transition-transform"
+                title="AI Architecture"
+              >
                 <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-3xl bg-gradient-to-br from-emerald-400 via-emerald-500 to-teal-600 grid place-items-center text-black shadow-[0_0_30px_rgba(52,199,89,0.6)] animate-pulse">
                   <Zap className="h-9 w-9 sm:h-11 sm:w-11 stroke-[2.5]" />
                 </div>
@@ -834,7 +875,11 @@ export function PreLaunchLockedScreen() {
         <>
           {/* Bottom Left: Official Launch Countdown Pill */}
           <div className="fixed bottom-6 left-6 z-50 flex items-center gap-3.5 p-3.5 px-4 rounded-2xl border border-emerald-500/40 bg-[#070d0a]/90 backdrop-blur-2xl shadow-[0_0_40px_rgba(52,199,89,0.3)] select-none">
-            <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-emerald-400 via-emerald-500 to-teal-600 grid place-items-center text-black shadow-[0_0_15px_rgba(52,199,89,0.6)] shrink-0">
+            <div 
+              onClick={handleSecretTap}
+              className="h-9 w-9 rounded-xl bg-gradient-to-br from-emerald-400 via-emerald-500 to-teal-600 grid place-items-center text-black shadow-[0_0_15px_rgba(52,199,89,0.6)] shrink-0 cursor-pointer active:scale-90 transition-transform"
+              title="Official Launch"
+            >
               <Zap className="h-5 w-5 stroke-[2.5]" />
             </div>
 
