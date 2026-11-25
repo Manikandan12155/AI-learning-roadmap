@@ -78,6 +78,8 @@ export function PreLaunchLockedScreen({ onDevBypass }: PreLaunchLockedScreenProp
   // "finalCard" -> Once both videos finish -> Center big countdown box with Google pre-login reveals!
   const [teaserStage, setTeaserStage] = useState<"idle" | "countdown" | "presents" | "video" | "finalCard">("idle");
   const [countNumber, setCountNumber] = useState<number>(5);
+  const [isPrivacyShieldActive, setIsPrivacyShieldActive] = useState<boolean>(false);
+  const privacyTimerRef = useRef<any>(null);
 
   // Staggered reveal states
   const [stepHeadingVisible, setStepHeadingVisible] = useState<boolean>(false);
@@ -476,6 +478,62 @@ export function PreLaunchLockedScreen({ onDevBypass }: PreLaunchLockedScreenProp
     }
   }, [teaserStage, currentTrack]);
 
+  // Anti-Screenshot & Screen Capture Deterrent Shield
+  useEffect(() => {
+    const triggerTemporaryShield = () => {
+      setIsPrivacyShieldActive(true);
+      try {
+        navigator.clipboard?.writeText("").catch(() => {});
+      } catch {}
+      if (privacyTimerRef.current) clearTimeout(privacyTimerRef.current);
+      privacyTimerRef.current = setTimeout(() => {
+        setIsPrivacyShieldActive(false);
+      }, 2500);
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        e.key === "PrintScreen" ||
+        ((e.ctrlKey || e.metaKey) && ["p", "s", "u"].includes(e.key.toLowerCase())) ||
+        ((e.ctrlKey || e.metaKey) && e.shiftKey && ["i", "j", "c", "s"].includes(e.key.toLowerCase())) ||
+        e.key === "F12"
+      ) {
+        e.preventDefault();
+        if (e.key === "PrintScreen" || (e.shiftKey && e.key.toLowerCase() === "s")) {
+          triggerTemporaryShield();
+        }
+      }
+    };
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.key === "PrintScreen") {
+        triggerTemporaryShield();
+      }
+    };
+
+    const handleContextMenu = (e: MouseEvent) => e.preventDefault();
+    const handleBlur = () => setIsPrivacyShieldActive(true);
+    const handleFocus = () => setIsPrivacyShieldActive(false);
+    const handleVisibility = () => setIsPrivacyShieldActive(document.hidden);
+
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+    window.addEventListener("contextmenu", handleContextMenu);
+    window.addEventListener("blur", handleBlur);
+    window.addEventListener("focus", handleFocus);
+    document.addEventListener("visibilitychange", handleVisibility);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+      window.removeEventListener("contextmenu", handleContextMenu);
+      window.removeEventListener("blur", handleBlur);
+      window.removeEventListener("focus", handleFocus);
+      document.removeEventListener("visibilitychange", handleVisibility);
+      if (privacyTimerRef.current) clearTimeout(privacyTimerRef.current);
+    };
+  }, []);
+
   // Skip Teaser to Final Card handler for returning users
   const handleSkipToFinalCard = (e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
@@ -512,6 +570,22 @@ export function PreLaunchLockedScreen({ onDevBypass }: PreLaunchLockedScreenProp
 
   return (
     <div className="relative w-screen h-screen overflow-hidden bg-black text-white select-none">
+      {/* ========================================================================= */}
+      {/* ANTI-SCREENSHOT PRIVACY SHIELD OVERLAY                                    */}
+      {/* ========================================================================= */}
+      {isPrivacyShieldActive && (
+        <div className="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-black/95 backdrop-blur-3xl text-center p-6 select-none">
+          <div className="w-16 h-16 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 grid place-items-center text-emerald-400 mb-4 shadow-[0_0_30px_rgba(52,199,89,0.3)]">
+            <Zap className="h-8 w-8" />
+          </div>
+          <h3 className="text-lg sm:text-xl font-display font-bold text-white tracking-tight">
+            Protected Content
+          </h3>
+          <p className="text-xs sm:text-sm text-neutral-400 mt-1 max-w-xs font-sans">
+            Screen capture &amp; external focus are restricted during the pre-launch experience.
+          </p>
+        </div>
+      )}
       {/* ========================================================================= */}
       {/* 0. MOBILE PORTRAIT ROTATE PHONE OVERLAY (Active during video trailer only)  */}
       {/* ========================================================================= */}
