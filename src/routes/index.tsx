@@ -1326,7 +1326,7 @@ Please cover:
                           rel="noreferrer"
                           title={`Watch top video tutorial on "${tp.name}"`}
                           onClick={(e) => e.stopPropagation()}
-                          className="ml-0.5 p-1 rounded-full hover:bg-rose-500/20 text-muted-foreground hover:text-rose-400 transition-all opacity-0 group-hover:opacity-100"
+                          className="ml-0.5 p-1 rounded-full hover:bg-rose-500/20 text-muted-foreground hover:text-rose-400 transition-all opacity-80 hover:opacity-100"
                         >
                           <Youtube className="h-3 w-3" />
                         </a>
@@ -1338,7 +1338,7 @@ Please cover:
                           rel="noreferrer"
                           title={`Read Wikipedia article on "${tp.name}"`}
                           onClick={(e) => e.stopPropagation()}
-                          className="p-1 rounded-full hover:bg-blue-500/20 text-muted-foreground hover:text-blue-400 transition-all opacity-0 group-hover:opacity-100"
+                          className="p-1 rounded-full hover:bg-blue-500/20 text-muted-foreground hover:text-blue-400 transition-all opacity-80 hover:opacity-100"
                         >
                           <Globe className="h-3 w-3" />
                         </a>
@@ -1351,7 +1351,7 @@ Please cover:
                             e.stopPropagation();
                             onAskAi(tp.name, section.name);
                           }}
-                          className="p-1 rounded-full hover:bg-primary/20 text-muted-foreground hover:text-primary transition-all opacity-0 group-hover:opacity-100"
+                          className="p-1 rounded-full hover:bg-primary/20 text-muted-foreground hover:text-primary transition-all opacity-80 hover:opacity-100"
                         >
                           <Sparkles className="h-3 w-3 text-primary-glow" />
                         </span>
@@ -1361,7 +1361,7 @@ Please cover:
                           title="Copy AI study prompt to clipboard"
                           onClick={(e) => handleCopy(e, tp.name, section.name, k)}
                           className={`p-1 rounded-full hover:bg-white/10 active:scale-90 transition-all text-muted-foreground hover:text-foreground ${
-                            isCopied ? "text-primary opacity-100" : "opacity-0 group-hover:opacity-100"
+                            isCopied ? "text-primary opacity-100" : "opacity-80 hover:opacity-100"
                           }`}
                         >
                           {isCopied ? (
