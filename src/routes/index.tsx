@@ -881,7 +881,16 @@ function BenefitsMarquee() {
   );
 }
 
-function RealTimeAnalogClock() {
+const RADIAL_PROVIDERS = [
+  { name: "Gemini", tag: "2.5 Flash", angle: -90, color: "text-blue-400 border-blue-500/30" },
+  { name: "Claude", tag: "3.7 Sonnet", angle: -30, color: "text-amber-400 border-amber-500/30" },
+  { name: "DeepSeek", tag: "R1", angle: 30, color: "text-cyan-400 border-cyan-500/30" },
+  { name: "OpenAI", tag: "GPT-4o", angle: 90, color: "text-emerald-400 border-emerald-500/30" },
+  { name: "Groq", tag: "500 t/s", angle: 150, color: "text-orange-400 border-orange-500/30" },
+  { name: "Together", tag: "Turbo", angle: 210, color: "text-purple-400 border-purple-500/30" },
+];
+
+function SmartCanvasClockRouter() {
   const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
@@ -898,80 +907,76 @@ function RealTimeAnalogClock() {
   const hourDeg = hours * 30;
 
   return (
-    <div className="relative mx-auto w-56 h-56 sm:w-64 sm:h-64 rounded-full border border-white/15 bg-white/[0.04] backdrop-blur-2xl shadow-[0_0_60px_rgba(52,199,89,0.18)] overflow-hidden flex items-center justify-center select-none">
-      {/* Blurred person silhouette behind frosted glass */}
-      <div
-        className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-35 blur-[10px] transition-transform duration-1000 ease-in-out"
-        style={{ transform: `rotate(${Math.sin(seconds * 0.2) * 8}deg) translateY(6px)` }}
-      >
-        <div className="relative flex flex-col items-center">
-          <div className="w-10 h-10 rounded-full bg-sky-400/70 mb-1" />
-          <div className="w-16 h-24 rounded-t-3xl bg-blue-500/70" />
-          <div
-            className="absolute -right-5 top-6 w-3 h-14 rounded-full bg-sky-300/80 origin-bottom"
-            style={{ transform: `rotate(${minDeg * 0.15}deg)` }}
-          />
-        </div>
-      </div>
+    <div className="relative w-[320px] h-[320px] sm:w-[370px] sm:h-[370px] flex items-center justify-center select-none">
+      {/* Subtle outer clock ring */}
+      <div className="absolute inset-6 rounded-full border border-emerald-500/20 bg-emerald-500/[0.02] backdrop-blur-xl shadow-[0_0_60px_rgba(52,199,89,0.12)] pointer-events-none" />
 
-      {/* Frosted glass overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/40 pointer-events-none" />
-
-      {/* Clock tick marks */}
-      <svg viewBox="0 0 200 200" className="relative z-10 w-full h-full">
-        {Array.from({ length: 12 }).map((_, i) => (
-          <line
-            key={i}
-            x1="100"
-            y1="12"
-            x2="100"
-            y2={i % 3 === 0 ? "26" : "20"}
-            stroke="rgba(255,255,255,0.75)"
-            strokeWidth={i % 3 === 0 ? "4" : "2"}
-            strokeLinecap="round"
-            transform={`rotate(${i * 30} 100 100)`}
-          />
-        ))}
-        {/* Hand-drawn style Hour Hand */}
+      {/* Real-Time Clock Hands radiating from Center Smart Canvas Hub */}
+      <svg viewBox="0 0 200 200" className="absolute inset-0 w-full h-full pointer-events-none z-10">
+        {/* Hour Hand */}
         <line
           x1="100"
           y1="100"
           x2="100"
-          y2="52"
-          stroke="#ffffff"
-          strokeWidth="6"
+          y2="54"
+          stroke="rgba(255,255,255,0.85)"
+          strokeWidth="3.5"
           strokeLinecap="round"
           transform={`rotate(${hourDeg} 100 100)`}
         />
-        {/* Hand-drawn style Minute Hand */}
+        {/* Minute Hand */}
         <line
           x1="100"
           y1="100"
           x2="100"
-          y2="30"
+          y2="34"
           stroke="#34C759"
-          strokeWidth="4.5"
+          strokeWidth="2.5"
           strokeLinecap="round"
           transform={`rotate(${minDeg} 100 100)`}
         />
         {/* Second Hand */}
         <line
           x1="100"
-          y1="108"
+          y1="100"
           x2="100"
-          y2="24"
+          y2="28"
           stroke="#2dd4bf"
-          strokeWidth="1.8"
+          strokeWidth="1.2"
           strokeLinecap="round"
           transform={`rotate(${secDeg} 100 100)`}
         />
-        <circle cx="100" cy="100" r="5" fill="#ffffff" />
       </svg>
 
-      {/* Bottom warning pill */}
-      <div className="absolute bottom-4 z-20 px-2.5 py-0.5 rounded-full bg-black/70 border border-emerald-500/40 text-[9px] font-mono font-bold uppercase tracking-widest text-emerald-300">
-        Time Is Running Out
+      {/* Center Smart Canvas Hub */}
+      <div className="relative z-20 w-24 h-24 rounded-2xl border border-emerald-400/50 bg-[#070d0a]/95 backdrop-blur-2xl shadow-[0_0_35px_rgba(52,199,89,0.35)] flex flex-col items-center justify-center gap-1 text-center">
+        <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 grid place-items-center text-black shadow-sm">
+          <Zap className="h-4 w-4 stroke-[2.5]" />
+        </div>
+        <span className="text-[10px] font-display font-bold text-white leading-tight">
+          Smart Canvas
+        </span>
       </div>
+
+      {/* Surrounding Radial AI Provider Cards */}
+      {RADIAL_PROVIDERS.map((p) => {
+        const rad = (p.angle * Math.PI) / 180;
+        const radius = 132;
+        const x = Math.cos(rad) * radius;
+        const y = Math.sin(rad) * radius;
+        return (
+          <div
+            key={p.name}
+            style={{ transform: `translate(${x}px, ${y}px)` }}
+            className={`absolute z-20 px-3 py-1.5 rounded-xl border bg-[#070d0a]/90 backdrop-blur-xl shadow-md flex flex-col items-center text-center transition-transform hover:scale-105 ${p.color}`}
+          >
+            <span className="text-[11px] font-display font-bold text-white leading-tight">
+              {p.name}
+            </span>
+            <span className="text-[9px] font-mono opacity-80">{p.tag}</span>
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -1056,19 +1061,12 @@ function Hero({
             </div>
           </div>
 
-          {/* Right Column: Merged Smart Canvas Analog Clock + AI Hub */}
-          <div className="lg:col-span-5 flex justify-center items-center">
-            <div className="relative w-full max-w-md rounded-3xl border border-emerald-500/25 bg-[#070d0a]/70 backdrop-blur-2xl p-5 sm:p-6 shadow-[0_0_60px_rgba(52,199,89,0.15)] flex flex-col items-center gap-4">
-              <div className="flex flex-col items-center gap-1.5">
-                <RealTimeAnalogClock />
-                <p className="text-[10px] font-mono uppercase tracking-widest text-emerald-300/80 text-center">
-                  Don&apos;t waste your time · Build daily consistency
-                </p>
-              </div>
-              <div className="w-full border-t border-white/10 pt-4">
-                <AIRouterPipelines />
-              </div>
-            </div>
+          {/* Right Column: Radial Smart Canvas Analog Clock + AI Providers */}
+          <div className="lg:col-span-5 flex flex-col justify-center items-center gap-3">
+            <SmartCanvasClockRouter />
+            <p className="text-[10px] font-mono uppercase tracking-widest text-emerald-300/80 text-center">
+              Don&apos;t waste your time · Build daily consistency
+            </p>
           </div>
         </div>
       </div>
