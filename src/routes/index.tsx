@@ -1056,15 +1056,19 @@ function Hero({
             </div>
           </div>
 
-          {/* Right Column: Frosted-Glass "Real Time" Analog Clock + AI Hub Pipeline */}
-          <div className="lg:col-span-5 flex flex-col justify-center items-center gap-5">
-            <div className="flex flex-col items-center gap-2">
-              <RealTimeAnalogClock />
-              <p className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground text-center">
-                Don&apos;t waste your time · Build daily consistency
-              </p>
+          {/* Right Column: Merged Smart Canvas Analog Clock + AI Hub */}
+          <div className="lg:col-span-5 flex justify-center items-center">
+            <div className="relative w-full max-w-md rounded-3xl border border-emerald-500/25 bg-[#070d0a]/70 backdrop-blur-2xl p-5 sm:p-6 shadow-[0_0_60px_rgba(52,199,89,0.15)] flex flex-col items-center gap-4">
+              <div className="flex flex-col items-center gap-1.5">
+                <RealTimeAnalogClock />
+                <p className="text-[10px] font-mono uppercase tracking-widest text-emerald-300/80 text-center">
+                  Don&apos;t waste your time · Build daily consistency
+                </p>
+              </div>
+              <div className="w-full border-t border-white/10 pt-4">
+                <AIRouterPipelines />
+              </div>
             </div>
-            <AIRouterPipelines />
           </div>
         </div>
       </div>
