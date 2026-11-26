@@ -1031,14 +1031,35 @@ function SmartCanvasClockRouter() {
         const radius = 142;
         const x = Math.cos(rad) * radius;
         const y = Math.sin(rad) * radius;
+        const clockDeg = (p.angle + 90 + 360) % 360;
+        const diff = Math.abs(((secDeg - clockDeg + 540) % 360) - 180);
+        const isActive = diff <= 18;
+
         return (
           <div
             key={p.name}
             title={p.name}
             style={{ transform: `translate(${x}px, ${y}px)` }}
-            className={`absolute z-20 w-12 h-12 rounded-2xl border bg-[#070e0b]/95 backdrop-blur-2xl shadow-[0_8px_24px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.16)] grid place-items-center transition-all duration-300 hover:scale-110 cursor-pointer ${p.color}`}
+            className={`absolute z-20 flex flex-col items-center transition-all duration-300 cursor-pointer ${
+              isActive ? "scale-115 z-30" : "hover:scale-110"
+            }`}
           >
-            <img src={p.logoUrl} alt={p.name} className="w-6 h-6 object-contain" />
+            <div
+              className={`w-12 h-12 rounded-2xl border bg-[#070e0b]/95 backdrop-blur-2xl grid place-items-center transition-all duration-300 ${
+                isActive
+                  ? "border-emerald-400 shadow-[0_0_28px_rgba(52,199,89,0.7),inset_0_1px_0_rgba(255,255,255,0.3)]"
+                  : `shadow-[0_8px_24px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.16)] ${p.color}`
+              }`}
+            >
+              <img src={p.logoUrl} alt={p.name} className="w-6 h-6 object-contain" />
+            </div>
+            <span
+              className={`mt-1 px-2 py-0.5 rounded-full text-[9px] font-mono font-bold whitespace-nowrap bg-black/85 border border-emerald-400/50 text-emerald-300 shadow-sm transition-all duration-300 ${
+                isActive ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-1 pointer-events-none"
+              }`}
+            >
+              {p.name}
+            </span>
           </div>
         );
       })}
