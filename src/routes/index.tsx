@@ -385,6 +385,7 @@ function HomePage() {
         completedLevels={completedLevels}
         onOpenAboutModal={() => setIsAboutModalOpen(true)}
       />
+      <BenefitsMarquee />
       <Showcase />
 
       <main className="mx-auto max-w-7xl px-4 sm:px-6 pb-32">
@@ -849,6 +850,34 @@ function Header({
         </div>
       </div>
     </header>
+  );
+}
+
+const PLATFORM_BENEFITS = [
+  "14-Level Autonomous AI & Systems Roadmap",
+  "AI Study Studio: Overview, Quiz, Flashcards & Mindmaps",
+  "Live Browser Python & AI-Lab Execution",
+  "Direct YouTube + Wikipedia + AI Tutor per Topic",
+  "Cloud Progress Sync & Verified Certificates",
+  "100% Free & Built for Production Engineers",
+];
+
+function BenefitsMarquee() {
+  const items = [...PLATFORM_BENEFITS, ...PLATFORM_BENEFITS];
+  return (
+    <div className="relative w-full overflow-hidden border-y border-border/60 bg-surface/60 backdrop-blur-md py-2.5 select-none">
+      <div className="animate-marquee flex items-center gap-6">
+        {items.map((benefit, idx) => (
+          <div
+            key={idx}
+            className="inline-flex items-center gap-2.5 px-3.5 py-1 rounded-full bg-background/70 border border-border/70 text-xs font-mono text-foreground/90 whitespace-nowrap shadow-xs"
+          >
+            <span className="h-2 w-2 rounded-full bg-primary animate-pulse shrink-0" />
+            <span>{benefit}</span>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
