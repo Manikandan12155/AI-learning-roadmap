@@ -1040,7 +1040,7 @@ function SmartCanvasClockRouter() {
             key={p.name}
             title={p.name}
             style={{ transform: `translate(${x}px, ${y}px)` }}
-            className={`absolute z-20 flex flex-col items-center transition-all duration-300 cursor-pointer ${
+            className={`absolute z-20 flex items-center justify-center transition-all duration-300 cursor-pointer ${
               isActive ? "scale-115 z-30" : "hover:scale-110"
             }`}
           >
@@ -1054,7 +1054,7 @@ function SmartCanvasClockRouter() {
               <img src={p.logoUrl} alt={p.name} className="w-6 h-6 object-contain" />
             </div>
             <span
-              className={`mt-1 px-2 py-0.5 rounded-full text-[9px] font-mono font-bold whitespace-nowrap bg-black/85 border border-emerald-400/50 text-emerald-300 shadow-sm transition-all duration-300 ${
+              className={`absolute top-full mt-1.5 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full text-[9px] font-mono font-bold whitespace-nowrap bg-black/90 border border-emerald-400/50 text-emerald-300 shadow-sm transition-all duration-300 ${
                 isActive ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-1 pointer-events-none"
               }`}
             >

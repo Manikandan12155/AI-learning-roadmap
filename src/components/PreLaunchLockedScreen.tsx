@@ -164,9 +164,26 @@ export function PreLaunchLockedScreen({ onDevBypass }: PreLaunchLockedScreenProp
 
       if (type === "doomsday_clock_tick") {
         // =========================================================================
-        // AVENGERS: DOOMSDAY CLOCK LIVESTREAM (Loud, Punchy Mechanical Clock Tick)
-        // High-presence metallic ping + crisp mechanical clack + deep resonant bass
+        // AVENGERS: DOOMSDAY CLOCK LIVESTREAM (Loud Mechanical Tick + Hall Echo)
         // =========================================================================
+        const masterBus = ctx.createGain();
+        masterBus.gain.setValueAtTime(1.0, now);
+        masterBus.connect(ctx.destination);
+
+        // Cinematic Hall Echo (180ms delay + 35% feedback + warm lowpass)
+        const delayNode = ctx.createDelay(1.0);
+        delayNode.delayTime.setValueAtTime(0.18, now);
+        const feedbackGain = ctx.createGain();
+        feedbackGain.gain.setValueAtTime(0.35, now);
+        const echoFilter = ctx.createBiquadFilter();
+        echoFilter.type = "lowpass";
+        echoFilter.frequency.setValueAtTime(1200, now);
+
+        masterBus.connect(delayNode);
+        delayNode.connect(echoFilter);
+        echoFilter.connect(feedbackGain);
+        feedbackGain.connect(delayNode);
+        echoFilter.connect(ctx.destination);
         
         // 1. Crisp Metallic Ping & Anvil Harmonics (1200Hz - 2400Hz resonant bell/gear strike)
         const pingOsc = ctx.createOscillator();
@@ -185,7 +202,7 @@ export function PreLaunchLockedScreen({ onDevBypass }: PreLaunchLockedScreenProp
 
         pingOsc.connect(pingFilter);
         pingFilter.connect(pingGain);
-        pingGain.connect(ctx.destination);
+        pingGain.connect(masterBus);
         pingOsc.start(now);
         pingOsc.stop(now + 0.16);
 
@@ -206,7 +223,7 @@ export function PreLaunchLockedScreen({ onDevBypass }: PreLaunchLockedScreenProp
 
         clackOsc.connect(clackFilter);
         clackFilter.connect(clackGain);
-        clackGain.connect(ctx.destination);
+        clackGain.connect(masterBus);
         clackOsc.start(now);
         clackOsc.stop(now + 0.07);
 
@@ -221,7 +238,7 @@ export function PreLaunchLockedScreen({ onDevBypass }: PreLaunchLockedScreenProp
         subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
 
         subOsc.connect(subGain);
-        subGain.connect(ctx.destination);
+        subGain.connect(masterBus);
         subOsc.start(now);
         subOsc.stop(now + 0.3);
 
