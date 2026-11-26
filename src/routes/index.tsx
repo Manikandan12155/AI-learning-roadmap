@@ -881,6 +881,101 @@ function BenefitsMarquee() {
   );
 }
 
+function RealTimeAnalogClock() {
+  const [now, setNow] = useState(() => new Date());
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  const seconds = now.getSeconds();
+  const minutes = now.getMinutes() + seconds / 60;
+  const hours = (now.getHours() % 12) + minutes / 60;
+
+  const secDeg = seconds * 6;
+  const minDeg = minutes * 6;
+  const hourDeg = hours * 30;
+
+  return (
+    <div className="relative mx-auto w-56 h-56 sm:w-64 sm:h-64 rounded-full border border-white/15 bg-white/[0.04] backdrop-blur-2xl shadow-[0_0_60px_rgba(52,199,89,0.18)] overflow-hidden flex items-center justify-center select-none">
+      {/* Blurred person silhouette behind frosted glass */}
+      <div
+        className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-35 blur-[10px] transition-transform duration-1000 ease-in-out"
+        style={{ transform: `rotate(${Math.sin(seconds * 0.2) * 8}deg) translateY(6px)` }}
+      >
+        <div className="relative flex flex-col items-center">
+          <div className="w-10 h-10 rounded-full bg-sky-400/70 mb-1" />
+          <div className="w-16 h-24 rounded-t-3xl bg-blue-500/70" />
+          <div
+            className="absolute -right-5 top-6 w-3 h-14 rounded-full bg-sky-300/80 origin-bottom"
+            style={{ transform: `rotate(${minDeg * 0.15}deg)` }}
+          />
+        </div>
+      </div>
+
+      {/* Frosted glass overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/40 pointer-events-none" />
+
+      {/* Clock tick marks */}
+      <svg viewBox="0 0 200 200" className="relative z-10 w-full h-full">
+        {Array.from({ length: 12 }).map((_, i) => (
+          <line
+            key={i}
+            x1="100"
+            y1="12"
+            x2="100"
+            y2={i % 3 === 0 ? "26" : "20"}
+            stroke="rgba(255,255,255,0.75)"
+            strokeWidth={i % 3 === 0 ? "4" : "2"}
+            strokeLinecap="round"
+            transform={`rotate(${i * 30} 100 100)`}
+          />
+        ))}
+        {/* Hand-drawn style Hour Hand */}
+        <line
+          x1="100"
+          y1="100"
+          x2="100"
+          y2="52"
+          stroke="#ffffff"
+          strokeWidth="6"
+          strokeLinecap="round"
+          transform={`rotate(${hourDeg} 100 100)`}
+        />
+        {/* Hand-drawn style Minute Hand */}
+        <line
+          x1="100"
+          y1="100"
+          x2="100"
+          y2="30"
+          stroke="#34C759"
+          strokeWidth="4.5"
+          strokeLinecap="round"
+          transform={`rotate(${minDeg} 100 100)`}
+        />
+        {/* Second Hand */}
+        <line
+          x1="100"
+          y1="108"
+          x2="100"
+          y2="24"
+          stroke="#2dd4bf"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          transform={`rotate(${secDeg} 100 100)`}
+        />
+        <circle cx="100" cy="100" r="5" fill="#ffffff" />
+      </svg>
+
+      {/* Bottom warning pill */}
+      <div className="absolute bottom-4 z-20 px-2.5 py-0.5 rounded-full bg-black/70 border border-emerald-500/40 text-[9px] font-mono font-bold uppercase tracking-widest text-emerald-300">
+        Time Is Running Out
+      </div>
+    </div>
+  );
+}
+
 function Hero({
   done,
   pct,
@@ -961,8 +1056,14 @@ function Hero({
             </div>
           </div>
 
-          {/* Right Column: 9Router Style Interactive AI Hub Pipeline Graphic */}
-          <div className="lg:col-span-5 flex justify-center items-center">
+          {/* Right Column: Frosted-Glass "Real Time" Analog Clock + AI Hub Pipeline */}
+          <div className="lg:col-span-5 flex flex-col justify-center items-center gap-5">
+            <div className="flex flex-col items-center gap-2">
+              <RealTimeAnalogClock />
+              <p className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground text-center">
+                Don&apos;t waste your time · Build daily consistency
+              </p>
+            </div>
             <AIRouterPipelines />
           </div>
         </div>
