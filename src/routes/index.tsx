@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Rocket,
   Code2,
@@ -922,11 +922,25 @@ const RADIAL_PROVIDERS = [
 
 function SmartCanvasClockRouter() {
   const [now, setNow] = useState(() => new Date());
+  const [isTickSoundOn, setIsTickSoundOn] = useState(false);
+  const clockAudioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(id);
   }, []);
+
+  const toggleTickSound = () => {
+    const audio = clockAudioRef.current;
+    if (!audio) return;
+    if (isTickSoundOn) {
+      audio.pause();
+      setIsTickSoundOn(false);
+    } else {
+      audio.volume = 0.55;
+      audio.play().then(() => setIsTickSoundOn(true)).catch(() => {});
+    }
+  };
 
   const seconds = now.getSeconds();
   const minutes = now.getMinutes() + seconds / 60;
@@ -1016,13 +1030,21 @@ function SmartCanvasClockRouter() {
       </svg>
 
       {/* Center Smart Canvas Hub */}
-      <div className="relative z-20 w-24 h-24 rounded-2xl border border-emerald-400/45 bg-gradient-to-b from-[#0d1914] to-[#050a08] backdrop-blur-2xl shadow-[0_0_40px_rgba(52,199,89,0.3),inset_0_1px_1px_rgba(255,255,255,0.2)] flex flex-col items-center justify-center gap-1.5 text-center">
+      <div className="relative z-20 w-24 h-24 rounded-2xl border border-emerald-400/45 bg-gradient-to-b from-[#0d1914] to-[#050a08] backdrop-blur-2xl shadow-[0_0_40px_rgba(52,199,89,0.3),inset_0_1px_1px_rgba(255,255,255,0.2)] flex flex-col items-center justify-center gap-1 text-center">
         <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-400 via-emerald-500 to-teal-500 grid place-items-center text-black shadow-[0_0_15px_rgba(52,199,89,0.6)]">
           <Zap className="h-4 w-4 stroke-[2.5]" />
         </div>
         <span className="text-[10px] font-display font-bold tracking-wide text-white leading-tight">
           Smart Canvas
         </span>
+        <button
+          onClick={toggleTickSound}
+          title={isTickSoundOn ? "Mute Clock Tick" : "Play Clock Tick Sound"}
+          className="px-2 py-0.5 rounded-full bg-white/10 hover:bg-emerald-500/25 border border-white/15 text-[8px] font-mono text-emerald-300 cursor-pointer transition-colors"
+        >
+          {isTickSoundOn ? "🔊 TICK ON" : "🔇 TICK OFF"}
+        </button>
+        <audio ref={clockAudioRef} src="./clock-ticking.mp3" loop preload="auto" />
       </div>
 
       {/* Surrounding Luxury Glass AI Provider Logo Nodes */}
