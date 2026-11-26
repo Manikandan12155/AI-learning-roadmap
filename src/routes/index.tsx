@@ -937,13 +937,13 @@ function SmartCanvasClockRouter() {
   const hourDeg = hours * 30;
 
   return (
-    <div className="relative w-[330px] h-[330px] sm:w-[390px] sm:h-[390px] flex items-center justify-center select-none">
+    <div className="relative w-[360px] h-[360px] sm:w-[430px] sm:h-[430px] flex items-center justify-center select-none">
       {/* Ambient Emerald Halo */}
-      <div className="absolute inset-10 rounded-full bg-emerald-500/10 blur-[60px] pointer-events-none" />
+      <div className="absolute inset-8 rounded-full bg-emerald-500/10 blur-[65px] pointer-events-none" />
 
       {/* Outer Luxury Watch Bezel + Subtle Rotating Orbital Ring */}
-      <div className="absolute inset-4 rounded-full border border-white/10 bg-[#050a08]/75 backdrop-blur-2xl shadow-[0_0_80px_rgba(52,199,89,0.16),inset_0_1px_1px_rgba(255,255,255,0.12)] pointer-events-none" />
-      <div className="absolute inset-7 rounded-full border border-dashed border-emerald-400/20 animate-[spin_40s_linear_infinite] pointer-events-none" />
+      <div className="absolute inset-1 rounded-full border border-white/10 bg-[#050a08]/75 backdrop-blur-2xl shadow-[0_0_80px_rgba(52,199,89,0.16),inset_0_1px_1px_rgba(255,255,255,0.12)] pointer-events-none" />
+      <div className="absolute inset-4 rounded-full border border-dashed border-emerald-400/20 animate-[spin_40s_linear_infinite] pointer-events-none" />
 
       {/* Precision Dial Ticks + Connecting Beams + Real-Time Clock Hands */}
       <svg viewBox="0 0 200 200" className="absolute inset-0 w-full h-full pointer-events-none z-10">
