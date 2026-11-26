@@ -922,13 +922,31 @@ const RADIAL_PROVIDERS = [
 
 function SmartCanvasClockRouter() {
   const [now, setNow] = useState(() => new Date());
-  const [isTickSoundOn, setIsTickSoundOn] = useState(false);
+  const [isTickSoundOn, setIsTickSoundOn] = useState(true);
   const clockAudioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(id);
   }, []);
+
+  useEffect(() => {
+    const audio = clockAudioRef.current;
+    if (!audio || !isTickSoundOn) return;
+    audio.volume = 0.6;
+    const tryPlay = () => {
+      if (isTickSoundOn && audio.paused) {
+        audio.play().catch(() => {});
+      }
+    };
+    tryPlay();
+    window.addEventListener("pointerdown", tryPlay, { once: true });
+    window.addEventListener("keydown", tryPlay, { once: true });
+    return () => {
+      window.removeEventListener("pointerdown", tryPlay);
+      window.removeEventListener("keydown", tryPlay);
+    };
+  }, [isTickSoundOn]);
 
   const toggleTickSound = (e: React.MouseEvent) => {
     e.stopPropagation();
