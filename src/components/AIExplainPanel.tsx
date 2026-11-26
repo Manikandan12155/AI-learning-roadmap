@@ -59,7 +59,7 @@ export function AIExplainPanel({
   topicContext,
 }: AIExplainPanelProps) {
   const [selectedProviderId, setSelectedProviderId] = useState<string>("gemini");
-  const [selectedModel, setSelectedModel] = useState<string>("gemini-3.1-pro-preview");
+  const [selectedModel, setSelectedModel] = useState<string>("gemini-2.5-flash");
   const [activeTab, setActiveTab] = useState<StudioTab>("overview");
   const [isExpanded, setIsExpanded] = useState(false);
   const [loading, setLoading] = useState(false);
