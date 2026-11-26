@@ -930,15 +930,21 @@ function SmartCanvasClockRouter() {
     return () => clearInterval(id);
   }, []);
 
-  const toggleTickSound = () => {
+  const toggleTickSound = (e: React.MouseEvent) => {
+    e.stopPropagation();
     const audio = clockAudioRef.current;
     if (!audio) return;
     if (isTickSoundOn) {
       audio.pause();
       setIsTickSoundOn(false);
     } else {
-      audio.volume = 0.55;
-      audio.play().then(() => setIsTickSoundOn(true)).catch(() => {});
+      audio.volume = 0.6;
+      audio.currentTime = 0;
+      setIsTickSoundOn(true);
+      audio.play().catch((err) => {
+        console.warn("Clock audio play failed:", err);
+        setIsTickSoundOn(false);
+      });
     }
   };
 
@@ -1044,7 +1050,7 @@ function SmartCanvasClockRouter() {
         >
           {isTickSoundOn ? "🔊 TICK ON" : "🔇 TICK OFF"}
         </button>
-        <audio ref={clockAudioRef} src="./clock-ticking.mp3" loop preload="auto" />
+        <audio ref={clockAudioRef} src={`${import.meta.env.BASE_URL}clock-ticking.mp3`} loop preload="auto" />
       </div>
 
       {/* Surrounding Luxury Glass AI Provider Logo Nodes */}
