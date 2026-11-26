@@ -923,7 +923,9 @@ const RADIAL_PROVIDERS = [
 function SmartCanvasClockRouter() {
   const [now, setNow] = useState(() => new Date());
   const [isTickSoundOn, setIsTickSoundOn] = useState(true);
+  const [isClockVisible, setIsClockVisible] = useState(true);
   const clockAudioRef = useRef<HTMLAudioElement | null>(null);
+  const clockContainerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), 1000);
@@ -931,11 +933,28 @@ function SmartCanvasClockRouter() {
   }, []);
 
   useEffect(() => {
+    const el = clockContainerRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsClockVisible(entry.isIntersecting);
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
     const audio = clockAudioRef.current;
-    if (!audio || !isTickSoundOn) return;
+    if (!audio) return;
+    if (!isTickSoundOn || !isClockVisible) {
+      audio.pause();
+      return;
+    }
     audio.volume = 0.6;
     const tryPlay = () => {
-      if (isTickSoundOn && audio.paused) {
+      if (isTickSoundOn && isClockVisible && audio.paused) {
         audio.play().catch(() => {});
       }
     };
@@ -946,7 +965,7 @@ function SmartCanvasClockRouter() {
       window.removeEventListener("pointerdown", tryPlay);
       window.removeEventListener("keydown", tryPlay);
     };
-  }, [isTickSoundOn]);
+  }, [isTickSoundOn, isClockVisible]);
 
   const toggleTickSound = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -975,7 +994,7 @@ function SmartCanvasClockRouter() {
   const hourDeg = hours * 30;
 
   return (
-    <div className="relative w-[360px] h-[360px] sm:w-[430px] sm:h-[430px] flex items-center justify-center select-none">
+    <div ref={clockContainerRef} className="relative w-[360px] h-[360px] sm:w-[430px] sm:h-[430px] flex items-center justify-center select-none">
       {/* Ambient Emerald Halo */}
       <div className="absolute inset-8 rounded-full bg-emerald-500/10 blur-[65px] pointer-events-none" />
 
