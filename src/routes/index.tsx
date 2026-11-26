@@ -907,20 +907,57 @@ function SmartCanvasClockRouter() {
   const hourDeg = hours * 30;
 
   return (
-    <div className="relative w-[320px] h-[320px] sm:w-[370px] sm:h-[370px] flex items-center justify-center select-none">
-      {/* Subtle outer clock ring */}
-      <div className="absolute inset-6 rounded-full border border-emerald-500/20 bg-emerald-500/[0.02] backdrop-blur-xl shadow-[0_0_60px_rgba(52,199,89,0.12)] pointer-events-none" />
+    <div className="relative w-[330px] h-[330px] sm:w-[390px] sm:h-[390px] flex items-center justify-center select-none">
+      {/* Ambient Emerald Halo */}
+      <div className="absolute inset-10 rounded-full bg-emerald-500/10 blur-[60px] pointer-events-none" />
 
-      {/* Real-Time Clock Hands radiating from Center Smart Canvas Hub */}
+      {/* Outer Luxury Watch Bezel + Subtle Rotating Orbital Ring */}
+      <div className="absolute inset-4 rounded-full border border-white/10 bg-[#050a08]/75 backdrop-blur-2xl shadow-[0_0_80px_rgba(52,199,89,0.16),inset_0_1px_1px_rgba(255,255,255,0.12)] pointer-events-none" />
+      <div className="absolute inset-7 rounded-full border border-dashed border-emerald-400/20 animate-[spin_40s_linear_infinite] pointer-events-none" />
+
+      {/* Precision Dial Ticks + Connecting Beams + Real-Time Clock Hands */}
       <svg viewBox="0 0 200 200" className="absolute inset-0 w-full h-full pointer-events-none z-10">
+        {/* 60 Watch Dial Ticks */}
+        {Array.from({ length: 60 }).map((_, i) => {
+          const isHour = i % 5 === 0;
+          return (
+            <line
+              key={i}
+              x1="100"
+              y1="14"
+              x2="100"
+              y2={isHour ? "21" : "17"}
+              stroke={isHour ? "rgba(52,199,89,0.55)" : "rgba(255,255,255,0.14)"}
+              strokeWidth={isHour ? "1.6" : "0.7"}
+              strokeLinecap="round"
+              transform={`rotate(${i * 6} 100 100)`}
+            />
+          );
+        })}
+
+        {/* Subtle Radial Connection Lines to Providers */}
+        {RADIAL_PROVIDERS.map((p) => (
+          <line
+            key={`beam-${p.name}`}
+            x1="100"
+            y1="100"
+            x2="100"
+            y2="30"
+            stroke="rgba(52,199,89,0.15)"
+            strokeWidth="0.7"
+            strokeDasharray="2 3"
+            transform={`rotate(${p.angle + 90} 100 100)`}
+          />
+        ))}
+
         {/* Hour Hand */}
         <line
           x1="100"
           y1="100"
           x2="100"
-          y2="54"
-          stroke="rgba(255,255,255,0.85)"
-          strokeWidth="3.5"
+          y2="56"
+          stroke="#ffffff"
+          strokeWidth="3.2"
           strokeLinecap="round"
           transform={`rotate(${hourDeg} 100 100)`}
         />
@@ -929,51 +966,54 @@ function SmartCanvasClockRouter() {
           x1="100"
           y1="100"
           x2="100"
-          y2="34"
+          y2="36"
           stroke="#34C759"
-          strokeWidth="2.5"
+          strokeWidth="2.2"
           strokeLinecap="round"
           transform={`rotate(${minDeg} 100 100)`}
         />
         {/* Second Hand */}
         <line
           x1="100"
-          y1="100"
+          y1="106"
           x2="100"
-          y2="28"
+          y2="27"
           stroke="#2dd4bf"
-          strokeWidth="1.2"
+          strokeWidth="1.1"
           strokeLinecap="round"
           transform={`rotate(${secDeg} 100 100)`}
         />
       </svg>
 
       {/* Center Smart Canvas Hub */}
-      <div className="relative z-20 w-24 h-24 rounded-2xl border border-emerald-400/50 bg-[#070d0a]/95 backdrop-blur-2xl shadow-[0_0_35px_rgba(52,199,89,0.35)] flex flex-col items-center justify-center gap-1 text-center">
-        <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 grid place-items-center text-black shadow-sm">
+      <div className="relative z-20 w-24 h-24 rounded-2xl border border-emerald-400/45 bg-gradient-to-b from-[#0d1914] to-[#050a08] backdrop-blur-2xl shadow-[0_0_40px_rgba(52,199,89,0.3),inset_0_1px_1px_rgba(255,255,255,0.2)] flex flex-col items-center justify-center gap-1.5 text-center">
+        <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-400 via-emerald-500 to-teal-500 grid place-items-center text-black shadow-[0_0_15px_rgba(52,199,89,0.6)]">
           <Zap className="h-4 w-4 stroke-[2.5]" />
         </div>
-        <span className="text-[10px] font-display font-bold text-white leading-tight">
+        <span className="text-[10px] font-display font-bold tracking-wide text-white leading-tight">
           Smart Canvas
         </span>
       </div>
 
-      {/* Surrounding Radial AI Provider Cards */}
+      {/* Surrounding Luxury Glass AI Provider Nodes */}
       {RADIAL_PROVIDERS.map((p) => {
         const rad = (p.angle * Math.PI) / 180;
-        const radius = 132;
+        const radius = 142;
         const x = Math.cos(rad) * radius;
         const y = Math.sin(rad) * radius;
         return (
           <div
             key={p.name}
             style={{ transform: `translate(${x}px, ${y}px)` }}
-            className={`absolute z-20 px-3 py-1.5 rounded-xl border bg-[#070d0a]/90 backdrop-blur-xl shadow-md flex flex-col items-center text-center transition-transform hover:scale-105 ${p.color}`}
+            className={`absolute z-20 min-w-[84px] px-3 py-1.5 rounded-2xl border bg-[#070e0b]/90 backdrop-blur-2xl shadow-[0_8px_24px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.14)] flex flex-col items-center text-center transition-all duration-300 hover:scale-105 ${p.color}`}
           >
-            <span className="text-[11px] font-display font-bold text-white leading-tight">
-              {p.name}
-            </span>
-            <span className="text-[9px] font-mono opacity-80">{p.tag}</span>
+            <div className="flex items-center gap-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-[11px] font-display font-bold text-white leading-tight">
+                {p.name}
+              </span>
+            </div>
+            <span className="text-[9px] font-mono opacity-80 mt-0.5">{p.tag}</span>
           </div>
         );
       })}
