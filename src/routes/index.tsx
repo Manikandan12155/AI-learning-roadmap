@@ -882,12 +882,42 @@ function BenefitsMarquee() {
 }
 
 const RADIAL_PROVIDERS = [
-  { name: "Gemini", tag: "2.5 Flash", angle: -90, color: "text-blue-400 border-blue-500/30" },
-  { name: "Claude", tag: "3.7 Sonnet", angle: -30, color: "text-amber-400 border-amber-500/30" },
-  { name: "DeepSeek", tag: "R1", angle: 30, color: "text-cyan-400 border-cyan-500/30" },
-  { name: "OpenAI", tag: "GPT-4o", angle: 90, color: "text-emerald-400 border-emerald-500/30" },
-  { name: "Groq", tag: "500 t/s", angle: 150, color: "text-orange-400 border-orange-500/30" },
-  { name: "Together", tag: "Turbo", angle: 210, color: "text-purple-400 border-purple-500/30" },
+  {
+    name: "Gemini 2.5 Flash",
+    angle: -90,
+    color: "border-blue-500/35 hover:border-blue-400/70",
+    logoUrl: "https://cdn.simpleicons.org/googlegemini/4285F4",
+  },
+  {
+    name: "Claude 3.7 Sonnet",
+    angle: -30,
+    color: "border-amber-500/35 hover:border-amber-400/70",
+    logoUrl: "https://cdn.simpleicons.org/anthropic/D97757",
+  },
+  {
+    name: "DeepSeek R1",
+    angle: 30,
+    color: "border-cyan-500/35 hover:border-cyan-400/70",
+    logoUrl: "https://cdn.simpleicons.org/deepseek/38BDF8",
+  },
+  {
+    name: "OpenAI GPT-4o",
+    angle: 90,
+    color: "border-emerald-500/35 hover:border-emerald-400/70",
+    logoUrl: "https://api.iconify.design/simple-icons/openai.svg?color=%2310A37F",
+  },
+  {
+    name: "Meta Llama",
+    angle: 150,
+    color: "border-blue-500/35 hover:border-blue-400/70",
+    logoUrl: "https://api.iconify.design/simple-icons/meta.svg?color=%230668E1",
+  },
+  {
+    name: "Hugging Face",
+    angle: 210,
+    color: "border-amber-400/35 hover:border-amber-300/70",
+    logoUrl: "https://api.iconify.design/simple-icons/huggingface.svg?color=%23FFD21E",
+  },
 ];
 
 function SmartCanvasClockRouter() {
@@ -995,7 +1025,7 @@ function SmartCanvasClockRouter() {
         </span>
       </div>
 
-      {/* Surrounding Luxury Glass AI Provider Nodes */}
+      {/* Surrounding Luxury Glass AI Provider Logo Nodes */}
       {RADIAL_PROVIDERS.map((p) => {
         const rad = (p.angle * Math.PI) / 180;
         const radius = 142;
@@ -1004,16 +1034,11 @@ function SmartCanvasClockRouter() {
         return (
           <div
             key={p.name}
+            title={p.name}
             style={{ transform: `translate(${x}px, ${y}px)` }}
-            className={`absolute z-20 min-w-[84px] px-3 py-1.5 rounded-2xl border bg-[#070e0b]/90 backdrop-blur-2xl shadow-[0_8px_24px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.14)] flex flex-col items-center text-center transition-all duration-300 hover:scale-105 ${p.color}`}
+            className={`absolute z-20 w-12 h-12 rounded-2xl border bg-[#070e0b]/95 backdrop-blur-2xl shadow-[0_8px_24px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.16)] grid place-items-center transition-all duration-300 hover:scale-110 cursor-pointer ${p.color}`}
           >
-            <div className="flex items-center gap-1.5">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-[11px] font-display font-bold text-white leading-tight">
-                {p.name}
-              </span>
-            </div>
-            <span className="text-[9px] font-mono opacity-80 mt-0.5">{p.tag}</span>
+            <img src={p.logoUrl} alt={p.name} className="w-6 h-6 object-contain" />
           </div>
         );
       })}
