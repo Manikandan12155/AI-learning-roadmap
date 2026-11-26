@@ -971,16 +971,14 @@ function SmartCanvasClockRouter() {
     e.stopPropagation();
     const audio = clockAudioRef.current;
     if (!audio) return;
-    if (isTickSoundOn) {
+    if (isTickSoundOn && !audio.paused) {
       audio.pause();
       setIsTickSoundOn(false);
     } else {
       audio.volume = 0.6;
-      audio.currentTime = 0;
       setIsTickSoundOn(true);
       audio.play().catch((err) => {
         console.warn("Clock audio play failed:", err);
-        setIsTickSoundOn(false);
       });
     }
   };
