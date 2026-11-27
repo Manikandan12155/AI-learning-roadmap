@@ -891,9 +891,11 @@ function BenefitsMarquee() {
           {row.items.map((benefit, idx) => (
             <div
               key={idx}
-              className="relative w-64 shrink-0 p-[1px] rounded-2xl overflow-hidden bg-[conic-gradient(from_180deg_at_0%_0%,#ff0080_0deg,#ff8c00_72deg,#34C759_144deg,#00d2ff_216deg,#7928ca_288deg,rgba(52,199,89,0.2)_360deg)] shadow-[0_0_20px_rgba(255,0,128,0.12)] hover:shadow-[0_0_26px_rgba(0,210,255,0.28)] transition-shadow"
+              className="relative w-64 shrink-0 p-[1.5px] rounded-2xl overflow-hidden shadow-[0_0_20px_rgba(52,199,89,0.15)]"
             >
-              <div className="w-full h-full p-3 rounded-[15px] bg-[#070e0b]/95 backdrop-blur-xl flex items-start gap-3">
+              {/* Rotating Rainbow Border Glow */}
+              <div className="absolute -inset-[100%] animate-[spin_4s_linear_infinite] bg-[conic-gradient(from_0deg,#ff0080,#ff8c00,#34C759,#00d2ff,#7928ca,#ff0080)] pointer-events-none" />
+              <div className="relative z-10 w-full h-full p-3 rounded-[14.5px] bg-[#070e0b]/95 backdrop-blur-xl flex items-start gap-3">
                 <div className="h-9 w-9 rounded-xl bg-emerald-500/15 border border-emerald-500/30 grid place-items-center text-emerald-400 shrink-0">
                   <Sparkles className="h-4 w-4" />
                 </div>
