@@ -1682,35 +1682,72 @@ Please cover:
               </button>
             </div>
 
-            <div className="relative pl-6 space-y-4 before:content-[''] before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[2px] before:bg-gradient-to-b before:from-emerald-400 before:via-teal-500/50 before:to-emerald-500/20">
+            <div className="flex flex-col items-center space-y-2 py-2">
+              {/* Flowchart START Node */}
+              <div className="px-4 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-400 text-xs font-mono font-bold text-emerald-300 shadow-[0_0_15px_rgba(52,199,89,0.3)]">
+                START · L{lIdx.toString().padStart(2, "0")}
+              </div>
+
               {lvl.sections.map((sec, sIdx) => {
                 const secDone = sec.topics.filter((tp) => state[keyFor(lIdx, sec.name, tp.name)]).length;
                 const isSecDone = secDone === sec.topics.length && sec.topics.length > 0;
                 return (
-                  <div key={sec.name} className="relative flex items-start gap-3">
+                  <div key={sec.name} className="w-full flex flex-col items-center">
+                    {/* Flowchart Arrow Connector */}
+                    <div className="flex flex-col items-center my-1">
+                      <div className="w-[2px] h-4 bg-emerald-400/60" />
+                      <span className="text-emerald-400 text-xs leading-none">▼</span>
+                    </div>
+
+                    {/* Flowchart Process Box */}
                     <div
-                      className={`absolute -left-6 top-1 w-6 h-6 rounded-full border-2 grid place-items-center text-[10px] font-mono font-bold ${
+                      className={`w-full p-3.5 rounded-2xl border transition-colors ${
                         isSecDone
-                          ? "bg-emerald-400 border-emerald-300 text-black"
-                          : "bg-[#070e0b] border-emerald-400/70 text-emerald-300"
+                          ? "border-emerald-400/60 bg-emerald-500/10"
+                          : "border-white/15 bg-white/[0.03]"
                       }`}
                     >
-                      {sIdx + 1}
-                    </div>
-                    <div className="flex-1 p-3 rounded-2xl border border-white/10 bg-white/[0.03] hover:border-emerald-400/40 transition-colors">
-                      <div className="flex items-center justify-between gap-2">
-                        <h4 className="font-display font-bold text-sm text-white">{sec.name}</h4>
-                        <span className="text-[10px] font-mono text-emerald-300 shrink-0">
+                      <div className="flex items-center justify-between gap-2 mb-2">
+                        <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-300">
+                          Step {sIdx + 1} · {sec.name}
+                        </span>
+                        <span className="text-[10px] font-mono text-neutral-300 shrink-0">
                           {secDone}/{sec.topics.length}
                         </span>
                       </div>
-                      <p className="text-[11px] text-neutral-400 mt-1 line-clamp-2">
-                        {sec.topics.map((t) => t.name).join(" • ")}
-                      </p>
+
+                      {/* Branched Topic Nodes */}
+                      <div className="flex flex-wrap gap-1.5">
+                        {sec.topics.map((t) => {
+                          const tDone = !!state[keyFor(lIdx, sec.name, t.name)];
+                          return (
+                            <span
+                              key={t.name}
+                              className={`px-2 py-0.5 rounded-md text-[10px] font-mono border ${
+                                tDone
+                                  ? "bg-emerald-500/20 border-emerald-400/50 text-emerald-200"
+                                  : "bg-black/40 border-white/10 text-neutral-300"
+                              }`}
+                            >
+                              {tDone ? "✓ " : ""}
+                              {t.name}
+                            </span>
+                          );
+                        })}
+                      </div>
                     </div>
                   </div>
                 );
               })}
+
+              {/* Flowchart END Node */}
+              <div className="flex flex-col items-center my-1">
+                <div className="w-[2px] h-4 bg-emerald-400/60" />
+                <span className="text-emerald-400 text-xs leading-none">▼</span>
+              </div>
+              <div className="px-4 py-1.5 rounded-full bg-gradient-to-r from-emerald-400 to-teal-500 text-black text-xs font-mono font-bold shadow-[0_0_20px_rgba(52,199,89,0.5)]">
+                LEVEL MASTERED ★
+              </div>
             </div>
           </div>
         </div>
