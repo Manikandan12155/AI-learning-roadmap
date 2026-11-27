@@ -943,25 +943,35 @@ function DiagonalCurtainReveal() {
         isOpening ? "pointer-events-none" : ""
       }`}
     >
-      {/* Top Triangle */}
+      {/* SVG Fibre-Tear Turbulence Filter for Jagged Paper-Rip Edges */}
+      <svg className="hidden">
+        <defs>
+          <filter id="fibre-tear-edge">
+            <feTurbulence type="fractalNoise" baseFrequency="0.045" numOctaves="4" result="noise" />
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="18" xChannelSelector="R" yChannelSelector="G" />
+          </filter>
+        </defs>
+      </svg>
+
+      {/* Top Triangle (Fibre-Torn Edge) */}
       <div
-        style={{ clipPath: "polygon(0 0, 100% 0, 50% 50%)" }}
-        className={`absolute inset-0 bg-[#050b08] ${ease} ${isOpening ? "-translate-y-full" : "translate-y-0"}`}
+        style={{ clipPath: "polygon(0 0, 100% 0, 50% 50%)", filter: "url(#fibre-tear-edge)" }}
+        className={`absolute -inset-3 bg-[#050b08] ${ease} ${isOpening ? "-translate-y-full" : "translate-y-0"}`}
       />
-      {/* Bottom Triangle */}
+      {/* Bottom Triangle (Fibre-Torn Edge) */}
       <div
-        style={{ clipPath: "polygon(0 100%, 100% 100%, 50% 50%)" }}
-        className={`absolute inset-0 bg-[#050b08] ${ease} ${isOpening ? "translate-y-full" : "translate-y-0"}`}
+        style={{ clipPath: "polygon(0 100%, 100% 100%, 50% 50%)", filter: "url(#fibre-tear-edge)" }}
+        className={`absolute -inset-3 bg-[#050b08] ${ease} ${isOpening ? "translate-y-full" : "translate-y-0"}`}
       />
-      {/* Left Triangle */}
+      {/* Left Triangle (Fibre-Torn Edge) */}
       <div
-        style={{ clipPath: "polygon(0 0, 50% 50%, 0 100%)" }}
-        className={`absolute inset-0 bg-[#07100c] ${ease} ${isOpening ? "-translate-x-full" : "translate-x-0"}`}
+        style={{ clipPath: "polygon(0 0, 50% 50%, 0 100%)", filter: "url(#fibre-tear-edge)" }}
+        className={`absolute -inset-3 bg-[#07100c] ${ease} ${isOpening ? "-translate-x-full" : "translate-x-0"}`}
       />
-      {/* Right Triangle */}
+      {/* Right Triangle (Fibre-Torn Edge) */}
       <div
-        style={{ clipPath: "polygon(100% 0, 100% 100%, 50% 50%)" }}
-        className={`absolute inset-0 bg-[#07100c] ${ease} ${isOpening ? "translate-x-full" : "translate-x-0"}`}
+        style={{ clipPath: "polygon(100% 0, 100% 100%, 50% 50%)", filter: "url(#fibre-tear-edge)" }}
+        className={`absolute -inset-3 bg-[#07100c] ${ease} ${isOpening ? "translate-x-full" : "translate-x-0"}`}
       />
 
       {/* Glowing X-Cut Diagonal Laser Seams */}
