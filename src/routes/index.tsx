@@ -387,7 +387,9 @@ function HomePage() {
         onOpenAboutModal={() => setIsAboutModalOpen(true)}
       />
       <BenefitsMarquee />
-      <Showcase />
+      <div className="mt-10">
+        <Showcase />
+      </div>
 
       <main className="mx-auto max-w-7xl px-4 sm:px-6 pb-32">
         {/* Clash of Clans Style Interactive Battle Pass Journey Bar */}
@@ -854,30 +856,49 @@ function Header({
   );
 }
 
-const PLATFORM_BENEFITS = [
+const BENEFITS_ROW_1 = [
   "14-Level Autonomous AI & Systems Roadmap",
   "AI Study Studio: Overview, Quiz, Flashcards & Mindmaps",
   "Live Browser Python & AI-Lab Execution",
+];
+
+const BENEFITS_ROW_2 = [
   "Direct YouTube + Wikipedia + AI Tutor per Topic",
   "Cloud Progress Sync & Verified Certificates",
+  "583+ Production-Grade AI & ML Topics",
+];
+
+const BENEFITS_ROW_3 = [
+  "Multi-Provider AI Router: Gemini, Claude, DeepSeek, OpenAI",
   "100% Free & Built for Production Engineers",
+  "Real-Time Streak & Consistency Tracking",
 ];
 
 function BenefitsMarquee() {
-  const items = [...PLATFORM_BENEFITS, ...PLATFORM_BENEFITS];
+  const rows = [
+    { items: [...BENEFITS_ROW_1, ...BENEFITS_ROW_1, ...BENEFITS_ROW_1], reverse: false },
+    { items: [...BENEFITS_ROW_2, ...BENEFITS_ROW_2, ...BENEFITS_ROW_2], reverse: true },
+    { items: [...BENEFITS_ROW_3, ...BENEFITS_ROW_3, ...BENEFITS_ROW_3], reverse: false },
+  ];
+
   return (
-    <div className="relative w-full overflow-hidden border-y border-border/60 bg-surface/60 backdrop-blur-md py-2.5 select-none">
-      <div className="animate-marquee flex items-center gap-6">
-        {items.map((benefit, idx) => (
-          <div
-            key={idx}
-            className="inline-flex items-center gap-2.5 px-3.5 py-1 rounded-full bg-background/70 border border-border/70 text-xs font-mono text-foreground/90 whitespace-nowrap shadow-xs"
-          >
-            <span className="h-2 w-2 rounded-full bg-primary animate-pulse shrink-0" />
-            <span>{benefit}</span>
-          </div>
-        ))}
-      </div>
+    <div className="relative w-full overflow-hidden border-y border-border/60 bg-surface/60 backdrop-blur-md py-3.5 space-y-2.5 select-none">
+      {rows.map((row, rIdx) => (
+        <div
+          key={rIdx}
+          className={`${row.reverse ? "animate-marquee-reverse" : "animate-marquee"} flex items-center gap-4`}
+        >
+          {row.items.map((benefit, idx) => (
+            <div
+              key={idx}
+              className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-background/75 border border-border/70 text-xs font-mono text-foreground/90 whitespace-nowrap shadow-xs"
+            >
+              <span className="h-2 w-2 rounded-full bg-primary animate-pulse shrink-0" />
+              <span>{benefit}</span>
+            </div>
+          ))}
+        </div>
+      ))}
     </div>
   );
 }
