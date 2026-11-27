@@ -379,6 +379,7 @@ function HomePage() {
         onOpenLeaderboardModal={() => setIsLeaderboardModalOpen(true)}
         onSignOut={handleSignOut}
       />
+      <DiagonalCurtainReveal />
       <Hero
         done={done}
         pct={pct}
@@ -920,6 +921,82 @@ const RADIAL_PROVIDERS = [
   },
 ];
 
+function DiagonalCurtainReveal() {
+  const [isOpening, setIsOpening] = useState(false);
+  const [isGone, setIsGone] = useState(false);
+
+  if (isGone) return null;
+
+  const handleOpen = () => {
+    if (isOpening) return;
+    setIsOpening(true);
+    window.dispatchEvent(new Event("scg-curtain-opened"));
+    setTimeout(() => setIsGone(true), 950);
+  };
+
+  const ease = "transition-transform duration-[900ms] ease-[cubic-bezier(0.77,0,0.175,1)] will-change-transform";
+
+  return (
+    <div
+      onClick={handleOpen}
+      className={`fixed inset-0 z-[150] overflow-hidden select-none cursor-pointer ${
+        isOpening ? "pointer-events-none" : ""
+      }`}
+    >
+      {/* Top Triangle */}
+      <div
+        style={{ clipPath: "polygon(0 0, 100% 0, 50% 50%)" }}
+        className={`absolute inset-0 bg-[#050b08] ${ease} ${isOpening ? "-translate-y-full" : "translate-y-0"}`}
+      />
+      {/* Bottom Triangle */}
+      <div
+        style={{ clipPath: "polygon(0 100%, 100% 100%, 50% 50%)" }}
+        className={`absolute inset-0 bg-[#050b08] ${ease} ${isOpening ? "translate-y-full" : "translate-y-0"}`}
+      />
+      {/* Left Triangle */}
+      <div
+        style={{ clipPath: "polygon(0 0, 50% 50%, 0 100%)" }}
+        className={`absolute inset-0 bg-[#07100c] ${ease} ${isOpening ? "-translate-x-full" : "translate-x-0"}`}
+      />
+      {/* Right Triangle */}
+      <div
+        style={{ clipPath: "polygon(100% 0, 100% 100%, 50% 50%)" }}
+        className={`absolute inset-0 bg-[#07100c] ${ease} ${isOpening ? "translate-x-full" : "translate-x-0"}`}
+      />
+
+      {/* Glowing X-Cut Diagonal Laser Seams */}
+      <svg
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+        className={`absolute inset-0 w-full h-full pointer-events-none transition-opacity duration-300 ${
+          isOpening ? "opacity-0" : "opacity-100"
+        }`}
+      >
+        <line x1="0" y1="0" x2="100" y2="100" stroke="rgba(52,199,89,0.35)" strokeWidth="0.25" />
+        <line x1="100" y1="0" x2="0" y2="100" stroke="rgba(52,199,89,0.35)" strokeWidth="0.25" />
+      </svg>
+
+      {/* Center Seal Trigger */}
+      <div
+        className={`absolute inset-0 flex flex-col items-center justify-center transition-all duration-500 ${
+          isOpening ? "opacity-0 scale-150" : "opacity-100 scale-100"
+        }`}
+      >
+        <div className="relative group flex flex-col items-center gap-4">
+          <div className="absolute -inset-6 rounded-full bg-emerald-500/20 blur-2xl animate-pulse pointer-events-none" />
+          <div className="relative w-20 h-20 rounded-3xl border border-emerald-400/60 bg-gradient-to-br from-emerald-400 via-emerald-500 to-teal-600 grid place-items-center text-black shadow-[0_0_50px_rgba(52,199,89,0.75)] group-hover:scale-110 transition-transform duration-300">
+            <Zap className="h-9 w-9 stroke-[2.5]" />
+            <span className="absolute -inset-2 rounded-3xl border border-emerald-400/50 animate-ping pointer-events-none" />
+          </div>
+          <div className="px-4 py-1.5 rounded-full bg-black/80 border border-emerald-500/40 backdrop-blur-xl text-xs font-mono font-bold uppercase tracking-[0.25em] text-emerald-300 shadow-lg">
+            Tap to Enter
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function SmartCanvasClockRouter() {
   const [now, setNow] = useState(() => new Date());
   const [isTickSoundOn, setIsTickSoundOn] = useState(true);
@@ -959,9 +1036,11 @@ function SmartCanvasClockRouter() {
       }
     };
     tryPlay();
+    window.addEventListener("scg-curtain-opened", tryPlay);
     window.addEventListener("pointerdown", tryPlay, { once: true });
     window.addEventListener("keydown", tryPlay, { once: true });
     return () => {
+      window.removeEventListener("scg-curtain-opened", tryPlay);
       window.removeEventListener("pointerdown", tryPlay);
       window.removeEventListener("keydown", tryPlay);
     };
