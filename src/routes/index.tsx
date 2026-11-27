@@ -891,21 +891,23 @@ function BenefitsMarquee() {
           {row.items.map((benefit, idx) => (
             <div
               key={idx}
-              className="w-64 shrink-0 p-3 rounded-2xl border border-emerald-500/20 bg-[#070e0b]/90 backdrop-blur-xl shadow-sm flex items-start gap-3 hover:border-emerald-400/50 transition-colors"
+              className="relative w-64 shrink-0 p-[1px] rounded-2xl overflow-hidden bg-[conic-gradient(from_180deg_at_0%_0%,#ff0080_0deg,#ff8c00_72deg,#34C759_144deg,#00d2ff_216deg,#7928ca_288deg,rgba(52,199,89,0.2)_360deg)] shadow-[0_0_20px_rgba(255,0,128,0.12)] hover:shadow-[0_0_26px_rgba(0,210,255,0.28)] transition-shadow"
             >
-              <div className="h-9 w-9 rounded-xl bg-emerald-500/15 border border-emerald-500/30 grid place-items-center text-emerald-400 shrink-0">
-                <Sparkles className="h-4 w-4" />
-              </div>
-              <div className="min-w-0">
-                <span className="inline-block px-1.5 py-0.5 rounded text-[8px] font-mono font-bold uppercase tracking-wider bg-emerald-500/15 text-emerald-300 mb-1">
-                  {benefit.tag}
-                </span>
-                <h4 className="font-display font-bold text-xs text-white truncate">
-                  {benefit.title}
-                </h4>
-                <p className="text-[10px] text-neutral-400 truncate mt-0.5">
-                  {benefit.sub}
-                </p>
+              <div className="w-full h-full p-3 rounded-[15px] bg-[#070e0b]/95 backdrop-blur-xl flex items-start gap-3">
+                <div className="h-9 w-9 rounded-xl bg-emerald-500/15 border border-emerald-500/30 grid place-items-center text-emerald-400 shrink-0">
+                  <Sparkles className="h-4 w-4" />
+                </div>
+                <div className="min-w-0">
+                  <span className="inline-block px-1.5 py-0.5 rounded text-[8px] font-mono font-bold uppercase tracking-wider bg-emerald-500/15 text-emerald-300 mb-1">
+                    {benefit.tag}
+                  </span>
+                  <h4 className="font-display font-bold text-xs text-white truncate">
+                    {benefit.title}
+                  </h4>
+                  <p className="text-[10px] text-neutral-400 truncate mt-0.5">
+                    {benefit.sub}
+                  </p>
+                </div>
               </div>
             </div>
           ))}
