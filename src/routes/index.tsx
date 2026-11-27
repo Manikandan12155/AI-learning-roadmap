@@ -1543,6 +1543,7 @@ function LevelCard({
   const hasNew = lvl.sections.some((s) => s.topics.some((tp) => tp.isNew));
   const status = totals.done === 0 ? "empty" : totals.done === totals.total ? "done" : "progress";
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
+  const [showMap, setShowMap] = useState(false);
 
   const handleCopy = (
     e: React.MouseEvent,
@@ -1636,11 +1637,84 @@ Please cover:
             <span className="hidden sm:inline text-[11px] font-sans text-muted-foreground">Prerequisite Needed</span>
           </div>
         ) : (
-          <ChevronDown
-            className={`h-5 w-5 text-muted-foreground transition-transform shrink-0 ${open ? "rotate-180" : ""}`}
-          />
+          <div className="flex items-center gap-2 shrink-0">
+            <span
+              role="button"
+              tabIndex={0}
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowMap(true);
+              }}
+              title="View Visual Learning Map"
+              className="px-2.5 py-1 rounded-full bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/35 text-[10px] font-mono font-bold text-emerald-300 transition-colors"
+            >
+              🗺️ Map
+            </span>
+            <ChevronDown
+              className={`h-5 w-5 text-muted-foreground transition-transform shrink-0 ${open ? "rotate-180" : ""}`}
+            />
+          </div>
         )}
       </button>
+
+      {/* Interactive Level Learning Map Modal */}
+      {showMap && (
+        <div
+          onClick={() => setShowMap(false)}
+          className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="relative w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-3xl border border-emerald-500/35 bg-[#070e0b]/95 p-6 shadow-[0_0_60px_rgba(52,199,89,0.25)] space-y-5"
+          >
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <div>
+                <span className="text-[10px] font-mono uppercase tracking-widest text-emerald-400">
+                  L{lIdx.toString().padStart(2, "0")} · Visual Learning Map
+                </span>
+                <h3 className="font-display font-bold text-lg text-white">{lvl.short}</h3>
+              </div>
+              <button
+                onClick={() => setShowMap(false)}
+                className="px-3 py-1 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-mono text-white cursor-pointer"
+              >
+                ✕ Close
+              </button>
+            </div>
+
+            <div className="relative pl-6 space-y-4 before:content-[''] before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[2px] before:bg-gradient-to-b before:from-emerald-400 before:via-teal-500/50 before:to-emerald-500/20">
+              {lvl.sections.map((sec, sIdx) => {
+                const secDone = sec.topics.filter((tp) => state[keyFor(lIdx, sec.name, tp.name)]).length;
+                const isSecDone = secDone === sec.topics.length && sec.topics.length > 0;
+                return (
+                  <div key={sec.name} className="relative flex items-start gap-3">
+                    <div
+                      className={`absolute -left-6 top-1 w-6 h-6 rounded-full border-2 grid place-items-center text-[10px] font-mono font-bold ${
+                        isSecDone
+                          ? "bg-emerald-400 border-emerald-300 text-black"
+                          : "bg-[#070e0b] border-emerald-400/70 text-emerald-300"
+                      }`}
+                    >
+                      {sIdx + 1}
+                    </div>
+                    <div className="flex-1 p-3 rounded-2xl border border-white/10 bg-white/[0.03] hover:border-emerald-400/40 transition-colors">
+                      <div className="flex items-center justify-between gap-2">
+                        <h4 className="font-display font-bold text-sm text-white">{sec.name}</h4>
+                        <span className="text-[10px] font-mono text-emerald-300 shrink-0">
+                          {secDone}/{sec.topics.length}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-neutral-400 mt-1 line-clamp-2">
+                        {sec.topics.map((t) => t.name).join(" • ")}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
 
       {open && (
         <div className="relative border-t border-border px-4 sm:px-5 py-5 space-y-5 bg-surface/40">
