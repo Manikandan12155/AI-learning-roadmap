@@ -857,21 +857,21 @@ function Header({
 }
 
 const BENEFITS_ROW_1 = [
-  "14-Level Autonomous AI & Systems Roadmap",
-  "AI Study Studio: Overview, Quiz, Flashcards & Mindmaps",
-  "Live Browser Python & AI-Lab Execution",
+  { title: "14-Level AI Roadmap", sub: "Structured from OS basics to Agents", tag: "ROADMAP" },
+  { title: "AI Study Studio", sub: "Overview, Quiz, Flashcards & Mindmaps", tag: "STUDIO" },
+  { title: "Live Python AI-Lab", sub: "Run code directly in your browser", tag: "LAB" },
 ];
 
 const BENEFITS_ROW_2 = [
-  "Direct YouTube + Wikipedia + AI Tutor per Topic",
-  "Cloud Progress Sync & Verified Certificates",
-  "583+ Production-Grade AI & ML Topics",
+  { title: "YouTube + Wiki + Tutor", sub: "Curated resources on every topic", tag: "LEARN" },
+  { title: "Cloud Progress Sync", sub: "Save streaks & earn certificates", tag: "SYNC" },
+  { title: "583+ Curated Topics", sub: "Production-grade ML & LLM systems", tag: "TOPICS" },
 ];
 
 const BENEFITS_ROW_3 = [
-  "Multi-Provider AI Router: Gemini, Claude, DeepSeek, OpenAI",
-  "100% Free & Built for Production Engineers",
-  "Real-Time Streak & Consistency Tracking",
+  { title: "Multi-Provider AI", sub: "Gemini, Claude, DeepSeek & OpenAI", tag: "ROUTER" },
+  { title: "100% Free Forever", sub: "Built for serious AI engineers", tag: "OPEN" },
+  { title: "Daily Consistency", sub: "Track goals & build momentum", tag: "STREAK" },
 ];
 
 function BenefitsMarquee() {
@@ -882,7 +882,7 @@ function BenefitsMarquee() {
   ];
 
   return (
-    <div className="relative w-full overflow-hidden border-y border-border/60 bg-surface/60 backdrop-blur-md py-3.5 space-y-2.5 select-none">
+    <div className="relative w-full overflow-hidden border-y border-border/60 bg-surface/40 backdrop-blur-md py-4 space-y-3 select-none">
       {rows.map((row, rIdx) => (
         <div
           key={rIdx}
@@ -891,10 +891,22 @@ function BenefitsMarquee() {
           {row.items.map((benefit, idx) => (
             <div
               key={idx}
-              className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-background/75 border border-border/70 text-xs font-mono text-foreground/90 whitespace-nowrap shadow-xs"
+              className="w-64 shrink-0 p-3 rounded-2xl border border-emerald-500/20 bg-[#070e0b]/90 backdrop-blur-xl shadow-sm flex items-start gap-3 hover:border-emerald-400/50 transition-colors"
             >
-              <span className="h-2 w-2 rounded-full bg-primary animate-pulse shrink-0" />
-              <span>{benefit}</span>
+              <div className="h-9 w-9 rounded-xl bg-emerald-500/15 border border-emerald-500/30 grid place-items-center text-emerald-400 shrink-0">
+                <Sparkles className="h-4 w-4" />
+              </div>
+              <div className="min-w-0">
+                <span className="inline-block px-1.5 py-0.5 rounded text-[8px] font-mono font-bold uppercase tracking-wider bg-emerald-500/15 text-emerald-300 mb-1">
+                  {benefit.tag}
+                </span>
+                <h4 className="font-display font-bold text-xs text-white truncate">
+                  {benefit.title}
+                </h4>
+                <p className="text-[10px] text-neutral-400 truncate mt-0.5">
+                  {benefit.sub}
+                </p>
+              </div>
             </div>
           ))}
         </div>
