@@ -32,3 +32,4 @@ client_secret*.json
 *.njsproj
 *.sln
 *.sw?
+.originkit/
